@@ -89,11 +89,6 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         self.get_serializer(instance, data=request.data, partial=True)
-        # TODO: Leave this here for debugging will remove it soon
-        print("++++++++")
-        print(str(self.requestForeignAuthorId))
-        print(str(request.user.adminApproval))
-        print(str(request.user.id))
         
         if (str(self.requestForeignAuthorId) != str(request.user.id)):
            return Response({
