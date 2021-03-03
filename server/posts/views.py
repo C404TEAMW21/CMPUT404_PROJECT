@@ -1,7 +1,8 @@
+import base64, re
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, authentication, permissions, mixins, status
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.core.paginator import Paginator
 from rest_framework.response import Response
 from main import models as mainModels
@@ -32,6 +33,15 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
     # GET the post with the right author_id and post_id
     def retrieve(self, request, *args, **kwargs):
         a_post = self.get_post()
+
+        if (a_post.contentType == 'image/png;base64' or
+            a_post.contentType == 'image/jpeg;base64'):
+            image = re.match(r'data:image/(?:png|jpeg);base64,(.*)', a_post.content)
+            if image:
+                return HttpResponse(base64.b64decode(image.group(1)),
+                                    content_type=a_post.contentType)
+            else:
+                raise Exception('image content error')
         return Response(PostSerializer(a_post).data)
     
     # DELETE - Only the author of the post can perform the deletion
@@ -124,7 +134,14 @@ class CreatePostView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         if (self.kwargs['author_id'] != self.request.user.id):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        
+        print(request)
+        content_type = request.data.get('contentType')
+        if (content_type == 'image/png;base64' or
+            content_type == 'image/jpeg;base64'):
+            image = self.create(request, *args, **kwargs).data
+            request.data['contentType'] = 'text/markdown'
+            request.data['content'] = f'![image]({image["id"]})'
+
         return self.create(request, *args, **kwargs)
         
     def perform_create(self, serializer):
