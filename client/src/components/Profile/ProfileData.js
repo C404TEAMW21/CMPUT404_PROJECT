@@ -122,25 +122,25 @@ const MyProfileData = (props) => {
           <Header as="h4" floated="left">
             Posts:
           </Header>
-          <span>4</span>
+          <span></span>
         </div>
         <div className="display-name-heading">
           <Header as="h4" floated="left">
             Friends:
           </Header>
-          <span>2</span>
+          <span></span>
         </div>
         <div className="display-name-heading">
           <Header as="h4" floated="left">
             Followers:
           </Header>
-          <span>5</span>
+          <span></span>
         </div>
         <div className="display-name-heading">
           <Header as="h4" floated="left">
             Following:
           </Header>
-          <span>5</span>
+          <span></span>
         </div>
       </div>
     </div>

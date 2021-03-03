@@ -5,11 +5,9 @@ import FriendFollowerComponent from "./FriendFollowerComponent";
 import { SERVER_HOST } from "../../Constants";
 import { Context } from "../../Context";
 
-const FollowerList = () => {
+const FollowerList = (props) => {
   const context = useContext(Context);
   const [followers, updateFollowers] = useState([]);
-
-  const [error, updateError] = useState(false);
 
   const getAllFollowers = async () => {
     try {
@@ -25,7 +23,7 @@ const FollowerList = () => {
 
       updateFollowers(response.data.items);
     } catch (error) {
-      updateError(true);
+      props.updateError(true);
     }
   };
 
@@ -37,16 +35,11 @@ const FollowerList = () => {
 
   return (
     <div>
-      {error && (
-        <Message
-          error
-          size="large"
-          header="Error"
-          content="Something happened on our end. Please try again later."
-        />
-      )}
       {followers.map((author) => (
-        <FriendFollowerComponent username={author.username} />
+        <FriendFollowerComponent
+          username={author.username}
+          authorId={author.id}
+        />
       ))}
     </div>
   );

@@ -11,12 +11,14 @@ const FriendFollowerComponent = (props) => {
 
   const [loading, updateLoading] = useState(true);
   const [showRemoveBtn, updateShowRemoveBtn] = useState(false);
+  const [profileLink, updateProfileLink] = useState("#");
 
   useEffect(() => {
     const authorId = window.location.pathname.split("/").pop();
 
     if (context.user) {
       updateShowRemoveBtn(authorId === context.user.id);
+      updateProfileLink(`/author/${props.authorId}`);
     }
     updateLoading(false);
   }, [location]);
@@ -30,7 +32,7 @@ const FriendFollowerComponent = (props) => {
   } else {
     return (
       <div className="friendfollower-container">
-        <Header as="a" size="large" href="#" className="userlink">
+        <Header as="a" size="large" href={profileLink} className="userlink">
           {props.username}
         </Header>
 

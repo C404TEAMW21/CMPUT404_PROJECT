@@ -115,26 +115,26 @@ const MyProfilePage = () => {
             name={friends}
             active={activeItem === friends}
             onClick={handleItemClick}
-            section={<FriendList />}
+            section={<FriendList updateError={updateError} />}
           />
           <Menu.Item
             name={followers}
             active={activeItem === followers}
             onClick={handleItemClick}
-            section={<FollowerList />}
+            section={<FollowerList updateError={updateError} />}
           />
           <Menu.Item
             name={following}
             active={activeItem === following}
             onClick={handleItemClick}
-            section={<FollowingList />}
+            section={<FollowingList updateError={updateError} />}
           />
           {showElement() && (
             <Menu.Item
               name={friendRequests}
               active={activeItem === friendRequests}
               onClick={handleItemClick}
-              section={<FriendRequestList />}
+              section={<FriendRequestList updateError={updateError} />}
             />
           )}
         </Menu>
