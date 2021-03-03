@@ -5,7 +5,7 @@ from rest_framework import generics, permissions, status
 
 from main import models
 from followers.serializers import FollowersSerializer, FollowersModificationSerializer
-import uuid
+
 class FollowersView(generics.RetrieveAPIView):
     serializer_class = FollowersSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
@@ -24,7 +24,6 @@ class FollowersView(generics.RetrieveAPIView):
                 models.Followers.objects.create(author=authorObj)
         except:
             raise ValidationError({"error": ["User not found"]})
-
 
         try:
             return models.Followers.objects.filter(author=requestAuthorId)
@@ -90,10 +89,6 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         self.get_serializer(instance, data=request.data, partial=True)
-        # TODO: Leave this here for debugging will remove it soon
-        # print("++++++++")
-        # print(self.requestForeignAuthorId)
-        # print(request.user.id)
         
         if (str(self.requestForeignAuthorId) != str(request.user.id)):
            return Response({
