@@ -57,6 +57,7 @@ class InboxView(APIView):
             data = PostSerializer(a_post).data
             inbox = get_object_or_404(Inbox, author=Author.objects
                                       .get(id=self.request.user.id))
+            data['categories'] = list(data['categories'])
             inbox.items.append(data)
             inbox.save()
             return Response(f'Shared {post_id} with {request_author_id}',

@@ -21,11 +21,9 @@ class InboxSerializer(serializers.ModelSerializer):
         page = self.context['request'].query_params.get('page') or 1
         paginator = Paginator(obj.items, page_size)
 
-        # items is a list of JSON serialized string, use literal_eval to eval
-        # as dict
         items = paginator.page(page)
         for item in items:
-            data.append(literal_eval(item))
+            data.append(item)
         return data
 
     class Meta:
