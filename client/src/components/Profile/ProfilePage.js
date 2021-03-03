@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Menu, Segment, Message } from "semantic-ui-react";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 import "./ProfilePage.scss";
 import { Context } from "../../Context";
 import ProfileData from "./ProfileData";
@@ -9,6 +10,7 @@ import FriendList from "../Friends/FriendList";
 import FollowerList from "../Friends/FollowerList";
 import FollowingList from "../Friends/FollowingList";
 import { getUserObject } from "../../ApiUtils";
+import { SERVER_HOST } from "../../Constants";
 
 const recentPosts = "Recent Posts";
 const friends = "Friends";
@@ -60,6 +62,28 @@ const MyProfilePage = () => {
     return authorId === (context.user ? context.user.id : true);
   };
 
+  const onSendFriendRequestClick = async () => {
+    const authorId = window.location.pathname.split("/").pop();
+
+    try {
+      const response = await axios.put(
+        `${SERVER_HOST}/service/author/${authorId}/followers/${context.user.id}/`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${context.cookie}`,
+          },
+        }
+      );
+
+      return true;
+    } catch (error) {
+      updateError(true);
+      return false;
+    }
+  };
+
   return (
     <div className="profile-page-container">
       {error && (
@@ -72,7 +96,11 @@ const MyProfilePage = () => {
       )}
 
       <div className="profile-data">
-        <ProfileData author={currentAuthor} />
+        <ProfileData
+          author={currentAuthor}
+          onSendFriendRequestClick={onSendFriendRequestClick}
+          updateError={updateError}
+        />
       </div>
 
       <div className="profile-posts">

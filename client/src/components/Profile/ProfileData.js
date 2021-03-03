@@ -1,9 +1,11 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Header, Button } from "semantic-ui-react";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 import EditProfileModal from "./EditProfileModal";
 import { Context } from "../../Context";
+import { SERVER_HOST } from "../../Constants";
 import "./ProfilePage.scss";
 
 const MyProfileData = (props) => {
@@ -11,16 +13,43 @@ const MyProfileData = (props) => {
   const location = useLocation();
   const [name, updateName] = useState("Loading...");
   const [showEditBtn, updateShowEditBtn] = useState(true);
+  const [disableFriendRequestBtn, updateDisableFriendRequestBtn] = useState(
+    false
+  );
+  const [loadingFriendRequest, updateLoadingFriendRequest] = useState(false);
 
   useEffect(() => {
     const authorId = window.location.pathname.split("/").pop();
     nameToRender(authorId);
     shouldShowEditBtn(authorId);
+    shouldDisableFriendRequestBtn(authorId);
   }, [location, props.author]);
 
   const shouldShowEditBtn = (authorId) => {
     if (context.user) {
       updateShowEditBtn(authorId === context.user.id);
+    }
+  };
+
+  const shouldDisableFriendRequestBtn = async (authorId) => {
+    if (!context.user) {
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `${SERVER_HOST}/service/author/${authorId}/followers/${context.user.id}/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${context.cookie}`,
+          },
+        }
+      );
+
+      updateDisableFriendRequestBtn(response.data.items[0].status === true);
+    } catch (error) {
+      props.updateError(true);
     }
   };
 
@@ -46,6 +75,16 @@ const MyProfileData = (props) => {
     updateName(result);
   };
 
+  const sendFriendRequest = async () => {
+    updateLoadingFriendRequest(true);
+    const status = await props.onSendFriendRequestClick();
+    if (status) {
+      updateDisableFriendRequestBtn(true);
+    }
+
+    updateLoadingFriendRequest(false);
+  };
+
   return (
     <div>
       <div className="profile-top-section">
@@ -57,7 +96,12 @@ const MyProfileData = (props) => {
           {showEditBtn ? (
             <EditProfileModal />
           ) : (
-            <Button className="send-friend-request-btn">
+            <Button
+              className="send-friend-request-btn"
+              onClick={sendFriendRequest}
+              disabled={disableFriendRequestBtn}
+              loading={loadingFriendRequest}
+            >
               Send Friend Request
             </Button>
           )}
