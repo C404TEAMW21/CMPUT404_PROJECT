@@ -134,7 +134,7 @@ class CreatePostView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         if (self.kwargs['author_id'] != self.request.user.id):
             return Response(status=status.HTTP_403_FORBIDDEN)
-        print(request)
+
         content_type = request.data.get('contentType')
         if (content_type == 'image/png;base64' or
             content_type == 'image/jpeg;base64'):
