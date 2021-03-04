@@ -9,6 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Adding secrets to env file
 # From StackOverflow https://stackoverflow.com/a/61437799
 # From Zack Plauché https://stackoverflow.com/users/10415970/zack-plauch%c3%a9
+
 dotenv_file = os.path.join(BASE_DIR, ".env")
 if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
@@ -18,6 +19,10 @@ DEBUG = True
 
 SECRET_KEY = 'TEMPORARY_KEY'
 
+# Connecting PostgreSQL to Django
+# From https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04
+# From Digital Ocean
+# From Justin Ellingwood https://www.digitalocean.com/community/users/jellingwood
 if os.getenv('GITHUB_WORKFLOW'):
     DATABASES = {
         'default': {
