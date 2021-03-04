@@ -114,33 +114,6 @@ const MyProfileData = (props) => {
           </span>
         </div>
       </div>
-
-      <div className="profile-stats-table">
-        <div className="display-name-heading">
-          <Header as="h4" floated="left">
-            Posts:
-          </Header>
-          <span></span>
-        </div>
-        <div className="display-name-heading">
-          <Header as="h4" floated="left">
-            Friends:
-          </Header>
-          <span></span>
-        </div>
-        <div className="display-name-heading">
-          <Header as="h4" floated="left">
-            Followers:
-          </Header>
-          <span></span>
-        </div>
-        <div className="display-name-heading">
-          <Header as="h4" floated="left">
-            Following:
-          </Header>
-          <span></span>
-        </div>
-      </div>
     </div>
   );
 };
