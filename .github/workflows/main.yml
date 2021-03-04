@@ -36,35 +36,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install Node
-        uses: actions/setup-node@v1
+      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
         with:
-          node-version: 12.x
-      # - name: Build production package
-      #   working-directory: ./client
-      #   run: |
-      #     npm ci
-      #     npm run build 
-      # - name: Login to Heroku 
-      #   env: 
-      #     TOKEN: ${{ secrets.HEROKU_API_KEY }}
-      #     APP: konnection-client
-      #   run: heroku container:login 
-      - name: auth
-        env: 
-          TOKEN: ${{ secrets.HEROKU_API_KEY }}
-          APP: konnection-client
-        run: git remote add heroku-backend https://heroku:${{ secrets.HEROKU_API_TOKEN }}@git.heroku.com/konnection-client.git 
-      - name: Point to project
-        env: 
-          TOKEN: ${{ secrets.HEROKU_API_KEY }}
-          APP: konnection-client
-        run: heroku git:remote -a yourapp
-      - name: Build and push 
-        env: 
-          TOKEN: ${{ secrets.HEROKU_API_KEY }}
-          APP: konnection-client
-        run: git push heroku-frontend `git subtree split --prefix client main`:refs/heads/main --force
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "konnection-client" #Must be unique in Heroku
+          heroku_email: "wok@ualberta.ca"
+          appdir: "client" 
+          branch: "front-prod"
 
         
 
