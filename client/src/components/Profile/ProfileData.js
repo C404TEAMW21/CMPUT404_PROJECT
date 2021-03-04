@@ -44,6 +44,7 @@ const MyProfileData = (props) => {
     );
     if (response.status !== 200) {
       props.updateError(true);
+      return;
     }
 
     if (response.data.items.length > 0)

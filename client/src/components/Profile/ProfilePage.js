@@ -116,12 +116,15 @@ const MyProfilePage = () => {
               onClick={handleItemClick}
               section={<FollowerList updateError={updateError} />}
             />
-            <Menu.Item
-              name={following}
-              active={activeItem === following}
-              onClick={handleItemClick}
-              section={<FollowingList updateError={updateError} />}
-            />
+            {/* Save following list for future sprint */}
+            {false && (
+              <Menu.Item
+                name={following}
+                active={activeItem === following}
+                onClick={handleItemClick}
+                section={<FollowingList updateError={updateError} />}
+              />
+            )}
             {showElement() && (
               <Menu.Item
                 name={friendRequests}
