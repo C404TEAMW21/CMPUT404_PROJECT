@@ -14,16 +14,18 @@ const FriendsList = (props) => {
   }, []);
 
   const getFriendsList = async () => {
-    const response = await getAllFollowers(context.cookie, context.user.id);
+    const authorId = window.location.pathname.split("/").pop();
+
+    let id = context.user.id;
+    if (authorId !== context.user.id) {
+      id = authorId;
+    }
+    const response = await getAllFollowers(context.cookie, id);
 
     if (response.status === 200) {
       const result = [];
       for (let item of response.data.items) {
-        const response = await checkIfFollowing(
-          context.cookie,
-          item.id,
-          context.user.id
-        );
+        const response = await checkIfFollowing(context.cookie, item.id, id);
 
         if (response.status !== 200) {
           props.updateError(true);

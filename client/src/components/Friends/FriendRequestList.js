@@ -1,4 +1,5 @@
 import React, { useEffect, useContext, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import FriendRequestComponent from "./FriendRequestComponent";
 import { Context } from "../../Context";
@@ -10,11 +11,13 @@ import {
 
 const FriendRequestList = (props) => {
   const context = useContext(Context);
+  const location = useLocation();
+
   const [friendRequests, updateFriendRequests] = useState([]);
 
   useEffect(() => {
     getFollowerList();
-  }, []);
+  }, [location]);
 
   const getFollowerList = async () => {
     const response = await getAllFollowers(context.cookie, context.user.id);

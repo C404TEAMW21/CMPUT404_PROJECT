@@ -18,12 +18,19 @@ const following = "Following";
 const friendRequests = "Friend Requests";
 
 const MyProfilePage = () => {
+  const placeholder = (
+    <img
+      alt="placeholder "
+      src="https://react.semantic-ui.com/images/wireframe/paragraph.png"
+    />
+  );
+
   const context = useContext(Context);
   const location = useLocation();
 
-  const [activeItem, updateActiveItem] = useState(friends);
-  const [currentSection, updateSection] = useState(<FriendList />);
+  const [activeItem, updateActiveItem] = useState(recentPosts);
   const [error, updateError] = useState(false);
+  const [currentSection, updateSection] = useState(placeholder);
   const [currentAuthor, updateCurrentAuthor] = useState({});
 
   useEffect(() => {
@@ -48,13 +55,6 @@ const MyProfilePage = () => {
       updateError(true);
     }
   };
-
-  const placeholder = (
-    <img
-      alt="placeholder "
-      src="https://react.semantic-ui.com/images/wireframe/paragraph.png"
-    />
-  );
 
   const showElement = () => {
     const authorId = window.location.pathname.split("/").pop();

@@ -15,14 +15,14 @@ const FriendFollowerComponent = (props) => {
   const [profileLink, updateProfileLink] = useState("#");
 
   useEffect(() => {
-    const authorId = window.location.pathname.split("/").pop();
+    updateProfileLink(`/author/${props.authorId}`);
 
+    const authorId = window.location.pathname.split("/").pop();
     if (context.user) {
       updateShowRemoveBtn(authorId === context.user.id);
-      updateProfileLink(`/author/${props.authorId}`);
     }
     updateLoading(false);
-  }, [location]);
+  }, [location, props]);
 
   const handleDelete = () => {
     if (props.parent === FOLLOWER_LIST) {
