@@ -145,8 +145,8 @@ class CreatePostView(generics.ListCreateAPIView):
 
         if (post_data['visibility'] == Post.PUBLIC):
             for follower in followers:
-                self.send_to_inbox(inbox_id=follower.id,
-                                   post_id=post_id.group(1))
+                Inbox.send_to_inbox(self, inbox_id=follower.id,
+                                    post_id=post_id.group(1))
         if (post_data['visibility'] == Post.FRIENDS):
             for follower in followers:
                 try:
@@ -158,26 +158,13 @@ class CreatePostView(generics.ListCreateAPIView):
                 except mainModels.Author.DoesNotExist:
                     continue
                 if is_friends:
-                    self.send_to_inbox(inbox_id=follower.id,
-                                       post_id=post_id.group(1))
+                    Inbox.send_to_inbox(self, inbox_id=follower.id,
+                                        post_id=post_id.group(1))
         return post
         
     def perform_create(self, serializer):
         request_author_id = self.kwargs['author_id']
         serializer.save(author=mainModels.Author.objects.get(id=self.request.user.id))
-
-    def send_to_inbox(self, inbox_id, post_id):
-        try:
-            a_post = Post.objects.get(pk=post_id, unlisted=False)
-            inbox = Inbox.objects.get(author=inbox_id)
-        except Post.DoesNotExist:
-            return
-        except Inbox.DoesNotExist:
-            return
-        data = PostSerializer(a_post).data
-        data['categories'] = list(data['categories'])
-        inbox.items.append(data)
-        inbox.save()
 
 
 # service/public/
@@ -203,3 +190,14 @@ class PublicPostView(generics.ListAPIView):
             data.append(PostSerializer(item).data)
 
         return Response(data)
+
+
+# service/author/{AUTHOR_ID}/posts/{POST_ID}/share
+class SharePostView(generics.CreateAPIView):
+    serializer_class = PostSerializer
+
+    def post(self, request, *args, **kwargs):
+        sharer_id = request.data['user_id']
+        print(request.data)
+        print(sharer_id)
+        return Response(1)
