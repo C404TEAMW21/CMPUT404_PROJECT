@@ -3,12 +3,8 @@ from pathlib import Path
 from konnection.settings.base import *
 import os
 import dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-SECRET_KEY = 'TEMPORARY_KEY'
 
 # Adding secrets to env file
 # From StackOverflow https://stackoverflow.com/a/61437799
@@ -17,6 +13,10 @@ dotenv_file = os.path.join(BASE_DIR, ".env")
 if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+SECRET_KEY = 'TEMPORARY_KEY'
 
 if os.getenv('GITHUB_WORKFLOW'):
     DATABASES = {
