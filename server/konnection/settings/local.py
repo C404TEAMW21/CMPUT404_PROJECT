@@ -9,7 +9,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Adding secrets to env file
 # From StackOverflow https://stackoverflow.com/a/61437799
 # From Zack Plauché https://stackoverflow.com/users/10415970/zack-plauch%c3%a9
-
 dotenv_file = os.path.join(BASE_DIR, ".env")
 if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
