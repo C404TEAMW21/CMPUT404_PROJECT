@@ -1,1 +1,1 @@
-web: node client/server.js
+web: gunicorn --pythonpath server konnection.wsgi
