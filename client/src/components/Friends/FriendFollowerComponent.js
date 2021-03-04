@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { Header, Button } from "semantic-ui-react";
 import { useLocation } from "react-router-dom";
 
+import { FOLLOWER_LIST } from "../../Constants";
 import { Context } from "../../Context";
 import "./FriendFollower.scss";
 
@@ -11,18 +12,23 @@ const FriendFollowerComponent = (props) => {
 
   const [loading, updateLoading] = useState(true);
   const [showRemoveBtn, updateShowRemoveBtn] = useState(false);
+  const [profileLink, updateProfileLink] = useState("#");
 
   useEffect(() => {
-    const authorId = window.location.pathname.split("/").pop();
+    updateProfileLink(`/author/${props.authorId}`);
 
+    const authorId = window.location.pathname.split("/").pop();
     if (context.user) {
       updateShowRemoveBtn(authorId === context.user.id);
     }
     updateLoading(false);
-  }, [location]);
+  }, [location, props]);
 
   const handleDelete = () => {
-    // call props function depending if parent is FriendList, FollowerList, FollowingList
+    if (props.parent === FOLLOWER_LIST) {
+      // TODO implement
+      props.handleDeleteFollower(props.authorId);
+    }
   };
 
   if (loading) {
@@ -30,7 +36,7 @@ const FriendFollowerComponent = (props) => {
   } else {
     return (
       <div className="friendfollower-container">
-        <Header as="a" size="large" href="#" className="userlink">
+        <Header as="a" size="large" href={profileLink} className="userlink">
           {props.username}
         </Header>
 
