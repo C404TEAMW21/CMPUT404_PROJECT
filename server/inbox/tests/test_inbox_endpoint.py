@@ -71,21 +71,6 @@ class TestInboxEndpoint(TestCase):
         self.assertIn(f'{post.id}', res.data)
         self.assertIn(f'{self.author_1.id}', res.data)
 
-    def test_send_friend_post_not_friend(self):
-        """Test sending friend Post when user is not friends with Author"""
-        post_params = {
-            "title": "Title",
-            "author": self.author_1,
-            "visibility": "FRIENDS",
-        }
-
-        self.client.force_authenticate(user=self.author_1)
-        post = create_post(**post_params)
-        payload = create_payload("post", post.id)
-
-        res = self.client.post(self.inbox_url, payload)
-        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
-
     def test_send_post_with_invalid_post_id(self):
         """Test sending public Post with invalid Post id"""
         self.client.force_authenticate(user=self.author_1)

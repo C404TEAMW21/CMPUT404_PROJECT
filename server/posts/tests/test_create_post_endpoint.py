@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
-from main import models as mainModels
 from django.test import TestCase
 from django.urls import reverse
-
 from rest_framework.test import APIClient
 from rest_framework import status
 
+from main import models as mainModels
+from inbox.models import Inbox
 
 PAYLOAD = {
             "title": "Title",
@@ -42,22 +42,24 @@ class TestCreatePostEndpoint(TestCase):
     GET - returns a list of posts
     POST - creates a post
     """
-
     def setUp(self):
         self.cred='testing'
         self.cred2='testing2'
         self.author = get_user_model().objects.create_author(
             username= self.cred,
-            password= self.cred
+            password= self.cred,
+            adminApproval= True
         )
         self.author2 = get_user_model().objects.create_author(
             username= self.cred2,
-            password= self.cred2
+            password= self.cred2,
+            adminApproval= True
         )
         self.create_post_url = reverse(
             'posts:create', kwargs={'author_id': self.author.id}
         )
         self.client = APIClient()
+        self.client2 = APIClient()
 
     def test_create_post_endpoint(self):
         """Testing TestCreatePostEndpoint creates a post"""
@@ -100,10 +102,81 @@ class TestCreatePostEndpoint(TestCase):
     def test_cannot_create_post_as_another_user(self):
         """Testing TestCreatePostEndpoint return 403 if wrong user
         """
-        client2 = APIClient()
-        client2.force_authenticate(user=self.author2)
-        res = client2.post(self.create_post_url, PAYLOAD)
+        self.client2.force_authenticate(user=self.author2)
+        res = self.client2.post(self.create_post_url, PAYLOAD)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_create_public_post_sent_to_followers(self):
+        """Testing TestCreatePostEndpoint sends public Post to followers inbox
+        """
+        self.client.force_authenticate(user=self.author)
+        self.client2.force_authenticate(user=self.author2)
+        inbox = Inbox.objects.get(author=self.author2)
+        follower_url = reverse(
+            'followers:followers modify',
+            kwargs={'id': self.author.id, 'foreignId': self.author2.id}
+        )
+
+        res = self.client2.put(follower_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        res = self.client2.get(follower_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(inbox.items), 0)
+        res = self.client.post(self.create_post_url, PAYLOAD)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 1)
+
+    def test_create_friends_post_sent_to_followers(self):
+        """Testing TestCreatePostEndpoint does not send friend Post to
+        followers inbox
+        """
+        self.client.force_authenticate(user=self.author)
+        self.client2.force_authenticate(user=self.author2)
+        inbox = Inbox.objects.get(author=self.author2)
+        follower_url = reverse(
+            'followers:followers modify',
+            kwargs={'id': self.author.id, 'foreignId': self.author2.id}
+        )
+
+        res = self.client2.put(follower_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        res = self.client2.get(follower_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(inbox.items), 0)
+        res = self.client.post(self.create_post_url, FRIENDS_VIS_PAYLOAD)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 0)
+
+    def test_create_friends_post_sent_to_friends(self):
+        """Testing TestCreatePostEndpoint sends friend Post to friends inbox
+        """
+        self.client.force_authenticate(user=self.author)
+        self.client2.force_authenticate(user=self.author2)
+        inbox = Inbox.objects.get(author=self.author2)
+        follower_url = reverse(
+            'followers:followers modify',
+            kwargs={'id': self.author.id, 'foreignId': self.author2.id}
+        )
+        follower_url2 = reverse(
+            'followers:followers modify',
+            kwargs={'id': self.author2.id, 'foreignId': self.author.id}
+        )
+
+        res = self.client2.put(follower_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        res = self.client2.get(follower_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        res = self.client.put(follower_url2)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        res = self.client.get(follower_url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(inbox.items), 0)
+        res = self.client.post(self.create_post_url, FRIENDS_VIS_PAYLOAD)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 2)
 
     def test_get_post_endpoint(self):
         """Testing TestCreatePostEndpoint gets all the posts by the 
@@ -123,10 +196,9 @@ class TestCreatePostEndpoint(TestCase):
         self.assertEqual('PUBLIC', res1.data['visibility'])
         self.client.logout()
         
-        client2 = APIClient()
-        client2.force_authenticate(user=self.author2)
-        client2.login(username=self.cred2, password=self.cred2)
-        res2 = client2.get(self.create_post_url)
+        self.client2.force_authenticate(user=self.author2)
+        self.client2.login(username=self.cred2, password=self.cred2)
+        res2 = self.client2.get(self.create_post_url)
 
         self.assertEqual(res2.status_code, status.HTTP_200_OK)
         self.assertEqual('Title', res2.data[0]['title'])
@@ -197,6 +269,7 @@ class TestUpdatePostEndpoint(TestCase):
 
         self.create_post_url = reverse('posts:create', kwargs={'author_id': self.author.id})
         self.client = APIClient()
+        self.client2 = APIClient()
 
         self.client.force_authenticate(user=self.author)
         res = self.client.post(self.create_post_url, PAYLOAD)
@@ -214,9 +287,8 @@ class TestUpdatePostEndpoint(TestCase):
         """Testing TestUpdatePostEndpoint another author can get the public post
         at the specified URL
         """
-        client2 = APIClient()
-        client2.force_authenticate(user=self.author2)
-        res = client2.get(self.update_post_url)
+        self.client2.force_authenticate(user=self.author2)
+        res = self.client2.get(self.update_post_url)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual('Title', res.data['title'])
@@ -224,9 +296,8 @@ class TestUpdatePostEndpoint(TestCase):
     
     def test_get_correct_author(self):
         """returns the correct author of the post"""
-        client2 = APIClient()
-        client2.force_authenticate(user=self.author2)
-        res = client2.get(self.update_post_url)
+        self.client2.force_authenticate(user=self.author2)
+        res = self.client2.get(self.update_post_url)
 
         returned_author = res.data['author']
         self.assertEqual(returned_author['username'], self.cred)
@@ -245,9 +316,8 @@ class TestUpdatePostEndpoint(TestCase):
             kwargs={'author_id': self.author.id, 'pk': post_id}
         )
 
-        client2 = APIClient()
-        client2.force_authenticate(user=self.author2)
-        res2 = client2.get(update_post_url)
+        self.client2.force_authenticate(user=self.author2)
+        res2 = self.client2.get(update_post_url)
 
         self.assertEqual(res2.status_code, status.HTTP_404_NOT_FOUND)
     
@@ -289,9 +359,8 @@ class TestUpdatePostEndpoint(TestCase):
         self.assertEqual(res1.status_code, status.HTTP_200_OK)
         self.assertNotEqual(self.author2.id, self.author.id)
         
-        client2 = APIClient()
-        client2.force_authenticate(user=self.author2)
-        res2 = client2.post(self.update_post_url, FRIENDS_VIS_PAYLOAD)
+        self.client2.force_authenticate(user=self.author2)
+        res2 = self.client2.post(self.update_post_url, FRIENDS_VIS_PAYLOAD)
         self.assertEqual(res2.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_can_delete_existing_post(self):
