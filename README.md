@@ -66,8 +66,14 @@ python3 manage.py createsuperuser
 python manage.py dbshell // access local database
 \dt                      // see existing tables
 DROP TABLE <table_name>;
-
 \q to quit
+
+// This will work if you need to recreate the table
+python manage.py dbshell 
+DELETE FROM django_migrations WHERE app = 'app_name'; # e.g. posts
+\q to quit
+python manage.py makemigrations app_name
+python manage.py migrate
 ```
 
 If you're making any DB changes, make sure PostgreSQL has started then
@@ -219,3 +225,7 @@ Follower
 Aceess Many to Many object
 * From [StackOverflow](https://stackoverflow.com/questions/31876213/how-to-use-limit-in-django-rest-framework-generics-retrieveapiview)
 * Accessed Mar 1 2021
+
+Unique Together
+* From [StackOverflow](https://stackoverflow.com/a/2201687)
+* Accessed Mar 2 2021
