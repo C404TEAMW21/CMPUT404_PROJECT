@@ -1,6 +1,7 @@
 .profile-page-container {
   margin-top: 84px;
   display: flex;
+  min-height: 100%;
 
   .profile-data {
     margin-left: 50px;
@@ -9,7 +10,7 @@
     box-shadow: 2px 4px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 20px;
     width: 500px;
-    height: max-content;
+    height: 200px;
   }
 
   .ui.bottom.attached.segment {
@@ -85,11 +86,6 @@
         ) !important;
       }
     }
-  }
-
-  .profile-stats-table {
-    margin-top: 100px;
-    margin-bottom: 50px;
   }
 }
 
