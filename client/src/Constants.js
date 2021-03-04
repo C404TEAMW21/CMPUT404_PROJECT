@@ -1,4 +1,5 @@
-export const SERVER_HOST = "http://127.0.0.1:8000";
+// export const SERVER_HOST = "http://127.0.0.1:8000";
+export const SERVER_HOST = process.env.NODE_ENV === 'production' ? 'https://konnection-server.herokuapp.com' : "http://127.0.0.1:8000";
 
 export const ROUTE_LOGIN = "/login";
 export const ROUTE_SIGNUP = "/signup";
