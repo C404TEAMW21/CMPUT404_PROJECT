@@ -50,16 +50,21 @@ jobs:
       #     TOKEN: ${{ secrets.HEROKU_API_KEY }}
       #     APP: konnection-client
       #   run: heroku container:login 
+      - name: auth
+        env: 
+          TOKEN: ${{ secrets.HEROKU_API_KEY }}
+          APP: konnection-client
+        run: git remote add heroku-backend https://heroku:${{ secrets.HEROKU_API_TOKEN }}@git.heroku.com/konnection-client.git 
       - name: Point to project
         env: 
           TOKEN: ${{ secrets.HEROKU_API_KEY }}
           APP: konnection-client
-        run: git remote add heroku-backend https://heroku:${{ secrets.HEROKU_API_TOKEN }}@git.heroku.com/konnection-client.git
+        run: heroku git:remote -a yourapp
       - name: Build and push 
         env: 
           TOKEN: ${{ secrets.HEROKU_API_KEY }}
           APP: konnection-client
-        run: git subtree push --prefix client front-prod master
+        run: git subtree push --prefix client heroku master
         
 
         
