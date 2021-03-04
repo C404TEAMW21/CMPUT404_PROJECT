@@ -7,6 +7,7 @@ import EditProfileModal from "./EditProfileModal";
 import { Context } from "../../Context";
 import { SERVER_HOST } from "../../Constants";
 import "./ProfilePage.scss";
+import { checkIfFollowing } from "../../ApiUtils";
 
 const MyProfileData = (props) => {
   const context = useContext(Context);
@@ -36,21 +37,17 @@ const MyProfileData = (props) => {
       return;
     }
 
-    try {
-      const response = await axios.get(
-        `${SERVER_HOST}/service/author/${authorId}/followers/${context.user.id}/`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${context.cookie}`,
-          },
-        }
-      );
-
-      updateDisableFriendRequestBtn(response.data.items[0].status === true);
-    } catch (error) {
+    const response = await checkIfFollowing(
+      context.cookie,
+      authorId,
+      context.user.id
+    );
+    if (response.status !== 200) {
       props.updateError(true);
     }
+
+    if (response.data.items.length > 0)
+      updateDisableFriendRequestBtn(response.data.items[0].status === true);
   };
 
   const nameToRender = (authorId) => {

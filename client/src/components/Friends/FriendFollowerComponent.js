@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { Header, Button } from "semantic-ui-react";
 import { useLocation } from "react-router-dom";
 
+import { FOLLOWER_LIST } from "../../Constants";
 import { Context } from "../../Context";
 import "./FriendFollower.scss";
 
@@ -24,7 +25,10 @@ const FriendFollowerComponent = (props) => {
   }, [location]);
 
   const handleDelete = () => {
-    // call props function depending if parent is FriendList, FollowerList, FollowingList
+    if (props.parent === FOLLOWER_LIST) {
+      // TODO implement
+      props.handleDeleteFollower(props.authorId);
+    }
   };
 
   if (loading) {

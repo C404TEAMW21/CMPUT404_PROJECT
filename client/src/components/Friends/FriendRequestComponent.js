@@ -3,7 +3,9 @@ import { Header, Button } from "semantic-ui-react";
 import "./FriendFollower.scss";
 
 const FriendRequestComponent = (props) => {
-  const handleAccept = () => {};
+  const handleAccept = () => {
+    props.handleAccept(props.index, props.authorId);
+  };
 
   const handleDecline = () => {};
 

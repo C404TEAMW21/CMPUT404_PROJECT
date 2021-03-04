@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Menu, Segment, Message } from "semantic-ui-react";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
+
 import "./ProfilePage.scss";
 import { Context } from "../../Context";
 import ProfileData from "./ProfileData";
@@ -9,8 +9,7 @@ import FriendRequestList from "../Friends/FriendRequestList";
 import FriendList from "../Friends/FriendList";
 import FollowerList from "../Friends/FollowerList";
 import FollowingList from "../Friends/FollowingList";
-import { getUserObject } from "../../ApiUtils";
-import { SERVER_HOST } from "../../Constants";
+import { getUserObject, sendFriendFollowRequest } from "../../ApiUtils";
 
 const recentPosts = "Recent Posts";
 const friends = "Friends";
@@ -65,27 +64,21 @@ const MyProfilePage = () => {
   const onSendFriendRequestClick = async () => {
     const authorId = window.location.pathname.split("/").pop();
 
-    try {
-      const response = await axios.put(
-        `${SERVER_HOST}/service/author/${authorId}/followers/${context.user.id}/`,
-        {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${context.cookie}`,
-          },
-        }
-      );
+    const response = await sendFriendFollowRequest(
+      context.cookie,
+      authorId,
+      context.user.id
+    );
 
-      return true;
-    } catch (error) {
+    if (response.status !== 200) {
       updateError(true);
       return false;
     }
+    return true;
   };
 
   return (
-    <div className="profile-page-container">
+    <div>
       {error && (
         <Message
           error
@@ -94,52 +87,53 @@ const MyProfilePage = () => {
           content="Something happened on our end. Please try again later."
         />
       )}
+      <div className="profile-page-container">
+        <div className="profile-data">
+          <ProfileData
+            author={currentAuthor}
+            onSendFriendRequestClick={onSendFriendRequestClick}
+            updateError={updateError}
+          />
+        </div>
 
-      <div className="profile-data">
-        <ProfileData
-          author={currentAuthor}
-          onSendFriendRequestClick={onSendFriendRequestClick}
-          updateError={updateError}
-        />
-      </div>
-
-      <div className="profile-posts">
-        <Menu attached="top" tabular>
-          <Menu.Item
-            name={recentPosts}
-            active={activeItem === recentPosts}
-            onClick={handleItemClick}
-            section={placeholder}
-          />
-          <Menu.Item
-            name={friends}
-            active={activeItem === friends}
-            onClick={handleItemClick}
-            section={<FriendList updateError={updateError} />}
-          />
-          <Menu.Item
-            name={followers}
-            active={activeItem === followers}
-            onClick={handleItemClick}
-            section={<FollowerList updateError={updateError} />}
-          />
-          <Menu.Item
-            name={following}
-            active={activeItem === following}
-            onClick={handleItemClick}
-            section={<FollowingList updateError={updateError} />}
-          />
-          {showElement() && (
+        <div className="profile-posts">
+          <Menu attached="top" tabular>
             <Menu.Item
-              name={friendRequests}
-              active={activeItem === friendRequests}
+              name={recentPosts}
+              active={activeItem === recentPosts}
               onClick={handleItemClick}
-              section={<FriendRequestList updateError={updateError} />}
+              section={placeholder}
             />
-          )}
-        </Menu>
+            <Menu.Item
+              name={friends}
+              active={activeItem === friends}
+              onClick={handleItemClick}
+              section={<FriendList updateError={updateError} />}
+            />
+            <Menu.Item
+              name={followers}
+              active={activeItem === followers}
+              onClick={handleItemClick}
+              section={<FollowerList updateError={updateError} />}
+            />
+            <Menu.Item
+              name={following}
+              active={activeItem === following}
+              onClick={handleItemClick}
+              section={<FollowingList updateError={updateError} />}
+            />
+            {showElement() && (
+              <Menu.Item
+                name={friendRequests}
+                active={activeItem === friendRequests}
+                onClick={handleItemClick}
+                section={<FriendRequestList updateError={updateError} />}
+              />
+            )}
+          </Menu>
 
-        <Segment attached="bottom">{currentSection}</Segment>
+          <Segment attached="bottom">{currentSection}</Segment>
+        </div>
       </div>
     </div>
   );

@@ -30,3 +30,55 @@ export const getCurrentUserObject = async (token) => {
     return error.response;
   }
 };
+
+export const checkIfFollowing = async (token, A, B) => {
+  try {
+    const response = await axios.get(
+      `${SERVER_HOST}/service/author/${A}/followers/${B}/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const sendFriendFollowRequest = async (token, A, B) => {
+  try {
+    const response = await axios.put(
+      `${SERVER_HOST}/service/author/${A}/followers/${B}/`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const getAllFollowers = async (token, id) => {
+  try {
+    const response = await axios.get(
+      `${SERVER_HOST}/service/author/${id}/followers/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
