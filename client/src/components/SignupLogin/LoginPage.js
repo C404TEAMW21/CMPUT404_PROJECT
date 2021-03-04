@@ -15,6 +15,7 @@ const LoginPage = (props) => {
   const context = useContext(Context);
   console.log(process.env.NODE_ENV)
   console.log(SERVER_HOST)
+  console.log("hello")
   const onSubmit = async (username, password) => {
     username = username.trim();
 

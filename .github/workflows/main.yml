@@ -32,23 +32,30 @@ jobs:
   #         python manage.py test --settings konnection.settings.local
 
   
-  # frontend-deploy:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Install Node
-  #       uses: actions/setup-node@v1
-  #       with:
-  #         node-version: 12.x
-  #     - name: Build production package
-  #       working-directory: ./client
-  #       run: |
-  #         npm ci
-  #         npm run build 
-  #     - name: Heroku deploy
-  #     - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-  #       with:
-  #         heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-  #         heroku_app_name: konnection-client #Must be unique in Heroku
-  #         heroku_email: wok@ualberta.ca
-  #         appdir: client/build
+  frontend-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      # - name: Build production package
+      #   working-directory: ./client
+      #   run: |
+      #     npm ci
+      #     npm run build 
+      - name: Login to Heroku 
+        env: 
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku container:login 
+      - name: Point to project
+        env: 
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: heroku git:remote -a konnection-client
+      - name: Build and push 
+        env: 
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: git subtree push --prefix client heroku main
+
+        
