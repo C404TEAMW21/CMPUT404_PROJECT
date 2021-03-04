@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 import os
 import dotenv
-import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,12 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # TODO: Repalce SECRET_KEY with actual key before production deployment
-SECRET_KEY = 'temporaryKey'
+# SECRET_KEY = 'temporaryKey'
+SECRET_KEY = 'TEMPORARY_KEY'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = ['https://konnection-server.herokuapp.com']
+ALLOWED_HOSTS = ['https://konnection-server.herokuapp.com', 'http://127.0.0.1']
 
 
 # Application definition
@@ -98,31 +97,8 @@ if os.path.isfile(dotenv_file):
 # From https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04
 # From Digital Ocean
 # From Justin Ellingwood https://www.digitalocean.com/community/users/jellingwood
-# if os.getenv('GITHUB_WORKFLOW'):
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql',
-#             'NAME': 'github-actions',
-#             'USER': 'postgres',
-#             'PASSWORD': 'postgres',
-#             'HOST': 'localhost',
-#             'PORT': '5432'
-#         }
-#     }
-# else:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#             'NAME': 'myproject',
-#             'USER': os.environ['DB_USER'],
-#             'PASSWORD': os.environ['DB_PASSWORD'],
-#             'HOST': 'localhost',
-#             'PORT': '',
-#         }
-#     }
-DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
-}
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -155,11 +131,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-# For tests
-# https://stackoverflow.com/a/35224204
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = ['--with-spec', '--spec-color']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
