@@ -1,7 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
 import FriendFollowerComponent from "./FriendFollowerComponent";
 import { Context } from "../../Context";
-import { getAllFollowers, checkIfFollowing } from "../../ApiUtils";
+import {
+  getAllFollowers,
+  checkIfFollowing,
+  unFollowAuthor,
+} from "../../ApiUtils";
+import { FRIEND_LIST } from "../../Constants";
 
 const FriendsList = (props) => {
   const context = useContext(Context);
@@ -41,12 +46,30 @@ const FriendsList = (props) => {
     }
   };
 
+  const handleDeleteFriend = async (indexToDelete, authorId) => {
+    const response = await unFollowAuthor(
+      context.cookie,
+      authorId,
+      context.user.id
+    );
+
+    if (response.status !== 200) {
+      props.updateError(true);
+      return;
+    }
+
+    updateFriends(friends.filter((follower, index) => index !== indexToDelete));
+  };
+
   return (
     <div>
-      {friends.map((author) => (
+      {friends.map((author, index) => (
         <FriendFollowerComponent
+          parent={FRIEND_LIST}
           username={author.username}
           authorId={author.id}
+          handleDeleteFriend={handleDeleteFriend}
+          index={index}
         />
       ))}
     </div>

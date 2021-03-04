@@ -12,3 +12,4 @@ export const PAGE_PROFILE = "Profile";
 
 export const FOLLOWER_LIST = "FollowerList";
 export const FRIEND_LIST = "FriendList";
+export const FRIEND_REQUEST_LIST = "FriendRequestList";

@@ -1,39 +1,40 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Header, Button } from "semantic-ui-react";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
 
 import EditProfileModal from "./EditProfileModal";
 import { Context } from "../../Context";
-import { SERVER_HOST } from "../../Constants";
 import "./ProfilePage.scss";
-import { checkIfFollowing } from "../../ApiUtils";
+import { checkIfFollowing, unFollowAuthor } from "../../ApiUtils";
 
 const MyProfileData = (props) => {
   const context = useContext(Context);
   const location = useLocation();
+
   const [name, updateName] = useState("Loading...");
-  const [showEditBtn, updateShowEditBtn] = useState(true);
-  const [disableFriendRequestBtn, updateDisableFriendRequestBtn] = useState(
+  const [showEditBtn, updateShowEditBtn] = useState(false);
+  const [showFriendRequestBtn, updateShowFriendRequestBtn] = useState(false);
+  const [showUnFollowBtn, updateShowUnFollowBtn] = useState(false);
+  const [loadingFriendRequest, updateLoadingFriendRequest] = useState(false);
+  const [loadingUnFollowRequest, updateLoadingUnFollowRequest] = useState(
     false
   );
-  const [loadingFriendRequest, updateLoadingFriendRequest] = useState(false);
 
   useEffect(() => {
     const authorId = window.location.pathname.split("/").pop();
     nameToRender(authorId);
-    shouldShowEditBtn(authorId);
-    shouldDisableFriendRequestBtn(authorId);
+    selectBtnToShow(authorId);
   }, [location, props.author]);
 
-  const shouldShowEditBtn = (authorId) => {
-    if (context.user) {
-      updateShowEditBtn(authorId === context.user.id);
-    }
-  };
-
-  const shouldDisableFriendRequestBtn = async (authorId) => {
+  const selectBtnToShow = async (authorId) => {
     if (!context.user) {
+      return;
+    }
+
+    if (context.user.id === authorId) {
+      updateShowEditBtn(true);
+      updateShowFriendRequestBtn(false);
+      updateShowUnFollowBtn(false);
       return;
     }
 
@@ -47,8 +48,11 @@ const MyProfileData = (props) => {
       return;
     }
 
-    if (response.data.items.length > 0)
-      updateDisableFriendRequestBtn(response.data.items[0].status === true);
+    if (response.data.items.length > 0) {
+      const following = response.data.items[0].status === true;
+      updateShowFriendRequestBtn(!following);
+      updateShowUnFollowBtn(following);
+    }
   };
 
   const nameToRender = (authorId) => {
@@ -77,10 +81,33 @@ const MyProfileData = (props) => {
     updateLoadingFriendRequest(true);
     const status = await props.onSendFriendRequestClick();
     if (status) {
-      updateDisableFriendRequestBtn(true);
+      updateShowFriendRequestBtn(false);
+      updateShowUnFollowBtn(true);
     }
 
     updateLoadingFriendRequest(false);
+  };
+
+  const handleUnFollow = async () => {
+    updateLoadingUnFollowRequest(true);
+
+    const authorId = window.location.pathname.split("/").pop();
+    const response = await unFollowAuthor(
+      context.cookie,
+      authorId,
+      context.user.id
+    );
+
+    if (response.status !== 200) {
+      props.updateError(true);
+    }
+
+    updateLoadingUnFollowRequest(false);
+
+    if (response.status === 200) {
+      updateShowFriendRequestBtn(true);
+      updateShowUnFollowBtn(false);
+    }
   };
 
   return (
@@ -91,16 +118,21 @@ const MyProfileData = (props) => {
             {name}
           </Header>
 
-          {showEditBtn ? (
-            <EditProfileModal />
-          ) : (
+          {showEditBtn && <EditProfileModal />}
+
+          {showFriendRequestBtn && (
             <Button
               className="send-friend-request-btn"
               onClick={sendFriendRequest}
-              disabled={disableFriendRequestBtn}
               loading={loadingFriendRequest}
             >
               Send Friend Request
+            </Button>
+          )}
+
+          {showUnFollowBtn && (
+            <Button onClick={handleUnFollow} loading={loadingUnFollowRequest}>
+              Unfollow Author
             </Button>
           )}
         </div>
@@ -112,33 +144,6 @@ const MyProfileData = (props) => {
           <span>
             {context.user && context.user.github ? context.user.github : "N/A"}
           </span>
-        </div>
-      </div>
-
-      <div className="profile-stats-table">
-        <div className="display-name-heading">
-          <Header as="h4" floated="left">
-            Posts:
-          </Header>
-          <span></span>
-        </div>
-        <div className="display-name-heading">
-          <Header as="h4" floated="left">
-            Friends:
-          </Header>
-          <span></span>
-        </div>
-        <div className="display-name-heading">
-          <Header as="h4" floated="left">
-            Followers:
-          </Header>
-          <span></span>
-        </div>
-        <div className="display-name-heading">
-          <Header as="h4" floated="left">
-            Following:
-          </Header>
-          <span></span>
         </div>
       </div>
     </div>
