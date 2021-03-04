@@ -1,10 +1,12 @@
 import re
+
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, authentication, permissions, mixins, status
 from django.http import Http404
 from django.core.paginator import Paginator
 from rest_framework.response import Response
+
 from main import models as mainModels
 from .models import Post
 from .serializers import PostSerializer
