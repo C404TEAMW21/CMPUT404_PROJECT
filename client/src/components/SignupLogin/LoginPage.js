@@ -13,9 +13,7 @@ import { ROUTE_MY_FEED, ROUTE_SIGNUP } from "../../Constants";
 const LoginPage = (props) => {
   const [loading, updateLoading] = useState(false);
   const context = useContext(Context);
-  console.log(process.env.NODE_ENV)
-  console.log(SERVER_HOST)
-  console.log("hello")
+
   const onSubmit = async (username, password) => {
     username = username.trim();
 

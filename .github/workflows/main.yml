@@ -2,48 +2,33 @@ name: Run Python Tests
 on: [push]
 
 jobs:
-  # unit-tests:
-  #   runs-on: ubuntu-latest
-  #   services:
-  #     postgres:
-  #       image: postgres:10.8
-  #       env:
-  #         POSTGRES_USER: postgres
-  #         POSTGRES_PASSWORD: postgres
-  #         POSTGRES_DB: github_actions
-  #       ports:
-  #         - 5432:5432
-  #       # needed because the postgres container does not provide a healthcheck
-  #       options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: 🐍 Install Python 3.6
-  #       uses: actions/setup-python@v1
-  #       with:
-  #         python-version: 3.6
-  #     - name: 🛠 Install dependencies
-  #       working-directory: ./server
-  #       run: |
-  #         python -m pip install --upgrade pip
-  #         pip install -r requirements.txt
-  #     - name: 📝 Run Django testing
-  #       working-directory: ./server
-  #       run: |
-  #         python manage.py test --settings konnection.settings.local
-
-  
-  frontend-deploy:
+  unit-tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:10.8
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: github_actions
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+      - name: 🐍 Install Python 3.6
+        uses: actions/setup-python@v1
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{secrets.HEROKU_FRONT_END_APP_NAME}}
-          heroku_email: ${{secrets.MAINTAINER_EMAIL}}
-          appdir: "client" 
-          branch: "front-prod"
-
-        
+          python-version: 3.6
+      - name: 🛠 Install dependencies
+        working-directory: ./server
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: 📝 Run Django testing
+        working-directory: ./server
+        run: |
+          python manage.py test --settings konnection.settings.local
 
         
