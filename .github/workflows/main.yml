@@ -47,17 +47,17 @@ jobs:
       #     npm run build 
       - name: Login to Heroku 
         env: 
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          TOKEN: ${{ secrets.HEROKU_API_KEY }}
           APP: konnection-client
         run: heroku container:login 
       - name: Point to project
         env: 
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          TOKEN: ${{ secrets.HEROKU_API_KEY }}
           APP: konnection-client
         run: heroku git:remote -a konnection-client
       - name: Build and push 
         env: 
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          TOKEN: ${{ secrets.HEROKU_API_KEY }}
           APP: konnection-client
         run: git subtree push --prefix client heroku main
 
