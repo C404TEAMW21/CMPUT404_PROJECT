@@ -41,10 +41,11 @@ jobs:
         with:
           node-version: 12.x
       - name: Build production package
+        working-directory: ./client
         run: npm run build 
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: konnection-client #Must be unique in Heroku
-          heroku_email: wok@ualberta.ca
-          appdir: build
+      # - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+      #   with:
+      #     heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+      #     heroku_app_name: konnection-client #Must be unique in Heroku
+      #     heroku_email: wok@ualberta.ca
+      #     appdir: client/build
