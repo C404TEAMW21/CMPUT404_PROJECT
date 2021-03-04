@@ -2,11 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { Header, Button } from "semantic-ui-react";
 import { useLocation } from "react-router-dom";
 
-import {
-  FOLLOWER_LIST,
-  FRIEND_REQUEST_LIST,
-  FRIEND_LIST,
-} from "../../Constants";
+import { FRIEND_REQUEST_LIST, FRIEND_LIST } from "../../Constants";
 import { Context } from "../../Context";
 import "./FriendFollower.scss";
 
@@ -21,6 +17,22 @@ const FriendFollowerComponent = (props) => {
 
   useEffect(() => {
     updateProfileLink(`/author/${props.authorId}`);
+    renderButtons();
+    updateLoading(false);
+  }, [location, props]);
+
+  const renderButtons = () => {
+    if (!context.user) {
+      return;
+    }
+
+    const authorId = window.location.pathname.split("/").pop();
+
+    if (authorId !== context.user.id) {
+      updateShowRemoveBtn(false);
+      updateShowAcceptBtn(false);
+      return;
+    }
 
     if (props.parent === FRIEND_LIST) {
       updateShowRemoveBtn(true);
@@ -29,9 +41,7 @@ const FriendFollowerComponent = (props) => {
       updateShowAcceptBtn(true);
       updateShowRemoveBtn(false);
     }
-
-    updateLoading(false);
-  }, [location, props]);
+  };
 
   const handleDelete = () => {
     if (props.parent === FRIEND_LIST) {

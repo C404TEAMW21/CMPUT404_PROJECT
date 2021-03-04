@@ -53,14 +53,10 @@ const FriendsList = (props) => {
       context.user.id
     );
 
-    console.log(response, indexToDelete);
-
     if (response.status !== 200) {
       props.updateError(true);
       return;
     }
-
-    console.log(friends.filter((follower, index) => index !== indexToDelete));
 
     updateFriends(friends.filter((follower, index) => index !== indexToDelete));
   };
