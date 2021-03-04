@@ -1,12 +1,16 @@
+import re
+
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, authentication, permissions, mixins, status
 from django.http import Http404
 from django.core.paginator import Paginator
 from rest_framework.response import Response
+
 from main import models as mainModels
 from .models import Post
 from .serializers import PostSerializer
+from inbox.models import Inbox
 
 
 # service/author/{AUTHOR_ID}/posts/{POST_ID}
@@ -125,11 +129,55 @@ class CreatePostView(generics.ListCreateAPIView):
         if (self.kwargs['author_id'] != self.request.user.id):
             return Response(status=status.HTTP_403_FORBIDDEN)
         
-        return self.create(request, *args, **kwargs)
+        post = self.create(request, *args, **kwargs)
+
+        post_data = post.data
+        try:
+            followers = mainModels.Followers.objects \
+            .get(author=self.kwargs['author_id']) \
+            .followers.all()
+        except mainModels.Followers.DoesNotExist:
+            return post
+        # use re to match as DRF only returns id with host due to serializer
+        post_id = re.match(r'.*/posts/([0-9a-f-]*)/', post_data['id'])
+        if post_id == None:
+                raise Exception('post id matching error.')
+
+        if (post_data['visibility'] == Post.PUBLIC):
+            for follower in followers:
+                self.send_to_inbox(inbox_id=follower.id,
+                                   post_id=post_id.group(1))
+        if (post_data['visibility'] == Post.FRIENDS):
+            for follower in followers:
+                try:
+                    is_friends = mainModels.Followers.objects \
+                    .get(author=follower).followers \
+                    .get(id=self.kwargs['author_id'])
+                except mainModels.Followers.DoesNotExist:
+                    continue
+                except mainModels.Author.DoesNotExist:
+                    continue
+                if is_friends:
+                    self.send_to_inbox(inbox_id=follower.id,
+                                       post_id=post_id.group(1))
+        return post
         
     def perform_create(self, serializer):
         request_author_id = self.kwargs['author_id']
         serializer.save(author=mainModels.Author.objects.get(id=self.request.user.id))
+
+    def send_to_inbox(self, inbox_id, post_id):
+        try:
+            a_post = Post.objects.get(pk=post_id, unlisted=False)
+            inbox = Inbox.objects.get(author=inbox_id)
+        except Post.DoesNotExist:
+            return
+        except Inbox.DoesNotExist:
+            return
+        data = PostSerializer(a_post).data
+        data['categories'] = list(data['categories'])
+        inbox.items.append(data)
+        inbox.save()
 
 
 # service/public/
