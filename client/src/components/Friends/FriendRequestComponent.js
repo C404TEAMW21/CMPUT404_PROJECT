@@ -1,15 +1,23 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Header, Button } from "semantic-ui-react";
 import "./FriendFollower.scss";
 
 const FriendRequestComponent = (props) => {
-  const handleAccept = () => {};
+  const [profileLink, updateProfileLink] = useState("#");
+
+  useEffect(() => {
+    updateProfileLink(`/author/${props.authorId}`);
+  }, [props]);
+
+  const handleAccept = () => {
+    props.handleAccept(props.index, props.authorId);
+  };
 
   const handleDecline = () => {};
 
   return (
     <div className="friendrequest-container">
-      <Header as="a" size="large" href="#" className="userlink">
+      <Header as="a" size="large" href={profileLink} className="userlink">
         {props.username}
       </Header>
 

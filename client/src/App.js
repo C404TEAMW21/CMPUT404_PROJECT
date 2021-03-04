@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { Route, withRouter, Switch, Redirect } from "react-router-dom";
 import LoginPage from "./components/SignupLogin/LoginPage";
 import SignupPage from "./components/SignupLogin/SignupPage";
@@ -22,6 +22,8 @@ import "./App.scss";
 
 const App = (props) => {
   const context = useContext(Context);
+
+  const [shouldRedirect, updateShouldRedirect] = useState(false);
 
   // Protected React Routes
   // From StackOverflow https://stackoverflow.com/a/43171515
@@ -59,6 +61,12 @@ const App = (props) => {
   const updateUserObject = async () => {
     const response = await getCurrentUserObject(context.cookie);
 
+    if (response.status === 401) {
+      context.deleteCookie();
+      updateShouldRedirect(true);
+      return;
+    }
+
     if (response.data && response.data.username) {
       context.updateUser(response.data);
     }
@@ -70,6 +78,7 @@ const App = (props) => {
 
   return (
     <div className="app">
+      {shouldRedirect && <Redirect to={ROUTE_LOGIN} />}
       <Route exact path="/">
         {context.cookie ? (
           <Redirect to={ROUTE_MY_FEED} />

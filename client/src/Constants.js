@@ -9,3 +9,6 @@ export const PAGE_MY_FEED = "MyFeed";
 export const PAGE_PUBLIC_FEED = "PublicFeed";
 export const PAGE_CREATE_POST = "CreatePost";
 export const PAGE_PROFILE = "Profile";
+
+export const FOLLOWER_LIST = "FollowerList";
+export const FRIEND_LIST = "FriendList";
