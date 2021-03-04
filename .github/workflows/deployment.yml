@@ -1,5 +1,8 @@
 name: Run React Deployment
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   frontend-deploy:
@@ -13,4 +16,4 @@ jobs:
           heroku_app_name: ${{secrets.HEROKU_FRONT_END_APP_NAME}}
           heroku_email: ${{secrets.MAINTAINER_EMAIL}}
           appdir: "client" 
-          branch: "front-prod"
+          branch: "main"
