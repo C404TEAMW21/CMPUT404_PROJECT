@@ -64,7 +64,7 @@ jobs:
         env: 
           TOKEN: ${{ secrets.HEROKU_API_KEY }}
           APP: konnection-client
-        run: git push heroku-frontend `git subtree split --prefix client master`:refs/heads/master --force
+        run: git push heroku-frontend `git subtree split --prefix client main`:refs/heads/main --force
 
         
 
