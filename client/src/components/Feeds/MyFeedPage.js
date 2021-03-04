@@ -33,6 +33,31 @@ const MyFeedPage = () => {
 
   const getAllInboxItems = () => {};
 
+  const handleDeletePost = async (id, index) => {
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    try {
+      const response = await axios.delete(
+        `${SERVER_HOST}/service/author/${context.user.id}/posts/${postId}/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${context.cookie}`,
+          },
+        }
+      );
+
+      let postsTemp = [...posts];
+      const removedPosts = postsTemp.filter((post, i) => {
+        return i !== index;
+      });
+      updatePosts(removedPosts);
+    } catch (error) {
+      updateError(true);
+    }
+  };
+
   useEffect(() => {
     if (context.user) {
       getAllMyPosts();
@@ -56,7 +81,7 @@ const MyFeedPage = () => {
         />
       )}
       <Card.Group centered itemsPerRow={1}>
-        <PostList posts={posts} />
+        <PostList posts={posts} handleDeletePost={handleDeletePost} />
       </Card.Group>
     </div>
   );
