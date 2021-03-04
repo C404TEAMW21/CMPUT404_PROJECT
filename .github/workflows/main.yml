@@ -29,4 +29,4 @@ jobs:
       - name: 📝 Run Django testing
         working-directory: ./server
         run: |
-          python manage.py test
+          python manage.py test --settings konnection.settings.local
