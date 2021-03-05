@@ -10,6 +10,8 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Approval Status'), {'fields': ('adminApproval',)}),
+        (_('Host'), {'fields': ('host',)}),
+        (_('URL'), {'fields': ('url',)}),
         (_('Author Info'), {'fields': ('displayName', 'github')}),
         (
             _('Permissions'),
