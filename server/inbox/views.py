@@ -60,10 +60,10 @@ class InboxView(APIView):
             data['categories'] = list(data['categories'])
             inbox.items.append(data)
             inbox.save()
-            return Response(f'Shared {post_id} with {request_author_id}',
+            return Response({'data':f'Shared {post_id} with {request_author_id}'},
                             status=status.HTTP_200_OK)
         else:
-            return Response('Invalid type, only \'post\', \'follow\', \'like\'',
+            return Response({'error':'Invalid type, only \'post\', \'follow\', \'like\''},
                             status=status.HTTP_400_BAD_REQUEST)
 
     # DELETE: Clear the inbox
@@ -71,4 +71,4 @@ class InboxView(APIView):
         inbox = self.get_inbox()
         inbox.items.clear()
         inbox.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
