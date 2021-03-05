@@ -61,7 +61,7 @@ const PostComponent = (props) => {
       <Card fluid raised centered>
         <Card.Content>
           <Button basic color="black" floated="right" icon="share alternate" />
-          {author.id === context.user.id && (
+          {author.id === context.user.id && visibility === "PUBLIC" && (
             <Button
               basic
               color="black"
@@ -70,7 +70,7 @@ const PostComponent = (props) => {
               onClick={deletePostClick}
             />
           )}
-          {author.id === context.user.id && (
+          {author.id === context.user.id && visibility === "PUBLIC" && (
             <Button basic color="black" floated="right" icon="pencil" />
           )}
           <Card.Header>{title}</Card.Header>
