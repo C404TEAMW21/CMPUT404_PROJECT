@@ -51,7 +51,17 @@ class Author(AbstractBaseUser, PermissionsMixin):
 class Followers(models.Model):
     author = models.ForeignKey(Author, related_name="followers", on_delete=models.CASCADE)
     followers = models.ManyToManyField(Author, related_name='author_followers')
-    
+
+    def friends(self):
+        list = []
+        for author in self.followers.all():
+            try:
+                object = Followers.objects.get(author=author)
+                if self.author in object.followers.all():
+                    list.append(author)
+            except Followers.DoesNotExist:
+                pass
+        return list
 
 class Following(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="following", unique=False, on_delete=models.CASCADE)

@@ -40,3 +40,15 @@ class FriendSerializer(serializers.ModelSerializer):
             return obj.object()
         
         fields = ('type', 'summary', 'actor', 'object')
+
+class FollowersFriendSerializer(serializers.ModelSerializer):
+    friends = serializers.SerializerMethodField()
+
+    def get_friends(self, obj):
+        friends = AuthorProfileSerializer(obj.friends(), many=True)
+        return friends.data
+
+    class Meta:
+        model = models.Followers
+        fields = ('friends',)
+        

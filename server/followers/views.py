@@ -6,7 +6,7 @@ from rest_framework import generics, permissions, status
 from main import models
 from .models import FriendRequest
 from inbox.models import Inbox
-from followers.serializers import FollowersSerializer, FollowersModificationSerializer
+from followers.serializers import FollowersSerializer, FollowersModificationSerializer, FollowersFriendSerializer
 from .serializers import FriendSerializer
 
 #<slug:id>/followers/
@@ -168,3 +168,16 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                 'follower': foreignAuthor.id,
             }]
         })
+
+class FollowersFriendView(generics.RetrieveAPIView):
+    serializer_class = FollowersFriendSerializer
+    authenticate_classes = (authentication.TokenAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        author_id = self.kwargs['id']
+        try:
+            query = models.Followers.objects.get(author=author_id)
+        except:
+            query = None
+        return query

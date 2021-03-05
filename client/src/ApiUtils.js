@@ -82,3 +82,24 @@ export const getAllFollowers = async (token, id) => {
     return error.response;
   }
 };
+
+export const getInboxPosts = async (token, id) => {
+  try {
+    const response = await axios.get(
+      `${SERVER_HOST}/service/author/${id}/inbox`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    const posts = response.data.items.filter(function (item){
+      return item.type == "post";
+    });
+    response.data.items = posts;
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
