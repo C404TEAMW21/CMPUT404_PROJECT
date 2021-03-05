@@ -5,6 +5,7 @@ import {
   getAllFollowers,
   checkIfFollowing,
   unFollowAuthor,
+  getAllFriends,
 } from "../../ApiUtils";
 import { FRIEND_LIST } from "../../Constants";
 
@@ -25,22 +26,10 @@ const FriendsList = (props) => {
     if (authorId !== context.user.id) {
       id = authorId;
     }
-    const response = await getAllFollowers(context.cookie, id);
+    const response = await getAllFriends(context.cookie, id);
 
     if (response.status === 200) {
-      const result = [];
-      for (let item of response.data.items) {
-        const response = await checkIfFollowing(context.cookie, item.id, id);
-
-        if (response.status !== 200) {
-          props.updateError(true);
-          break;
-        }
-
-        if (response.data.items[0].status === true) result.push(item);
-      }
-
-      updateFriends(result);
+      updateFriends(response.data.friends);
     } else {
       props.updateError(true);
     }
