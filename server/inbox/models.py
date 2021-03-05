@@ -14,13 +14,8 @@ class Inbox(models.Model):
     items = ArrayField(models.JSONField(), blank=True, default=list, null=True)
 
     def send_to_inbox(self, inbox_id, post_id):
-        try:
-            a_post = Post.objects.get(pk=post_id, unlisted=False)
-            inbox = Inbox.objects.get(author=inbox_id)
-        except Post.DoesNotExist:
-            return
-        except Inbox.DoesNotExist:
-            return
+        a_post = Post.objects.get(pk=post_id, unlisted=False)
+        inbox = Inbox.objects.get(author=inbox_id)
         data = PostSerializer(a_post).data
         data['categories'] = list(data['categories'])
         inbox.items.append(data)
