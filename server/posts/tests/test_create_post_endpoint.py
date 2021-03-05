@@ -6,6 +6,7 @@ from rest_framework import status
 
 from main import models as mainModels
 from inbox.models import Inbox
+from posts.models import Post
 
 PAYLOAD = {
             "title": "Title",
@@ -477,3 +478,46 @@ class TestPublicPostEndpoint(TestCase):
 
         res6 = self.client.get(f'{self.create_post_url}?page=2&size=3')
         self.assertEqual(len(res6.data), 1)
+
+
+class TestSharePostEndpoint(TestCase):
+    """Tests the endpoint service/author/{AUTHOR_ID}/posts/{POST_ID}/share
+    POST - shares Post to a specific user
+    """
+    def setUp(self):
+        self.cred='testing'
+        self.cred2='testing2'
+        self.author = get_user_model().objects.create_author(
+            username= self.cred,
+            password= self.cred,
+            adminApproval= True
+        )
+        self.author2 = get_user_model().objects.create_author(
+            username= self.cred2,
+            password= self.cred2,
+            adminApproval= True
+        )
+        post = Post.objects.create(
+            title='This is a title',
+            author= self.author
+        )
+        self.share_url = reverse(
+            'posts:share',
+            kwargs={'author_id': self.author.id, 'pk': post.id}
+        )
+        self.client = APIClient()
+        self.client2 = APIClient()
+
+    def test_share_post_to_author(self):
+        """Testing share a Post to an Author's Inbox"""
+        payload = {
+            'from': self.author.id,
+            'share_to': self.author2.id
+        }
+        self.client.force_authenticate(user=self.author)
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 0)
+        res = self.client.post(self.share_url, payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 1)

@@ -7,7 +7,7 @@ from django.http import Http404
 from django.core.paginator import Paginator
 from rest_framework.response import Response
 
-from main import models as mainModels
+from main.models import Author, Followers
 from .models import Post
 from .serializers import PostSerializer
 from inbox.models import Inbox
@@ -97,11 +97,11 @@ class CreatePostView(generics.ListCreateAPIView):
         try:
             if (self.request.user.id == request_author_id):
                 queryset = Post.objects.filter(
-                    author=mainModels.Author.objects.get(id=self.request.user.id)
+                    author=Author.objects.get(id=self.request.user.id)
                 ).order_by('-published')
             else:
                 queryset = Post.objects.filter(
-                    author=mainModels.Author.objects.get(id=request_author_id),
+                    author=Author.objects.get(id=request_author_id),
                     visibility='PUBLIC'
                 ).order_by('-published')
         except get_user_model().DoesNotExist:
@@ -126,58 +126,36 @@ class CreatePostView(generics.ListCreateAPIView):
 
     # POST: perform_create is called before saving to the database  
     def post(self, request, *args, **kwargs):
-        if (self.kwargs['author_id'] != self.request.user.id):
+        author = Author.objects.get(id=self.kwargs['author_id'])
+        if (author.id != self.request.user.id):
             return Response(status=status.HTTP_403_FORBIDDEN)
         
         post = self.create(request, *args, **kwargs)
 
         post_data = post.data
         try:
-            followers = mainModels.Followers.objects \
-            .get(author=self.kwargs['author_id']) \
-            .followers.all()
-        except mainModels.Followers.DoesNotExist:
+            followers = Followers.objects.get(author=author).followers.all()
+        except Followers.DoesNotExist:
             return post
         # use re to match as DRF only returns id with host due to serializer
         post_id = re.match(r'.*/posts/([0-9a-f-]*)/', post_data['id'])
         if post_id == None:
-                raise Exception('post id matching error.')
+            raise Exception('post id matching error.')
 
         if (post_data['visibility'] == Post.PUBLIC):
             for follower in followers:
-                self.send_to_inbox(inbox_id=follower.id,
-                                   post_id=post_id.group(1))
+                Inbox.objects.get(author=follower.id) \
+                    .send_to_inbox(post_id.group(1))
         if (post_data['visibility'] == Post.FRIENDS):
             for follower in followers:
-                try:
-                    is_friends = mainModels.Followers.objects \
-                    .get(author=follower).followers \
-                    .get(id=self.kwargs['author_id'])
-                except mainModels.Followers.DoesNotExist:
-                    continue
-                except mainModels.Author.DoesNotExist:
-                    continue
-                if is_friends:
-                    self.send_to_inbox(inbox_id=follower.id,
-                                       post_id=post_id.group(1))
+                if Followers.is_friends(self, follower, author):
+                    Inbox.objects.get(author=follower.id) \
+                        .send_to_inbox(post_id.group(1))
         return post
         
     def perform_create(self, serializer):
         request_author_id = self.kwargs['author_id']
-        serializer.save(author=mainModels.Author.objects.get(id=self.request.user.id))
-
-    def send_to_inbox(self, inbox_id, post_id):
-        try:
-            a_post = Post.objects.get(pk=post_id, unlisted=False)
-            inbox = Inbox.objects.get(author=inbox_id)
-        except Post.DoesNotExist:
-            return
-        except Inbox.DoesNotExist:
-            return
-        data = PostSerializer(a_post).data
-        data['categories'] = list(data['categories'])
-        inbox.items.append(data)
-        inbox.save()
+        serializer.save(author=Author.objects.get(id=self.request.user.id))
 
 
 # service/public/
@@ -203,3 +181,40 @@ class PublicPostView(generics.ListAPIView):
             data.append(PostSerializer(item).data)
 
         return Response(data)
+
+
+# service/author/{AUTHOR_ID}/posts/{POST_ID}/share
+class SharePostView(generics.CreateAPIView):
+    serializer_class = PostSerializer
+
+    def post(self, request, *args, **kwargs):
+        sharer_id = request.data['from']
+        post_id = self.kwargs['pk']
+        share_to = request.data.get('share_to')
+        if share_to:
+            if share_to == 'all':
+                try:
+                    friend_list = Followers.objects.get(author=sharer_id) \
+                        .friends()
+                except Followers.DoesNotExist:
+                    return Response({'data': f'No friends to share to'},
+                                    status=status.HTTP_200_OK)
+                for friend in friend_list:
+                    try:
+                        Inbox.objects.get(author=friend.id).send_to_inbox(post_id)
+                    except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
+                        return Response({'error': 'Post or Author not found!'},
+                                        status=status.HTTP_404_NOT_FOUND)
+                    return Response({'data': f'Shared {post_id} with {share_to}'},
+                                    status=status.HTTP_200_OK)
+            else:
+                try:
+                    Inbox.objects.get(author=share_to).send_to_inbox(post_id)
+                except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
+                    return Response({'error': 'Post or Author not found!'},
+                                    status=status.HTTP_404_NOT_FOUND)
+                return Response({'data': f'Shared {post_id} with {share_to}'},
+                                status=status.HTTP_200_OK)
+        else:
+            return Response({'error':'share_to is empty!'},
+                            status=status.HTTP_400_BAD_REQUEST)

@@ -68,8 +68,8 @@ class TestInboxEndpoint(TestCase):
         self.assertEqual(len(self.inbox_1.items), 1)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertIn(f'{post.id}', res.data)
-        self.assertIn(f'{self.author_1.id}', res.data)
+        self.assertIn(f'{post.id}', res.data['data'])
+        self.assertIn(f'{self.author_1.id}', res.data['data'])
 
     def test_send_post_with_invalid_post_id(self):
         """Test sending public Post with invalid Post id"""
@@ -92,7 +92,8 @@ class TestInboxEndpoint(TestCase):
 
         res = self.client.post(self.inbox_url, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data, "Invalid type, only \'post\', \'follow\', \'like\'")
+        self.assertEqual(res.data['error'],
+                         "Invalid type, only \'post\', \'follow\', \'like\'")
 
     def test_get_self_inbox(self):
         """Test Author getting Author's own inbox"""
