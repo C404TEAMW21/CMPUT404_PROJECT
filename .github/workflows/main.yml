@@ -30,3 +30,4 @@ jobs:
         working-directory: ./server
         run: |
           python manage.py test --settings konnection.settings.local
+      

@@ -1,13 +1,14 @@
 import React, { useEffect, useContext, useState } from "react";
 import { useLocation } from "react-router-dom";
 
-import FriendRequestComponent from "./FriendRequestComponent";
 import { Context } from "../../Context";
 import {
   getAllFollowers,
   checkIfFollowing,
   sendFriendFollowRequest,
 } from "../../ApiUtils";
+import FriendFollowerComponent from "./FriendFollowerComponent";
+import { FRIEND_REQUEST_LIST } from "../../Constants";
 
 const FriendRequestList = (props) => {
   const context = useContext(Context);
@@ -65,7 +66,8 @@ const FriendRequestList = (props) => {
   return (
     <div>
       {friendRequests.map((author, index) => (
-        <FriendRequestComponent
+        <FriendFollowerComponent
+          parent={FRIEND_REQUEST_LIST}
           username={author.username}
           authorId={author.id}
           index={index}
