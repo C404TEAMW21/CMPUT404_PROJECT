@@ -1,9 +1,10 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Card, Icon, Image, Button, Label } from "semantic-ui-react";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import "./PostComponent.scss";
 import { Context } from "../../Context";
+import DeletePostModal from "./DeletePostModal";
 
 const markdownType = "text/markdown";
 const plainTextType = "text/plain";
@@ -20,9 +21,11 @@ const defaultProps = {
 
 const PostComponent = (props) => {
   const context = useContext(Context);
+  const [deletePost, setDeletePost] = useState(false);
 
   const passedValues = { ...defaultProps, ...props };
   const {
+    id,
     title,
     description,
     content,
@@ -42,8 +45,19 @@ const PostComponent = (props) => {
     }
   };
 
+  const deletePostClick = () => {
+    setDeletePost(!deletePost);
+  };
+
   return (
     <div className="custom-card">
+      <DeletePostModal
+        id={id}
+        index={props.index}
+        open={deletePost}
+        setOpen={deletePostClick}
+        handleDeletePost={props.handleDeletePost}
+      />
       <Card fluid raised centered>
         <Card.Content>
           <Button basic color="black" floated="right" icon="share alternate" />
@@ -53,6 +67,7 @@ const PostComponent = (props) => {
               color="black"
               floated="right"
               icon="trash alternate"
+              onClick={deletePostClick}
             />
           )}
           {author.id === context.user.id && (
