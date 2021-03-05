@@ -209,7 +209,7 @@ class SharePostView(generics.CreateAPIView):
                                     status=status.HTTP_200_OK)
             else:
                 try:
-                    Inbox.objects.get(author=friend.id).send_to_inbox(post_id)
+                    Inbox.objects.get(author=share_to).send_to_inbox(post_id)
                 except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
                     return Response({'error': 'Post or Author not found!'},
                                     status=status.HTTP_404_NOT_FOUND)
