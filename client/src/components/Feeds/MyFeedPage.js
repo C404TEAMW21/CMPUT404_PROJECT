@@ -60,8 +60,6 @@ const MyFeedPage = () => {
       (a, b) => moment(b.published).toDate() - moment(a.published).toDate()
     );
 
-    console.log(posts);
-
     updatePosts(posts);
     updateLoading(false);
   };

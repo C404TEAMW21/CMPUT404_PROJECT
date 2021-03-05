@@ -1,9 +1,11 @@
 import React, { useContext, useState } from "react";
-import { Card, Icon, Image, Button, Label } from "semantic-ui-react";
+import axios from "axios";
+import { Card, Icon, Image, Button, Label, Dropdown } from "semantic-ui-react";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import "./PostComponent.scss";
 import { Context } from "../../Context";
+import { SERVER_HOST } from "../../Constants";
 import DeletePostModal from "./DeletePostModal";
 
 const markdownType = "text/markdown";
@@ -22,6 +24,8 @@ const defaultProps = {
 const PostComponent = (props) => {
   const context = useContext(Context);
   const [deletePost, setDeletePost] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [sharedFriends, setSharedFriends] = useState(false);
 
   const passedValues = { ...defaultProps, ...props };
   const {
@@ -49,6 +53,36 @@ const PostComponent = (props) => {
     setDeletePost(!deletePost);
   };
 
+  const sharePostFriends = async () => {
+    setShareLoading(true);
+
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    const body = {
+      from: context.user.id,
+      share_to: "all",
+    };
+
+    try {
+      const response = await axios.post(
+        `${SERVER_HOST}/service/author/${context.user.id}/posts/${postId}/share/`,
+        body,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${context.cookie}`,
+          },
+        }
+      );
+
+      setSharedFriends(true);
+      setShareLoading(false);
+    } catch (error) {
+      setShareLoading(false);
+    }
+  };
+
   return (
     <div className="custom-card">
       <DeletePostModal
@@ -60,7 +94,31 @@ const PostComponent = (props) => {
       />
       <Card fluid raised centered>
         <Card.Content>
-          <Button basic color="black" floated="right" icon="share alternate" />
+          <Button.Group as="div" floated="right">
+            <Dropdown
+              icon={null}
+              trigger={
+                <>
+                  <Button
+                    basic
+                    loading={shareLoading}
+                    color="black"
+                    icon="share alternate"
+                  />
+                </>
+              }
+            >
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  disabled={sharedFriends}
+                  onClick={sharePostFriends}
+                >
+                  Friends
+                </Dropdown.Item>
+                <Dropdown.Item>Author</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Button.Group>
           {author.id === context.user.id && visibility === "PUBLIC" && (
             <Button
               basic
