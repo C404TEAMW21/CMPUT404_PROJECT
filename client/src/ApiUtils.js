@@ -82,3 +82,20 @@ export const getAllFollowers = async (token, id) => {
     return error.response;
   }
 };
+
+export const unFollowAuthor = async (token, A, B) => {
+  try {
+    const response = await axios.delete(
+      `${SERVER_HOST}/service/author/${A}/followers/${B}/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
