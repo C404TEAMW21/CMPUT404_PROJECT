@@ -1,9 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, get_object_or_404
-from rest_framework import authentication, permissions, status
+from rest_framework import authentication, generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from posts.serializers import PostSerializer
 from author.serializers import AuthorProfileSerializer
@@ -13,7 +12,7 @@ from .models import Inbox
 from .serializers import InboxSerializer
 
 # service/author/{AUTHOR_ID}/inbox/
-class InboxView(APIView):
+class InboxView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = InboxSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
