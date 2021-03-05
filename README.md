@@ -7,11 +7,13 @@ CMPUT404-project-socialdistribution
 
 See project.org (plain-text/org-mode) for a description of the project.
 
-## Running the program locally
+## Running the Program Locally
 
 Konnection has two components, a client and a server. 
 ### Running the Server
-⚠️ **Note**: Make sure to have python3 installed
+⚠️ **Note**: Make sure to have python3 and postgreSQL installed. Reference to 
+Please refer to our [konnection101](https://github.com/C404TEAMW21/CMPUT404_PROJECT/wiki/Konnection101) 
+to learn more about installing and setting up the database. 
 Go into a terminal window in the root directory of this repository and run
 ```
 python3 -m venv venv
@@ -29,7 +31,18 @@ cd client
 npm install
 npm run dev
 ``` 
-
+## Running the Test Locally
+⚠️ **Note**: Make sure to have python3 and postgreSQL installed. Reference to 
+Please refer to our [konnection101](https://github.com/C404TEAMW21/CMPUT404_PROJECT/wiki/Konnection101) 
+to learn more about installing and setting up the database. 
+Go into a terminal window in the root directory of this repository and run
+```
+python3 -m venv venv
+source venv/bin/activate
+cd server
+pip install -r requirements.txt
+python3 manage.py test --settings konnection.settings.local
+```
 ### Need More Helpful Commands? 
 Please refer to our [konnection101](https://github.com/C404TEAMW21/CMPUT404_PROJECT/wiki/Konnection101) if 
 you need more info with how to set up the database, installing backend command, etc. 
