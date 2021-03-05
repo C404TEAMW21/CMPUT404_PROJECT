@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Card, Message, Dimmer, Loader } from "semantic-ui-react";
 import axios from "axios";
 import PostList from "../Post/PostList";
 import { SERVER_HOST } from "../../Constants";
+import { Context } from "../../Context";
 
 const PublicFeedPage = () => {
   const [posts, updatePosts] = useState([]);
   const [error, updateError] = useState(false);
   const [loading, updateLoading] = useState(true);
+  const context = useContext(Context);
 
   const getAllPublicPosts = async () => {
     try {
@@ -17,6 +19,31 @@ const PublicFeedPage = () => {
       updateError(true);
     }
     updateLoading(false);
+  };
+
+  const handleDeletePost = async (id, index) => {
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    try {
+      const response = await axios.delete(
+        `${SERVER_HOST}/service/author/${context.user.id}/posts/${postId}/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${context.cookie}`,
+          },
+        }
+      );
+
+      let postsTemp = [...posts];
+      const removedPosts = postsTemp.filter((post, i) => {
+        return i !== index;
+      });
+      updatePosts(removedPosts);
+    } catch (error) {
+      updateError(true);
+    }
   };
 
   useEffect(() => {
@@ -39,7 +66,7 @@ const PublicFeedPage = () => {
         />
       )}
       <Card.Group centered itemsPerRow={1}>
-        <PostList posts={posts} />
+        <PostList posts={posts} handleDeletePost={handleDeletePost} />
       </Card.Group>
     </div>
   );
