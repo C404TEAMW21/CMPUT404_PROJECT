@@ -7,80 +7,32 @@ CMPUT404-project-socialdistribution
 
 See project.org (plain-text/org-mode) for a description of the project.
 
-## Installing Backend Dependencies
-Note: Make sure to have python 3.6 or newer installed
+## Running the program locally
 
-Go into a terminal window in the root directory of this repository and run  
+Konnection has two components, a client and a server. 
+### Running the Server
+⚠️ **Note**: Make sure to have python3 installed
+Go into a terminal window in the root directory of this repository and run
 ```
-cd server
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
+cd server
 pip install -r requirements.txt
-
-// Then get a .env file from one of the project members
-and put it in the same directory as `manage.py`
+python3 manage.py runserver --settings konnection.settings.local
 ```
-
-## Helpful Backend Commands
-
-If PostgreSQL is running, 
-`python3 manage.py runserver`  to startup the server.
-
-To create an admin user: `python3 manage.py createsuperuser`. 
-
-Saving new python dependencies: `pip freeze > requirements.txt`.
-
-## Installing DB
-Make sure you have install the required Python packages first above.
-The following commands are to be run within a virtual env.
-
-Note: This is done on OSX
+Please contact any of the project member to get the `.env` file
+### Running the Client
+⚠️ **Note**: Make sure you have npm installed. If server is not running, the webpage will throw an error.
+Go into a terminal window in the root directory of this repository and run
 ```
-brew install postgresql
+cd client
+npm install
+npm run dev
+``` 
 
-// To start PostgreSQL
-brew services start postgresql
-
-// To stop PostgreSQL
-brew services stop postgresql
-
-// To use the CLI and create the databse
-createuser -s myprojectuser 
-psql postgres
-CREATE DATABASE myproject;
-ALTER ROLE myprojectuser SET client_encoding TO 'utf8'; etc.
-
-// Recreate the database
-psql postgres
-DROP DATABASE myproject; // make sure to INCLUDE THE SEMICOLON
-CREATE DATABASE myproject;
-ALTER ROLE myprojectuser SET client_encoding TO 'utf8';
-
-// Don't forget to do the following steps after recreating the db
-python3 manage.py makemigrations
-python3 manage.py migrate
-python3 manage.py createsuperuser
-
-
-// Drop one particular table in your database
-python manage.py dbshell // access local database
-\dt                      // see existing tables
-DROP TABLE <table_name>;
-\q to quit
-
-// This will work if you need to recreate the table
-python manage.py dbshell 
-DELETE FROM django_migrations WHERE app = 'app_name'; # e.g. posts
-\q to quit
-python manage.py makemigrations app_name
-python manage.py migrate
-```
-
-If you're making any DB changes, make sure PostgreSQL has started then
-```
-python3 manage.py makemigrations
-python3 manage.py migrate
-```
+### Need More Helpful Commands? 
+Please refer to our [konnection101](https://github.com/C404TEAMW21/CMPUT404_PROJECT/wiki/Konnection101) if 
+you need more info with how to set up the database, installing backend command, etc. 
 
 
 Repo Contributors / Licensing
@@ -229,3 +181,34 @@ Aceess Many to Many object
 Unique Together
 * From [StackOverflow](https://stackoverflow.com/a/2201687)
 * Accessed Mar 2 2021
+
+Deploying Django to Heroku: Connecting Heroku Postgres
+* From [Bennett Garner](https://bennettgarner.medium.com)
+* From [Noteworthy](https://blog.usejournal.com/deploying-django-to-heroku-connecting-heroku-postgres-fcc960d290d1)
+* Accessed Mar 3 2021
+
+How to Structure the Django Settings for Different Environments
+* From [Max Goodridge](https://www.youtube.com/channel/UCAx4nmhI7S1RcPiaG-Uw0tg)
+* From [Youtube](https://www.youtube.com/watch?v=zPVLRvpzOOU)
+* Accessed Mar 3 2021
+
+Heroku - Django app
+* From [Heroku doc](https://devcenter.heroku.com/articles/django-app-configuration)
+* Accessed Mar 3 2021
+
+How to Deploy Your React App to Heroku
+* From [Daniel Stoica](https://medium.com/@dldanielstoica)
+* From [Better Programming](https://betterprogramming.pub/how-to-deploy-your-react-app-to-heroku-aedc28b218ae)
+* Accessed Mar 4 2021
+
+How to Deploy Your React App to Heroku
+* From [dahlbyk](https://stackoverflow.com/users/54249/dahlbyk)
+* From [Andy_D](https://stackoverflow.com/users/3394347/andy-d)
+* From [StackOverflow](https://stackoverflow.com/questions/42458434/how-to-set-build-env-variables-when-running-create-react-app-build-script)
+* Accessed Mar 4 2021
+
+Deploy to Heroku
+* From [GitHub Action Doc-heroku-deploy](https://github.com/marketplace/actions/deploy-to-heroku)
+* Accessed Mar 4 2021
+
+
