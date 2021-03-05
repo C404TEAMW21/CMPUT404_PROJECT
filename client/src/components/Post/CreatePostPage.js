@@ -32,6 +32,8 @@ const CreatePostPage = (props) => {
         }
       );
 
+      console.log(response);
+
       return response;
     } catch (error) {
       return error.response;

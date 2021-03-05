@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Card, Message, Dimmer, Loader } from "semantic-ui-react";
 import moment from "moment";
 import axios from "axios";
@@ -14,8 +14,6 @@ const MyFeedPage = () => {
   const [inboxPosts, updateInboxPosts] = useState([]);
   const [error, updateError] = useState(false);
   const [loading, updateLoading] = useState(true);
-
-  const mounted = useRef();
 
   const getAllMyPosts = async () => {
     try {
