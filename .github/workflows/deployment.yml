@@ -1,8 +1,6 @@
 name: Run React Deployment
-on:
-  push:
-    branches:
-      - main
+on: [push]
+
 
 jobs:
   frontend-deploy:
