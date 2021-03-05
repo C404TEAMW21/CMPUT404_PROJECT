@@ -203,3 +203,41 @@ class PublicPostView(generics.ListAPIView):
             data.append(PostSerializer(item).data)
 
         return Response(data)
+
+
+# service/author/{AUTHOR_ID}/posts/{POST_ID}/share
+class SharePostView(generics.CreateAPIView):
+    serializer_class = PostSerializer
+
+    def post(self, request, *args, **kwargs):
+        sharer_id = request.data['from']
+        post_id = self.kwargs['pk']
+        share_to = request.data.get('share_to')
+        if share_to:
+            # if share_to == 'all':
+            #     try:
+            #         friend_list = Followers.objects.get(author=sharer_id) \
+            #             .friends()
+            #     except Followers.DoesNotExist:
+            #         return Response(f'No friends to share to',
+            #                         status=status.HTTP_200_OK)
+            #     for friend in friend_list:
+            #         try:
+            #             Inbox.send_to_inbox(self, friend.id, post_id)
+            #         except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
+            #             return Response('Post or Author not found!',
+            #                             status=status.HTTP_404_NOT_FOUND)
+            #         return Response(f'Shared {post_id} with {share_to}',
+            #                         status=status.HTTP_200_OK)
+            # else:
+            # TODO check is_friends()
+            try:
+                Inbox.send_to_inbox(self, share_to, post_id)
+            except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
+                return Response('Post or Author not found!',
+                                status=status.HTTP_404_NOT_FOUND)
+            return Response(f'Shared {post_id} with {share_to}',
+                            status=status.HTTP_200_OK)
+        else:
+            return Response('share_to is empty!',
+                            status=status.HTTP_400_BAD_REQUEST)
