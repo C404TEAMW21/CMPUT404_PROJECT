@@ -13,6 +13,7 @@ class UserManager(BaseUserManager):
     def create_author(self, username, password, **extra_fields):
         author = self.model(username=re.sub(r'\W+', '', username), **extra_fields)
         author.set_password(password)
+        author.url = f'{utils.HOST}/author/{author.id}'
         author.save(using=self._db)
 
         return author
@@ -33,10 +34,9 @@ class Author(AbstractBaseUser, PermissionsMixin):
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     host=models.CharField(max_length=253, default=utils.HOST)
     displayName=models.CharField(max_length=255, blank=True)
-    # TODO: Append host once we have host IP
     url= models.CharField(max_length=255, default='')
     github=models.CharField(max_length=255, default='', blank=True)
-
+    
     adminApproval = models.BooleanField(default=False)
     username = models.CharField(max_length=25, unique=True)
     is_staff = models.BooleanField(default=False)
