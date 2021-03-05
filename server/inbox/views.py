@@ -68,4 +68,4 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
         length = len(inbox.items)
         inbox.items.clear()
         inbox.save()
-        return Response({'data':f'Deleted {length} messages.'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'data':f'Deleted {length} messages.'}, status=status.HTTP_200_OK)
