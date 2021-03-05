@@ -145,8 +145,12 @@ class CreatePostView(generics.ListCreateAPIView):
 
         if (post_data['visibility'] == Post.PUBLIC):
             for follower in followers:
-                Inbox.send_to_inbox(self, inbox_id=follower.id,
-                                    post_id=post_id.group(1))
+                try:
+                    Inbox.send_to_inbox(self, inbox_id=follower.id,
+                                        post_id=post_id.group(1))
+                except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
+                    continue
+
         if (post_data['visibility'] == Post.FRIENDS):
             for follower in followers:
                 try:
@@ -158,8 +162,11 @@ class CreatePostView(generics.ListCreateAPIView):
                 except mainModels.Author.DoesNotExist:
                     continue
                 if is_friends:
-                    Inbox.send_to_inbox(self, inbox_id=follower.id,
-                                        post_id=post_id.group(1))
+                    try:
+                        Inbox.send_to_inbox(self, inbox_id=follower.id,
+                                            post_id=post_id.group(1))
+                    except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
+                        continue
         return post
         
     def perform_create(self, serializer):
@@ -197,7 +204,18 @@ class SharePostView(generics.CreateAPIView):
     serializer_class = PostSerializer
 
     def post(self, request, *args, **kwargs):
-        sharer_id = request.data['user_id']
-        print(request.data)
-        print(sharer_id)
-        return Response(1)
+        sharer_id = request.data['from']
+        post_id = self.kwargs['pk']
+        share_to = request.data.get('share_to')
+        if share_to:
+            # TODO check is_friends()
+            try:
+                Inbox.send_to_inbox(self, share_to, post_id)
+            except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
+                return Response('Post or Author not found!',
+                                status=status.HTTP_404_NOT_FOUND)
+            return Response(f'Shared {post_id} with {share_to}',
+                            status=status.HTTP_200_OK)
+        else:
+            return Response('share_to is empty!',
+                            status=status.HTTP_400_BAD_REQUEST)
