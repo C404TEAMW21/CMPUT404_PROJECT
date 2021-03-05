@@ -47,6 +47,12 @@ python3 manage.py test --settings konnection.settings.local
 Please refer to our [konnection101](https://github.com/C404TEAMW21/CMPUT404_PROJECT/wiki/Konnection101) if 
 you need more info with how to set up the database, installing backend command, etc. 
 
+### Frontend and Backend Host
+For more infromation about deployment, refer to [Deployment Strategy](https://github.com/C404TEAMW21/CMPUT404_PROJECT/wiki/Deployment-Strategy)
+
+- **Frontend host URL (Client)**: [https://konnection-client.herokuapp.com/login](https://konnection-client.herokuapp.com/login)
+
+- **Backend host URL (Server)**: [https://konnection-server.herokuapp.com/](https://konnection-server.herokuapp.com/)
 
 Repo Contributors / Licensing
 =============================
