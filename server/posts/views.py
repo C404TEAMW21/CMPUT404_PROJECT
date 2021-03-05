@@ -145,12 +145,8 @@ class CreatePostView(generics.ListCreateAPIView):
 
         if (post_data['visibility'] == Post.PUBLIC):
             for follower in followers:
-                try:
-                    Inbox.send_to_inbox(self, inbox_id=follower.id,
-                                        post_id=post_id.group(1))
-                except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
-                    continue
-
+                self.send_to_inbox(inbox_id=follower.id,
+                                   post_id=post_id.group(1))
         if (post_data['visibility'] == Post.FRIENDS):
             for follower in followers:
                 try:
@@ -162,16 +158,26 @@ class CreatePostView(generics.ListCreateAPIView):
                 except mainModels.Author.DoesNotExist:
                     continue
                 if is_friends:
-                    try:
-                        Inbox.send_to_inbox(self, inbox_id=follower.id,
-                                            post_id=post_id.group(1))
-                    except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
-                        continue
+                    self.send_to_inbox(inbox_id=follower.id,
+                                       post_id=post_id.group(1))
         return post
         
     def perform_create(self, serializer):
         request_author_id = self.kwargs['author_id']
         serializer.save(author=mainModels.Author.objects.get(id=self.request.user.id))
+
+    def send_to_inbox(self, inbox_id, post_id):
+        try:
+            a_post = Post.objects.get(pk=post_id, unlisted=False)
+            inbox = Inbox.objects.get(author=inbox_id)
+        except Post.DoesNotExist:
+            return
+        except Inbox.DoesNotExist:
+            return
+        data = PostSerializer(a_post).data
+        data['categories'] = list(data['categories'])
+        inbox.items.append(data)
+        inbox.save()
 
 
 # service/public/
@@ -197,25 +203,3 @@ class PublicPostView(generics.ListAPIView):
             data.append(PostSerializer(item).data)
 
         return Response(data)
-
-
-# service/author/{AUTHOR_ID}/posts/{POST_ID}/share
-class SharePostView(generics.CreateAPIView):
-    serializer_class = PostSerializer
-
-    def post(self, request, *args, **kwargs):
-        sharer_id = request.data['from']
-        post_id = self.kwargs['pk']
-        share_to = request.data.get('share_to')
-        if share_to:
-            # TODO check is_friends()
-            try:
-                Inbox.send_to_inbox(self, share_to, post_id)
-            except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
-                return Response('Post or Author not found!',
-                                status=status.HTTP_404_NOT_FOUND)
-            return Response(f'Shared {post_id} with {share_to}',
-                            status=status.HTTP_200_OK)
-        else:
-            return Response('share_to is empty!',
-                            status=status.HTTP_400_BAD_REQUEST)
