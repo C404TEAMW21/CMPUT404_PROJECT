@@ -50,16 +50,13 @@ class InboxView(APIView):
             request_author_id = self.kwargs['author_id']
             # TODO: allow sharing of friend's post
             try:
-                a_post = get_object_or_404(Post, pk=post_id, unlisted=False)
+                Inbox.send_to_inbox(self, self.request.user.id, post_id)
             except ValidationError:
                 return Response(f'{post_id} is not a valid UUID.',
                                 status=status.HTTP_400_BAD_REQUEST)
-            data = PostSerializer(a_post).data
-            inbox = get_object_or_404(Inbox, author=Author.objects
-                                      .get(id=self.request.user.id))
-            data['categories'] = list(data['categories'])
-            inbox.items.append(data)
-            inbox.save()
+            except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
+                return Response('Post or Author not found!',
+                                status=status.HTTP_404_NOT_FOUND)
             return Response({'data':f'Shared {post_id} with {request_author_id}'},
                             status=status.HTTP_200_OK)
         else:
