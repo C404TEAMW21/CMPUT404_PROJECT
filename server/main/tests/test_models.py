@@ -147,3 +147,42 @@ class ModelTests(TestCase):
         author.following.add(follower)
 
         self.assertEqual(len(author.following.all()), 1)
+
+    def test_authors_are_not_friends(self):
+        """test if two authors are followers"""
+        username='test001'
+        followerUserName="test002"
+        password='testpwd'
+        author1 = get_user_model().objects.create_author(
+            username=username,
+            password=password,
+        )
+        follower1 = get_user_model().objects.create_author(
+            username=followerUserName,
+            password=password,
+        )
+
+        author = models.Followers.objects.create(author=author1)  
+        author.followers.add(follower1)
+        self.assertEqual(author.is_friends(author1, follower1), False)
+
+    def test_authors_are_friends(self):
+        """test if two authors are followers"""
+        username='test001'
+        followerUserName="test002"
+        password='testpwd'
+        author1 = get_user_model().objects.create_author(
+            username=username,
+            password=password,
+        )
+        follower1 = get_user_model().objects.create_author(
+            username=followerUserName,
+            password=password,
+        )
+
+        author = models.Followers.objects.create(author=author1)  
+        author.followers.add(follower1)
+
+        follower = models.Followers.objects.create(author=follower1) 
+        follower.followers.add(author1)
+        self.assertEqual(author.is_friends(author1, follower1), True)

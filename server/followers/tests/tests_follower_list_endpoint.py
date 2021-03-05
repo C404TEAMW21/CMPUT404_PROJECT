@@ -428,3 +428,59 @@ class TestDeleteFollowerEndpoint(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
+class TestFriendsListEndpoint(TestCase):
+    """Test API(GET):://service/author/{id}/friends/"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.client2 = APIClient()
+        self.id = '77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'
+        self.id2 = '88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'
+        
+    def test_author_followers(self):
+        "Test returns an empty list if no friends"
+        user = create_author(
+            username='abc001',
+            password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID(self.id),
+        )
+        self.client.force_authenticate(user=user)
+
+        res = self.client.get(f'/service/author/{self.id}/friends/')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, {})
+
+    def test_friends(self):
+        """Test returns a list of friends"""
+
+        authorA = create_author(
+            username='user1',
+            password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'),
+        )
+
+        authorB = create_author(
+            username='user2',
+            password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
+        )
+        
+        self.client.force_authenticate(user=authorB)
+        res = self.client.put(f'/service/author/{self.id}/followers/{self.id2}/')
+        
+        self.client2.force_authenticate(user=authorA)
+        res = self.client2.put(f'/service/author/{self.id2}/followers/{self.id}/')
+
+        res = self.client.get(f'/service/author/{self.id}/friends/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['friends']), 1)
+        self.assertEqual(res.data['friends'][0]['username'], 'user2')
+
+        res = self.client2.get(f'/service/author/{self.id2}/friends/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['friends']), 1)
+        self.assertEqual(res.data['friends'][0]['username'], 'user1')
