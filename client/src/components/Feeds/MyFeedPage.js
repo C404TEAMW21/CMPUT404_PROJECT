@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import { Card, Message, Dimmer, Loader } from "semantic-ui-react";
+import moment from "moment";
 import axios from "axios";
 import PostList from "../Post/PostList";
 import { SERVER_HOST } from "../../Constants";
@@ -9,8 +10,12 @@ const MyFeedPage = () => {
   const context = useContext(Context);
 
   const [posts, updatePosts] = useState([]);
+  const [authorPosts, updateAuthorPosts] = useState([]);
+  const [inboxPosts, updateInboxPosts] = useState([]);
   const [error, updateError] = useState(false);
   const [loading, updateLoading] = useState(true);
+
+  const mounted = useRef();
 
   const getAllMyPosts = async () => {
     try {
@@ -24,14 +29,44 @@ const MyFeedPage = () => {
         }
       );
 
-      updatePosts(response.data);
+      updateAuthorPosts(response.data);
     } catch (error) {
       updateError(true);
     }
-    updateLoading(false);
   };
 
-  const getAllInboxItems = () => {};
+  const getAllInboxPosts = async () => {
+    try {
+      const response = await axios.get(
+        `${SERVER_HOST}/service/author/${context.user.id}/inbox/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${context.cookie}`,
+          },
+        }
+      );
+      const posts = response.data.items.filter((item) => {
+        return item.type == "post";
+      });
+      updateInboxPosts(posts);
+    } catch (error) {
+      updateError(true);
+    }
+  };
+
+  const getMyFeedPosts = () => {
+    let posts = [...authorPosts, ...inboxPosts];
+
+    posts.sort(
+      (a, b) => moment(b.published).toDate() - moment(a.published).toDate()
+    );
+
+    console.log(posts);
+
+    updatePosts(posts);
+    updateLoading(false);
+  };
 
   const handleDeletePost = async (id, index) => {
     let postId = id.split("/");
@@ -61,9 +96,15 @@ const MyFeedPage = () => {
   useEffect(() => {
     if (context.user) {
       getAllMyPosts();
-      getAllInboxItems();
+      getAllInboxPosts();
     }
   }, []);
+
+  useEffect(() => {
+    if (context.user) {
+      getMyFeedPosts();
+    }
+  }, [authorPosts, inboxPosts]);
 
   return (
     <div>
