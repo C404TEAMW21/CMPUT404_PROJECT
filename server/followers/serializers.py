@@ -51,4 +51,3 @@ class FollowersFriendSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Followers
         fields = ('friends',)
-        
