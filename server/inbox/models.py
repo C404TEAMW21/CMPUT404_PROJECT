@@ -13,13 +13,12 @@ class Inbox(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     items = ArrayField(models.JSONField(), blank=True, default=list, null=True)
 
-    def send_to_inbox(self, inbox_id, post_id):
+    def send_to_inbox(self, post_id):
         a_post = Post.objects.get(pk=post_id, unlisted=False)
-        inbox = Inbox.objects.get(author=inbox_id)
         data = PostSerializer(a_post).data
         data['categories'] = list(data['categories'])
-        inbox.items.append(data)
-        inbox.save()
+        self.items.append(data)
+        self.save()
 
 
 # create Inbox object after Author is created and called save()

@@ -50,7 +50,7 @@ class InboxView(APIView):
             request_author_id = self.kwargs['author_id']
             # TODO: allow sharing of friend's post
             try:
-                Inbox.send_to_inbox(self, self.request.user.id, post_id)
+                Inbox.objects.get(author=request_author_id).send_to_inbox(post_id)
             except ValidationError:
                 return Response(f'{post_id} is not a valid UUID.',
                                 status=status.HTTP_400_BAD_REQUEST)
