@@ -79,11 +79,6 @@ const NavBar = (props) => {
                 onClick={handleClick}
               />
               <Dropdown.Item
-                text="Friend Requests"
-                name="Friend Requests"
-                onClick={handleClick}
-              />
-              <Dropdown.Item
                 icon="sign-out"
                 text="Logout"
                 onClick={handleLogout}

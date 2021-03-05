@@ -33,8 +33,6 @@ const FollowerList = (props) => {
     }
   }, [location]);
 
-  const handleDeleteFollower = () => {};
-
   return (
     <div>
       {followers.map((author) => (
@@ -42,7 +40,6 @@ const FollowerList = (props) => {
           parent={FOLLOWER_LIST}
           username={author.username}
           authorId={author.id}
-          handleDeleteFollower={handleDeleteFollower}
         />
       ))}
     </div>
