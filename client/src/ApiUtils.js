@@ -120,3 +120,20 @@ export const getInboxPosts = async (token, id) => {
     return error.response;
   }
 };
+
+export const getAllFriends = async (token, id) => {
+  try {
+    const response = await axios.get(
+      `${SERVER_HOST}/service/author/${id}/friends/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};

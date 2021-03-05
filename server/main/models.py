@@ -62,6 +62,16 @@ class Followers(models.Model):
             except Followers.DoesNotExist:
                 pass
         return list
+    
+    def is_friends(self, author1, author2):
+        try:
+            author1_followers = Followers.objects.get(author=author1).followers.all()
+            author2_followers = Followers.objects.get(author=author2).followers.all()
+            if (author1 in author2_followers) and (author2 in author1_followers):
+                return True
+        except Followers.DoesNotExist:
+            pass
+        return False
 
 class Following(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="following", unique=False, on_delete=models.CASCADE)

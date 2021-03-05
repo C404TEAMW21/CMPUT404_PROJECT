@@ -479,7 +479,6 @@ class TestFriendsListEndpoint(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['friends']), 1)
         self.assertEqual(res.data['friends'][0]['username'], 'user2')
-        print(res.data['friends'])
 
         res = self.client2.get(f'/service/author/{self.id2}/friends/')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
