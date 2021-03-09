@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 
 from main import models
-
+import uuid
 class ModelTests(TestCase):
     def test_create_user_with_username(self):
         username='test001'
@@ -56,23 +56,27 @@ class ModelTests(TestCase):
     def test_author_url(self):
         username='test001'
         password='testpwd'
-        url=""
+        host='https://konnection-client.herokuapp.com'
+        id='77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'
+    
         author = get_user_model().objects.create_author(
             username=username,
             password=password,
+            id=uuid.UUID(id),
         )
 
-        self.assertEqual(author.url, url)
+        self.assertEqual(author.url, f'{host}/author/{id}')
 
     def test_author_host(self):
         username='test001'
         password='testpwd'
+        host='https://konnection-client.herokuapp.com'
         author = get_user_model().objects.create_author(
             username=username,
             password=password
         )
 
-        self.assertEqual(author.host, settings.SERVER_URL)
+        self.assertEqual(author.host, host)
 
     def test_author_superuser(self):
         username='testsuper001'
