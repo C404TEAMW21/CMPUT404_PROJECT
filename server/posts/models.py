@@ -1,14 +1,10 @@
 from django.db import models
 from django.utils.timezone import now
+from django.contrib.postgres.fields import ArrayField
 
 from main import models as mainModels
 from main import utils
 import uuid
-
-class Category(models.Model):
-    class Meta:
-        verbose_name_plural = "categories"
-    category = models.CharField(max_length=200, unique=True)
 
 class Post(models.Model):
     type = "post"
@@ -51,7 +47,7 @@ class Post(models.Model):
     author = models.ForeignKey(mainModels.Author, on_delete=models.PROTECT)
 
     # TODO: create categories
-    categories = models.ManyToManyField(Category, blank=True) # e.g. ["web","tutorial"]
+    categories = ArrayField(models.TextField(), blank=True, default=list, null=True) # e.g. ["web","tutorial"]
     count =  models.PositiveIntegerField(default=0)       # for comments
     size =  models.PositiveIntegerField(default=0)        # page size for comments
 

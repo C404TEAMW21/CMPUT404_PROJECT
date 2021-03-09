@@ -16,6 +16,7 @@ PAYLOAD = {
             "contentType": "text/html",
             "content": "<h1>hello</h1>",
             "visibility": "PUBLIC",
+            "categories": ["c1", "c2"],
             "unlisted": False
         }
 
@@ -83,11 +84,13 @@ class TestCreatePostEndpoint(TestCase):
         self.assertIn('contentType', res.data)
         self.assertIn('content', res.data)
         self.assertIn('author', res.data)
-        # self.assertIn('categories', res.data)
+        self.assertIn('categories', res.data)
         self.assertIn('count', res.data)
         self.assertIn('size', res.data)
         # self.assertIn('comments', res.data)   # url and list?
         self.assertIn('visibility', res.data)
+
+        self.assertEqual(len(res.data['categories']), 2)
     
     def test_create_post_without_mandatory_params(self):
         """Testing TestCreatePostEndpoint return 400 if mandatory params
