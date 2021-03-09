@@ -188,7 +188,10 @@ class SharePostView(generics.CreateAPIView):
     serializer_class = PostSerializer
 
     def post(self, request, *args, **kwargs):
-        sharer_id = request.data['from']
+        sharer_id = request.data.get('from')
+        if sharer_id == None:
+            return Response({'error':'from is empty!'},
+                            status=status.HTTP_400_BAD_REQUEST)
         post_id = self.kwargs['pk']
         share_to = request.data.get('share_to')
         if share_to:
