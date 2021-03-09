@@ -7,6 +7,7 @@ from rest_framework import status
 from main import models as mainModels
 from inbox.models import Inbox
 from posts.models import Post
+import uuid
 
 PAYLOAD = {
             "title": "Title",
@@ -487,14 +488,26 @@ class TestSharePostEndpoint(TestCase):
     def setUp(self):
         self.cred='testing'
         self.cred2='testing2'
+        self.cred3='testing3'
+
+        self.id = '77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'
+        self.id2 = '88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'
         self.author = get_user_model().objects.create_author(
             username= self.cred,
             password= self.cred,
-            adminApproval= True
+            adminApproval= True,
+            id=uuid.UUID(self.id),
         )
         self.author2 = get_user_model().objects.create_author(
             username= self.cred2,
             password= self.cred2,
+            adminApproval= True,
+            id=uuid.UUID(self.id2),
+        )
+
+        self.author3 = get_user_model().objects.create_author(
+            username= self.cred3,
+            password= self.cred3,
             adminApproval= True
         )
         post = Post.objects.create(
@@ -507,6 +520,7 @@ class TestSharePostEndpoint(TestCase):
         )
         self.client = APIClient()
         self.client2 = APIClient()
+        self.client3 = APIClient()
 
     def test_share_post_to_author(self):
         """Testing share a Post to an Author's Inbox"""
@@ -520,4 +534,52 @@ class TestSharePostEndpoint(TestCase):
         res = self.client.post(self.share_url, payload)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 1)
+    
+    def test_share_post_to_author(self):
+        """Testing share a Post to multiple friends' Inbox"""
+        
+        payload = {
+            'from': self.author.id,
+            'share_to': 'all'
+        }
+
+
+        # author is friend with author2 and author3
+        self.client3.force_authenticate(user=self.author3)
+        authorC = mainModels.Followers.objects.create(author=self.author3)
+        authorC.followers.add(self.author)
+
+        self.client2.force_authenticate(user=self.author2)
+        authorB = mainModels.Followers.objects.create(author=self.author2)
+        authorB.followers.add(self.author)
+        
+        self.client.force_authenticate(user=self.author)
+        authorA = mainModels.Followers.objects.create(author=self.author)
+        authorA.followers.add(self.author2)
+        authorA.followers.add(self.author3)
+
+        res = self.client.get(f'/service/author/{self.id}/friends/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['friends']), 2)
+
+        res = self.client2.get(f'/service/author/{self.id2}/friends/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['friends']), 1)
+
+        res = self.client3.get(f'/service/author/{self.id2}/friends/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['friends']), 1)
+
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 0)
+
+
+        res = self.client.post(self.share_url, payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 1)
+
+        inbox = Inbox.objects.get(author=self.author3)
         self.assertEqual(len(inbox.items), 1)

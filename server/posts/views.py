@@ -202,14 +202,15 @@ class SharePostView(generics.CreateAPIView):
                 except Followers.DoesNotExist:
                     return Response({'data': f'No friends to share to'},
                                     status=status.HTTP_200_OK)
+
                 for friend in friend_list:
                     try:
-                        Inbox.objects.get(author=friend.id).send_to_inbox(post_id)
-                    except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
-                        return Response({'error': 'Post or Author not found!'},
-                                        status=status.HTTP_404_NOT_FOUND)
-                    return Response({'data': f'Shared {post_id} with {share_to}'},
-                                    status=status.HTTP_200_OK)
+                        inbox = Inbox.objects.get(author=friend.id)
+                        inbox.send_to_inbox(post_id)
+                    except:
+                        pass
+                return Response({'data': f'Shared {post_id} with {share_to}'},
+                                status=status.HTTP_200_OK)
             else:
                 try:
                     Inbox.objects.get(author=share_to).send_to_inbox(post_id)
