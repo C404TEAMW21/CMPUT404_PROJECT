@@ -58,7 +58,7 @@ class CommentTestCase(TestCase):
         self.assertTrue(isinstance(comment.published, datetime))
         self.assertTrue(comment.contentType, Comment.CT_MARKDOWN)
     
-    def test_create_comment(self):
+    def test_create_plain_text_comment(self):
         """Test Comment Object can choose plain text for content"""
         comment = Comment.objects.create(
             author=self.author,
@@ -68,3 +68,13 @@ class CommentTestCase(TestCase):
         )
 
         self.assertTrue(comment.contentType, Comment.CT_PLAIN)
+    
+    def test_get_id_url(self):
+        """Test get comment url """
+        comment = Comment.objects.create(
+            author=self.author,
+            comment=COMMENT_CONTENT,
+            post=self.post,
+        )
+
+        self.assertRegex(comment.get_id_url(), r'^http.+/author/.+/posts/.+/comments/.+$')
