@@ -7,14 +7,14 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ```
 cd client
 npm install
-npm start
+npm run dev
 ```
 
 #### `npm install`
 
 Installs all needed dependencies to run the app.
 
-#### `npm start`
+#### `npm run dev`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.

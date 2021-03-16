@@ -92,7 +92,7 @@ const PostComponent = (props) => {
         setOpen={deletePostClick}
         handleDeletePost={props.handleDeletePost}
       />
-      <Card fluid raised centered>
+      <Card fluid raised centered href="/author/1/posts/2">
         <Card.Content>
           <Button.Group as="div" floated="right">
             <Dropdown
