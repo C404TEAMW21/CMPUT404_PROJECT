@@ -111,7 +111,7 @@ export const getInboxPosts = async (token, id) => {
         },
       }
     );
-    const posts = response.data.items.filter(function (item){
+    const posts = response.data.items.filter(function (item) {
       return item.type == "post";
     });
     response.data.items = posts;
@@ -132,6 +132,20 @@ export const getAllFriends = async (token, id) => {
         },
       }
     );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const getSpecificAuthorPost = async (token, path) => {
+  try {
+    const response = await axios.get(`${SERVER_HOST}/service${path}/`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
     return response;
   } catch (error) {
     return error.response;

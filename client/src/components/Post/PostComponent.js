@@ -83,6 +83,13 @@ const PostComponent = (props) => {
     }
   };
 
+  const getPostHref = () => {
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    return `/author/${author.id}/posts/${postId}`;
+  };
+
   return (
     <div className="custom-card">
       <DeletePostModal
@@ -92,7 +99,7 @@ const PostComponent = (props) => {
         setOpen={deletePostClick}
         handleDeletePost={props.handleDeletePost}
       />
-      <Card fluid raised centered href="/author/1/posts/2">
+      <Card fluid raised centered href={getPostHref()}>
         <Card.Content>
           <Button.Group as="div" floated="right">
             <Dropdown
