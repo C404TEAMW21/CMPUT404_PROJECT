@@ -151,3 +151,20 @@ export const getSpecificAuthorPost = async (token, path) => {
     return error.response;
   }
 };
+
+export const deletePost = async (token, userId, postId) => {
+  try {
+    const response = await axios.delete(
+      `${SERVER_HOST}/service/author/${userId}/posts/${postId}/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};

@@ -71,7 +71,8 @@ const CreatePost = (props) => {
     updateLoading(false);
 
     if (response.status === 201) {
-      props.postSuccess();
+      const postId = response.data.id.split("/").splice(-2)[0];
+      props.postSuccess(postId);
     } else {
       const message = (
         <Message

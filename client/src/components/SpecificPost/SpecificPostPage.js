@@ -1,11 +1,15 @@
 import React, { useState, useContext, useEffect } from "react";
+import moment from "moment";
+import { useHistory } from "react-router-dom";
 import { Dimmer, Loader, Message } from "semantic-ui-react";
-import { getSpecificAuthorPost } from "../../ApiUtils";
+import { getSpecificAuthorPost, deletePost } from "../../ApiUtils";
 import { Context } from "../../Context";
 import PostComponent from "../Post/PostComponent";
+import { ROUTE_MY_FEED } from "../../Constants";
 
 const SpecificPostPage = () => {
   const context = useContext(Context);
+  let history = useHistory();
 
   const [loading, updateLoading] = useState(true);
   const [error, updateError] = useState(false);
@@ -22,7 +26,6 @@ const SpecificPostPage = () => {
     );
 
     if (response.status === 200) {
-      console.log(response.data);
       updatePostInfo([response.data]);
     } else {
       updateError(true);
@@ -31,8 +34,17 @@ const SpecificPostPage = () => {
     updateLoading(false);
   };
 
-  const handleDeletePost = () => {
-    // TODO implement so that if successful delete, reroute to public feed otherwise display error
+  const handleDeletePost = async (id) => {
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    const response = await deletePost(context.cookie, context.user.id, postId);
+
+    if (response.status !== 204) {
+      updateError(true);
+    } else {
+      history.push(ROUTE_MY_FEED);
+    }
   };
 
   return (
@@ -55,15 +67,16 @@ const SpecificPostPage = () => {
           <div id={index}>
             <PostComponent
               id={post.id}
-              title={post.id}
+              title={post.title}
               description={post.description}
               content={post.content}
               contentType={post.contentType}
               author={post.author}
-              published={post.published}
+              published={moment(post.published).format(
+                "MMMM Do YYYY, h:mm:ss a"
+              )}
               visibility={post.visibility}
               handleDeletePost={handleDeletePost}
-              showSpecificPostContents={true}
             />
           </div>
         );
