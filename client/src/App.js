@@ -19,6 +19,7 @@ import {
   PAGE_CREATE_POST,
 } from "./Constants";
 import "./App.scss";
+import SpecificPostPage from "./components/SpecificPost/SpecificPostPage";
 
 const App = (props) => {
   const context = useContext(Context);
@@ -112,10 +113,18 @@ const App = (props) => {
           activeMenuItem={PAGE_CREATE_POST}
         />
         <PrivateRoute
+          exact
           isAuthorized={context.cookie}
           path="/author/:id"
           component={LandingPage}
           subComponent={ProfilePage}
+        />
+        <PrivateRoute
+          exact
+          isAuthorized={context.cookie}
+          path="/author/:author_id/posts/:post_id"
+          component={LandingPage}
+          subComponent={SpecificPostPage}
         />
       </Switch>
     </div>

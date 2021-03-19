@@ -11,6 +11,7 @@ import "./CreatePostPage.scss";
 const CreatePostPage = (props) => {
   const context = useContext(Context);
   const [success, updateSuccess] = useState(false);
+  const [createdPostId, updatedCreatedPostId] = useState("");
 
   const onSubmit = async (body) => {
     if (Array.isArray(body.content)) {
@@ -52,14 +53,15 @@ const CreatePostPage = (props) => {
     });
   };
 
-  const postSuccess = () => {
+  const postSuccess = (postId) => {
     updateSuccess(true);
+    updatedCreatedPostId(postId);
   };
 
   return (
     <div className="create-post-page">
       {success ? (
-        <PostSuccess />
+        <PostSuccess postId={createdPostId} />
       ) : (
         <div className="create-post-form-page">
           <Header as="h2">

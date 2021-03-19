@@ -29,7 +29,7 @@ const FriendsList = (props) => {
     const response = await getAllFriends(context.cookie, id);
 
     if (response.status === 200) {
-      updateFriends(response.data.friends);
+      updateFriends(response.data.friends ? response.data.friends : []);
     } else {
       props.updateError(true);
     }
