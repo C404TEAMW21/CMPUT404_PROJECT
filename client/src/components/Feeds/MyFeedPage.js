@@ -12,6 +12,7 @@ const MyFeedPage = () => {
   const [posts, updatePosts] = useState([]);
   const [authorPosts, updateAuthorPosts] = useState([]);
   const [inboxPosts, updateInboxPosts] = useState([]);
+  const [githubActivity, updateGithubActivity] = useState([]);
   const [error, updateError] = useState(false);
   const [loading, updateLoading] = useState(true);
 
@@ -54,6 +55,7 @@ const MyFeedPage = () => {
   };
 
   const getMyFeedPosts = () => {
+    // TODO also sort Github activity posts by date
     let posts = [...authorPosts, ...inboxPosts];
 
     posts.sort(
@@ -89,10 +91,13 @@ const MyFeedPage = () => {
     }
   };
 
+  const getAllGithubActivity = () => {};
+
   useEffect(() => {
     if (context.user) {
       getAllMyPosts();
       getAllInboxPosts();
+      getAllGithubActivity();
     }
   }, []);
 
@@ -100,7 +105,7 @@ const MyFeedPage = () => {
     if (context.user) {
       getMyFeedPosts();
     }
-  }, [authorPosts, inboxPosts]);
+  }, [authorPosts, inboxPosts, githubActivity]);
 
   return (
     <div>

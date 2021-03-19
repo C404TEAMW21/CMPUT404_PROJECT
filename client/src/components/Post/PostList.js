@@ -15,6 +15,8 @@ const PostList = ({ posts, handleDeletePost }) => {
       visibility,
     } = post;
 
+    // if GitHub component return it. Make sure to sort it in MyFeedPage Parent
+
     return (
       <PostComponent
         key={id}
