@@ -19,7 +19,7 @@ const PostList = ({ posts, handleDeletePost }) => {
     // if GitHub component return it. Make sure to sort it in MyFeedPage Parent
 
     if (post.type === "github") {
-      return <GithubComponent />;
+      return <GithubComponent content={post} />;
     }
 
     return (

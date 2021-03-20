@@ -98,7 +98,12 @@ const MyFeedPage = () => {
 
     try {
       const response = await axios.get(
-        `https://api.github.com/users/${context.user.github}/events?per_page=5&page=1`
+        `https://api.github.com/users/${context.user.github}/events?per_page=5&page=1`,
+        {
+          headers: {
+            Authorization: `token ${process.env.REACT_APP_GITHUB_KEY}`,
+          },
+        }
       );
 
       const result = [];
