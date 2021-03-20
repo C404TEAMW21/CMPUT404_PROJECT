@@ -1,6 +1,7 @@
 import React from "react";
 import moment from "moment";
 import PostComponent from "./PostComponent";
+import GithubComponent from "../Github/GithubComponent";
 
 const PostList = ({ posts, handleDeletePost }) => {
   const postList = posts.map((post, index) => {
@@ -16,6 +17,10 @@ const PostList = ({ posts, handleDeletePost }) => {
     } = post;
 
     // if GitHub component return it. Make sure to sort it in MyFeedPage Parent
+
+    if (post.type === "github") {
+      return <GithubComponent />;
+    }
 
     return (
       <PostComponent

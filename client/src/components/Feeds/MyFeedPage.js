@@ -56,7 +56,7 @@ const MyFeedPage = () => {
 
   const getMyFeedPosts = () => {
     // TODO also sort Github activity posts by date
-    let posts = [...authorPosts, ...inboxPosts];
+    let posts = [...authorPosts, ...inboxPosts, ...githubActivity];
 
     posts.sort(
       (a, b) => moment(b.published).toDate() - moment(a.published).toDate()
@@ -91,8 +91,48 @@ const MyFeedPage = () => {
     }
   };
 
-  const getAllGithubActivity = () => {
-    // https://api.github.com/users/bui1/events?per_page=5&page=1
+  const getAllGithubActivity = async () => {
+    if (!context.user.github) {
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `https://api.github.com/users/${context.user.github}/events?per_page=5&page=1`
+      );
+
+      const result = [];
+      for (let event of response.data) {
+        if (event.type === "PushEvent") {
+          result.push({
+            type: "github",
+            eventType: event.type,
+            published: event.created_at,
+            repo: event.name,
+            commits: event.payload.commits,
+          });
+        } else if (event.type === "PullRequestEvent") {
+          result.push({
+            type: "github",
+            eventType: event.type,
+            published: event.created_at,
+            repo: event.repo.url,
+            action: event.payload.action,
+            url: event.payload.pull_request.html_url,
+          });
+        }
+      }
+
+      updateGithubActivity(result);
+    } catch {
+      updateGithubActivity([
+        {
+          type: "github",
+          error: "Unable to fetch from GitHub. Please check your credentials",
+          published: new Date(),
+        },
+      ]);
+    }
   };
 
   useEffect(() => {
