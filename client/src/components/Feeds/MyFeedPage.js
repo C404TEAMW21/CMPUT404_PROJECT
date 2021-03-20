@@ -91,7 +91,9 @@ const MyFeedPage = () => {
     }
   };
 
-  const getAllGithubActivity = () => {};
+  const getAllGithubActivity = () => {
+    // https://api.github.com/users/bui1/events?per_page=5&page=1
+  };
 
   useEffect(() => {
     if (context.user) {
