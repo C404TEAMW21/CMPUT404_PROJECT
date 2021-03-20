@@ -7,15 +7,22 @@ import "./Github.scss";
 
 const GithubComponent = (props) => {
   return (
-    <div className="custom-card">
+    <div className="github-card">
       <Card raised fluid centered>
         <Card.Content>
-          <GithubLogo />
-          <Card.Header>{props.content.eventType}</Card.Header>
-          <Card.Meta>
-            {moment(props.content.published).format("MMMM Do YYYY, h:mm:ss a")}
-          </Card.Meta>
-          <Card.Description>TODO</Card.Description>
+          <div className="logo">
+            <GithubLogo />
+          </div>
+
+          <div className="github-data">
+            <Card.Header>{props.content.eventType}</Card.Header>
+            <Card.Meta>
+              {moment(props.content.published).format(
+                "MMMM Do YYYY, h:mm:ss a"
+              )}
+            </Card.Meta>
+            <Card.Description>TODO</Card.Description>
+          </div>
         </Card.Content>
       </Card>
     </div>

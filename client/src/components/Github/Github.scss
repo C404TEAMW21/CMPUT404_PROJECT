@@ -1,6 +1,26 @@
-.custom-card {
+.github-card {
   margin-top: 10px;
   margin-bottom: 10px;
+
+  .content {
+    display: flex;
+
+    .logo {
+      float: left;
+    }
+
+    .header {
+      font-weight: 700;
+      font-size: 1.28571429em;
+      margin-top: -0.21425em;
+      line-height: 1.28571429em;
+    }
+
+    .github-data {
+      padding-left: 2%;
+      margin: auto 0;
+    }
+  }
 
   .ui.card > .extra,
   .ui.cards > .card > .extra {
