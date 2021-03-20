@@ -197,3 +197,9 @@ Detecting Router Location Updates
 - From [StackOverflow](https://stackoverflow.com/a/61153138)
 - From [onosendi](https://stackoverflow.com/users/12241335/onosendi)
 - Accessed March 1 2021
+
+Setting up Env Variables for React
+
+- From [StackOverflow](https://stackoverflow.com/a/49579700)
+- From [tarzen chugh](https://stackoverflow.com/users/7845230/tarzen-chugh)
+- Accessed March 19 2021
