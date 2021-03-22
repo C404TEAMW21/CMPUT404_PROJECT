@@ -154,8 +154,8 @@ class CreatePostView(generics.ListCreateAPIView):
         return post
         
     def perform_create(self, serializer):
-        request_author_id = self.kwargs['author_id']
-        serializer.save(author=Author.objects.get(id=self.request.user.id))
+        request_author_id = self.request.user.id
+        serializer.save(author=Author.objects.get(id=request_author_id))
 
 
 # service/public/

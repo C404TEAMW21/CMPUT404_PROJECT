@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'inbox',
     'corsheaders',
     'followers',
+    'comments',
 ]
 
 MIDDLEWARE = [
