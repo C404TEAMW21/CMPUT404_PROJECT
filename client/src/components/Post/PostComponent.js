@@ -5,11 +5,8 @@ import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import "./PostComponent.scss";
 import { Context } from "../../Context";
-import { SERVER_HOST } from "../../Constants";
+import { SERVER_HOST, MARKDOWN_TYPE, PLAINTEXT_TYPE } from "../../Constants";
 import DeletePostModal from "./DeletePostModal";
-
-const markdownType = "text/markdown";
-const plainTextType = "text/plain";
 
 const defaultProps = {
   title: "Test Title",
@@ -19,6 +16,7 @@ const defaultProps = {
   author: { displayName: "John Appleseed", id: "1" },
   published: "2021-02-18T07:21:52.915800Z",
   visibility: "PUBLIC",
+  id: "1",
 };
 
 const PostComponent = (props) => {
@@ -40,11 +38,15 @@ const PostComponent = (props) => {
   } = passedValues;
 
   const renderContent = () => {
+    if (!contentType) {
+      return <p>No Content</p>;
+    }
+
     if (contentType.includes("image")) {
       return <Image src={content} size="medium" />;
-    } else if (contentType === markdownType) {
+    } else if (contentType === MARKDOWN_TYPE) {
       return <ReactMarkdown plugins={[gfm]} children={content} />;
-    } else if (contentType === plainTextType) {
+    } else if (contentType === PLAINTEXT_TYPE) {
       return <p>{content}</p>;
     }
   };
@@ -83,6 +85,27 @@ const PostComponent = (props) => {
     }
   };
 
+  const getPostHref = () => {
+    if (!id) {
+      return ``;
+    }
+
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    const checkPath = window.location.pathname.split("/");
+
+    if (
+      checkPath.length >= 5 &&
+      checkPath[2] === author.id &&
+      checkPath[4] === postId
+    ) {
+      return ``;
+    }
+
+    return `/author/${author.id}/posts/${postId}`;
+  };
+
   return (
     <div className="custom-card">
       <DeletePostModal
@@ -92,7 +115,7 @@ const PostComponent = (props) => {
         setOpen={deletePostClick}
         handleDeletePost={props.handleDeletePost}
       />
-      <Card fluid raised centered>
+      <Card fluid raised centered href={getPostHref()}>
         <Card.Content>
           <Button.Group as="div" floated="right">
             <Dropdown
@@ -119,31 +142,36 @@ const PostComponent = (props) => {
               </Dropdown.Menu>
             </Dropdown>
           </Button.Group>
-          {author.id === context.user.id && visibility === "PUBLIC" && (
-            <Button
-              basic
-              color="black"
-              floated="right"
-              icon="trash alternate"
-              onClick={deletePostClick}
-            />
-          )}
-          {author.id === context.user.id && visibility === "PUBLIC" && (
-            <Button basic color="black" floated="right" icon="pencil" />
-          )}
+          {context.user &&
+            author.id === context.user.id &&
+            visibility === "PUBLIC" && (
+              <Button
+                basic
+                color="black"
+                floated="right"
+                icon="trash alternate"
+                onClick={deletePostClick}
+              />
+            )}
+          {context.user &&
+            author.id === context.user.id &&
+            visibility === "PUBLIC" && (
+              <Button basic color="black" floated="right" icon="pencil" />
+            )}
           <Card.Header>{title}</Card.Header>
           <Card.Meta>
             <div>
               <Icon name="eye" />
               <span>
-                {visibility.charAt(0) + visibility.substring(1).toLowerCase()}
+                {visibility &&
+                  visibility.charAt(0) + visibility.substring(1).toLowerCase()}
               </span>
             </div>
             <div>
               <span className="date">
                 Posted by{" "}
-                <a href={`/author/${author.id}`}>
-                  {author.displayName || author.username}
+                <a href={author && `/author/${author.id}`}>
+                  {author && (author.displayName || author.username)}
                 </a>{" "}
                 on {published}
               </span>
