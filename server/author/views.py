@@ -70,4 +70,4 @@ class AllAuthorsView(generics.ListAPIView):
             raise AuthenticationFailed(
                 detail={"error": ["User has not been approved by admin"]})
         
-        return get_user_model().objects.filter(type='author')
+        return get_user_model().objects.filter(type='author', adminApproval=True)

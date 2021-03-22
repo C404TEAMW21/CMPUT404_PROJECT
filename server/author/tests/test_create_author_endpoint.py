@@ -147,7 +147,6 @@ class TestAuthGetAuthorEndpoint(TestCase):
     """Test API(GET)://service/author/{AUTHOR_ID}/"""
     def setUp(self):
         self.client = APIClient()
-        print(AUTH_USER_URL)
         
     def test_get_author_endpoint_with_auth(self):
         """Test retrieving author profile if user is logged in"""
@@ -314,12 +313,13 @@ class TestGetAllAuthorsEndpoint(TestCase):
             password='abcpwd',
             adminApproval= True,
             type=utils.UserType.superuser.value,
-            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e').int,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'),
         )
         create_author(
             username='abc002',
             password='abcpwd',
-            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3f').int,
+            adminApproval= True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3f'),
         )
         self.client.force_authenticate(user)
 
@@ -327,6 +327,28 @@ class TestGetAllAuthorsEndpoint(TestCase):
        
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
+
+    def test_get_all_authors_endpoint_not_return_unapproved(self):
+        """Test retrieving all authors profile list exclude not admin approved user"""
+        user = create_author(
+            username='abc001',
+            password='abcpwd',
+            adminApproval= True,
+            type=utils.UserType.superuser.value,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'),
+        )
+        create_author(
+            username='abc002',
+            password='abcpwd',
+            adminApproval= False,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3f'),
+        )
+        self.client.force_authenticate(user)
+
+        res = self.client.get(ALL_AUTHOR_URL)
+       
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 0)
 
     def test_get_all_authors_endpoint_without_admin_approval(self):
         """Test get all authors endpoint is safeguard by admin approved"""
