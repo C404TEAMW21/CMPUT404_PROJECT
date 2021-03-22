@@ -1,6 +1,7 @@
 import React from "react";
 import moment from "moment";
 import PostComponent from "./PostComponent";
+import GithubComponent from "../Github/GithubComponent";
 
 const PostList = ({ posts, handleDeletePost }) => {
   const postList = posts.map((post, index) => {
@@ -14,6 +15,10 @@ const PostList = ({ posts, handleDeletePost }) => {
       published,
       visibility,
     } = post;
+
+    if (post.type === "github") {
+      return <GithubComponent content={post} />;
+    }
 
     return (
       <PostComponent

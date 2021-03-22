@@ -12,6 +12,7 @@ const MyProfileData = (props) => {
   const location = useLocation();
 
   const [name, updateName] = useState("Loading...");
+  const [github, updateGithub] = useState("N/A");
   const [showEditBtn, updateShowEditBtn] = useState(false);
   const [showFriendRequestBtn, updateShowFriendRequestBtn] = useState(false);
   const [showUnFollowBtn, updateShowUnFollowBtn] = useState(false);
@@ -24,6 +25,7 @@ const MyProfileData = (props) => {
     const authorId = window.location.pathname.split("/").pop();
     nameToRender(authorId);
     selectBtnToShow(authorId);
+    githubToRender(authorId);
   }, [location, props.author]);
 
   const selectBtnToShow = async (authorId) => {
@@ -110,6 +112,20 @@ const MyProfileData = (props) => {
     }
   };
 
+  const githubToRender = (authorId) => {
+    let result = "N/A";
+
+    if (context.user) {
+      if (authorId !== context.user.id) {
+        result = props.author.github ? props.author.github : "N/A";
+      } else {
+        result = context.user.github ? context.user.github : "N/A";
+      }
+
+      updateGithub(result);
+    }
+  };
+
   return (
     <div>
       <div className="profile-top-section">
@@ -141,9 +157,7 @@ const MyProfileData = (props) => {
           <Header as="h4" floated="left">
             GitHub:
           </Header>
-          <span>
-            {context.user && context.user.github ? context.user.github : "N/A"}
-          </span>
+          <span>{github}</span>
         </div>
       </div>
     </div>

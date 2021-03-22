@@ -1,0 +1,68 @@
+.github-card {
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  .content {
+    display: flex;
+
+    .logo {
+      float: left;
+    }
+
+    .header {
+      font-weight: 700;
+      font-size: 1.28571429em;
+      margin-top: -0.21425em;
+      line-height: 1.28571429em;
+    }
+
+    .github-data {
+      padding-left: 2%;
+      margin: auto 0;
+    }
+  }
+
+  .ui.card > .extra,
+  .ui.cards > .card > .extra {
+    display: flex;
+    justify-content: space-between;
+
+    .ui.button {
+      margin-top: 0;
+    }
+  }
+
+  .ui.card > .content,
+  .ui.cards > .card > .content {
+    border-top: 0 solid white !important;
+
+    .ui.button {
+      margin-top: 0;
+    }
+  }
+
+  .ui.card > .content:after,
+  .ui.cards > .card > .content:after {
+    display: none;
+  }
+
+  .ui.centered.fluid.raised.card {
+    max-width: 100%;
+    min-width: 850px;
+    box-shadow: 1px 4px 4px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 20px;
+  }
+
+  .ui.black.basic.icon.button {
+    border-radius: 20px;
+    margin-left: 5px;
+  }
+}
+
+.ui.centered.cards {
+  flex-direction: column;
+}
+
+.ui.centered.one.cards {
+  flex-wrap: nowrap;
+}
