@@ -58,3 +58,16 @@ class MyProfileView(generics.RetrieveAPIView):
             raise AuthenticationFailed(detail ={"error": ["User has not been approved by admin"]})
             
         return self.request.user
+
+class AllAuthorsView(generics.ListAPIView):
+    """Get all authors in the system"""
+    serializer_class = AuthorProfileSerializer
+    authenticate_classes = (authentication.TokenAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def get_queryset(self):
+        if not self.request.user.adminApproval:
+            raise AuthenticationFailed(
+                detail={"error": ["User has not been approved by admin"]})
+        
+        return get_user_model().objects.filter(type='author')
