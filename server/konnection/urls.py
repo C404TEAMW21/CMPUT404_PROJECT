@@ -22,7 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('service/', include('posts.urls')),
     path('service/author/', include('comments.urls')),
-    path('service/author/', include('author.urls')),
+    path('service/', include('author.urls')),
     path('service/author/', include('inbox.urls')),
     path('service/author/', include('followers.urls')),
 ]

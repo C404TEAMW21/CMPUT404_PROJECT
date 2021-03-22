@@ -2,9 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.conf import settings
 
-from django.dispatch import receiver
-from django.db.models.signals import post_save
-
 import uuid
 import re
 from main import utils
@@ -22,7 +19,7 @@ class UserManager(BaseUserManager):
         user=self.create_author(username, password)
         user.is_superuser=True
         user.is_staff=True
-        user.type=utils.UserType.superuser
+        user.type=utils.UserType.superuser.value
         user.save(using=self._db)
 
         return user
@@ -51,6 +48,7 @@ class Author(AbstractBaseUser, PermissionsMixin):
 class Followers(models.Model):
     author = models.ForeignKey(Author, related_name="followers", on_delete=models.CASCADE)
     followers = models.ManyToManyField(Author, related_name='author_followers')
+   
 
     def friends(self):
         list = []
