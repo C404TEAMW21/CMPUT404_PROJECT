@@ -6,9 +6,12 @@ from rest_framework.test import APIClient
 from rest_framework import status
 import uuid
 
+from main import utils
+
 CREATE_USER_URL = reverse('author:create')
 AUTH_USER_URL = reverse('author:auth')
 ME_URL = reverse('author:me')
+ALL_AUTHOR_URL = reverse('author:all')
 
 def create_author(**params):
     """Helper function to create author"""
@@ -271,6 +274,91 @@ class TestMeProfileEndpoint(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
         
+class TestGetAllAuthorsEndpoint(TestCase):
+    """Test API(GET)://service/authors/"""
+    def setUp(self):
+        self.client = APIClient()
     
+    def test_get_all_authors_endpoint(self):
+        """Test retrieving all authors profile list if user is logged in"""
+        user = create_author(
+            username='abc001',
+            password='abcpwd',
+            adminApproval= True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e').int,
+        )
+        create_author(
+            username='abc002',
+            password='abcpwd',
+            adminApproval= True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3f').int,
+        )
+        self.client.force_authenticate(user=user)
 
+        res = self.client.get(ALL_AUTHOR_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 2)
     
+    def test_get_all_authors_endpoint_without_auth(self):
+        """Test unsuccessful getting all authors profile if user is not logged in"""
+        res = self.client.get(ALL_AUTHOR_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_all_authors_endpoint_not_return_superuser(self):
+        """Test retrieving all authors profile list exclude superuser"""
+        user = create_author(
+            username='abc001',
+            password='abcpwd',
+            adminApproval= True,
+            type=utils.UserType.superuser.value,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'),
+        )
+        create_author(
+            username='abc002',
+            password='abcpwd',
+            adminApproval= True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3f'),
+        )
+        self.client.force_authenticate(user)
+
+        res = self.client.get(ALL_AUTHOR_URL)
+       
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+
+    def test_get_all_authors_endpoint_not_return_unapproved(self):
+        """Test retrieving all authors profile list exclude not admin approved user"""
+        user = create_author(
+            username='abc001',
+            password='abcpwd',
+            adminApproval= True,
+            type=utils.UserType.superuser.value,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'),
+        )
+        create_author(
+            username='abc002',
+            password='abcpwd',
+            adminApproval= False,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3f'),
+        )
+        self.client.force_authenticate(user)
+
+        res = self.client.get(ALL_AUTHOR_URL)
+       
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 0)
+
+    def test_get_all_authors_endpoint_without_admin_approval(self):
+        """Test get all authors endpoint is safeguard by admin approved"""
+        user = create_author(
+            username='abc001',
+            password='abcpwd',
+            adminApproval=False,
+        )
+        self.client.force_authenticate(user=user)
+
+        res = self.client.get(ALL_AUTHOR_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)

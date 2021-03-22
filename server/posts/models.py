@@ -14,7 +14,6 @@ class Post(models.Model):
     origin = models.URLField(blank=True,  help_text="original location/url")
     description = models.CharField(blank=True, max_length=250)
 
-    # TODO: might have a user make 2 posts if a post includes an image
     CT_MARKDOWN = 'text/markdown' # CommonMark
     CT_PLAIN = 'text/plain'       # utf-8
     CT_HTML = 'text/html' # TODO: strip tags
