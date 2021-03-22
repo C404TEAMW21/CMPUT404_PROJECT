@@ -10,10 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: 🚀 Deploy frontend
-        uses: akhileshns/heroku-deploy@v3.12.12 
+        uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: ${{secrets.HEROKU_FRONT_END_APP_NAME}}
           heroku_email: ${{secrets.MAINTAINER_EMAIL}}
-          appdir: "client" 
+          appdir: "client"
           branch: "main"
+        env:
+          HD_REACT_APP_GITHUB_KEY: ${{secrets.REACT_APP_GITHUB_KEY}}

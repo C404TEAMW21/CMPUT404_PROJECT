@@ -55,7 +55,6 @@ const MyFeedPage = () => {
   };
 
   const getMyFeedPosts = () => {
-    // TODO also sort Github activity posts by date
     let posts = [...authorPosts, ...inboxPosts, ...githubActivity];
 
     posts.sort(
@@ -107,6 +106,7 @@ const MyFeedPage = () => {
       );
 
       const result = [];
+      // TODO display meaningful github content
       for (let event of response.data) {
         if (event.type === "PushEvent") {
           result.push({
@@ -133,7 +133,8 @@ const MyFeedPage = () => {
       updateGithubActivity([
         {
           type: "github",
-          error: "Unable to fetch from GitHub. Please check your credentials",
+          eventType:
+            "Unable to fetch from GitHub. Please check your credentials",
           published: new Date(),
         },
       ]);
