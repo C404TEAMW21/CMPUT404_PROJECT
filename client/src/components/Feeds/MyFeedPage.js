@@ -106,24 +106,41 @@ const MyFeedPage = () => {
       );
 
       const result = [];
-      // TODO display meaningful github content
       for (let event of response.data) {
         if (event.type === "PushEvent") {
           result.push({
             type: "github",
             eventType: event.type,
             published: event.created_at,
-            repo: event.name,
+            repo: event.repo.name,
             commits: event.payload.commits,
+            branch: event.payload.ref.split("/").splice(2).join("/"),
           });
         } else if (event.type === "PullRequestEvent") {
           result.push({
             type: "github",
             eventType: event.type,
             published: event.created_at,
-            repo: event.repo.url,
+            repo: event.repo.name,
             action: event.payload.action,
             url: event.payload.pull_request.html_url,
+            base: event.payload.pull_request.base.label,
+            head: event.payload.pull_request.head.label,
+            merged: event.payload.pull_request.merged,
+          });
+        } else if (
+          event.type === "IssuesEvent" &&
+          (event.payload.action === "opened" ||
+            event.payload.action === "closed")
+        ) {
+          result.push({
+            type: "github",
+            eventType: event.type,
+            published: event.created_at,
+            repo: event.repo.name,
+            action: event.payload.action,
+            url: event.payload.issue.html_url,
+            title: event.payload.issue.title,
           });
         }
       }
@@ -133,8 +150,7 @@ const MyFeedPage = () => {
       updateGithubActivity([
         {
           type: "github",
-          eventType:
-            "Unable to fetch from GitHub. Please check your credentials",
+          eventType: "Error",
           published: new Date(),
         },
       ]);
