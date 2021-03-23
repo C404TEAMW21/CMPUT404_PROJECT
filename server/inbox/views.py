@@ -49,7 +49,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
             post_id = request.data.get('id')
             try:
                 Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
-            except (Inbox.DoesNotExist) as e:
+            except Inbox.DoesNotExist as e:
                 return Response('Author not found!',
                                 status=status.HTTP_404_NOT_FOUND)
             return Response({'data':f'Shared {inbox_type} {post_id} with Author '
