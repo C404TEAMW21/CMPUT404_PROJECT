@@ -42,24 +42,21 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
     def post(self, request, *args, **kwargs):
         request_author_id = self.kwargs['author_id']
         inbox_type = request.data.get('type')
+        host_name = request.get_host()
 
         # TODO: send Like and Follow
-        if inbox_type == 'post':
+        if inbox_type == 'post' or inbox_type == 'Like':
             post_id = request.data.get('id')
-            request_author_id = self.kwargs['author_id']
-            # TODO: allow sharing of friend's post
             try:
-                Inbox.objects.get(author=request_author_id).send_to_inbox(post_id)
-            except ValidationError:
-                return Response(f'{post_id} is not a valid UUID.',
-                                status=status.HTTP_400_BAD_REQUEST)
-            except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
-                return Response('Post or Author not found!',
+                Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
+            except (Inbox.DoesNotExist) as e:
+                return Response('Author not found!',
                                 status=status.HTTP_404_NOT_FOUND)
-            return Response({'data':f'Shared {post_id} with {request_author_id}'},
+            return Response({'data':f'Shared {inbox_type} {post_id} with Author '
+                                    f'{request_author_id} on {host_name}.'},
                             status=status.HTTP_200_OK)
         else:
-            return Response({'error':'Invalid type, only \'post\', \'follow\', \'like\''},
+            return Response({'error':'Invalid type, only \'post\', \'Like\''},
                             status=status.HTTP_400_BAD_REQUEST)
 
     # DELETE: Clear the inbox
