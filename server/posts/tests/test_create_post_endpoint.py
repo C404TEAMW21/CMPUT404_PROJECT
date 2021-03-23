@@ -8,6 +8,7 @@ from main import models as mainModels
 from inbox.models import Inbox
 from posts.models import Post
 from comments.models import Comment
+from author.serializers import AuthorProfileSerializer
 import uuid
 
 PAYLOAD = {
@@ -192,16 +193,16 @@ class TestCreatePostEndpoint(TestCase):
         res = self.client.get(self.create_post_url, PAYLOAD)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
     
-    def test_get_post_with_comments(self):
-        """Testing TestCreatePostEndpoint returns comment url and recent comments"""
+    def test_get_post_with_comments_url(self):
+        """Testing TestCreatePostEndpoint returns comment url"""
         self.client.force_authenticate(user=self.author)
         res1 = self.client.post(self.create_post_url, PAYLOAD)
         post_id = res1.data['id'].split('/')[-2]
         post_object = Post.objects.get(id=post_id)
-        Comment.objects.create(author=self.author, comment="First comment", post=post_object)
-        Comment.objects.create(author=self.author, comment="Second comment", post=post_object)
+        Comment.objects.create(author=AuthorProfileSerializer(self.author).data, comment="First comment", post=post_object)
+        Comment.objects.create(author=AuthorProfileSerializer(self.author).data, comment="Second comment", post=post_object)
         res2 = self.client.get(self.create_post_url, PAYLOAD)
-        self.assertEqual(len(res2.data[0]['recent_comments']), 2)
+        self.assertEqual(res2.data[0]['count'], 2)
 
     def test_can_get_public_posts(self):
         """Testing TestCreatePostEndpoint can get another author's public posts
