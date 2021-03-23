@@ -8,6 +8,9 @@ from .models import FriendRequest
 from inbox.models import Inbox
 from followers.serializers import FollowersSerializer, FollowersModificationSerializer, FollowersFriendSerializer
 from .serializers import FriendSerializer
+import requests as HTTPRequests
+import json
+from rest_framework.parsers import JSONParser
 
 #<slug:id>/followers/
 class FollowersView(generics.RetrieveAPIView):
@@ -93,17 +96,44 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        self.get_serializer(instance, data=request.data, partial=True)
-        
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        # parser_classes = [JSONParser]
+
+
         if (str(self.requestForeignAuthorId) != str(request.user.id)):
            return Response({
                 'error': ['This is not your account, you cannot follow this author']}, status=status.HTTP_403_FORBIDDEN) 
-        elif (self.requestAuthorId == self.requestForeignAuthorId):
-            return Response({
-                'error': ['You cannot follow yourself']}, status=status.HTTP_400_BAD_REQUEST)
+        # elif (self.requestAuthorId == self.requestForeignAuthorId):
+        #     return Response({
+        #         'error': ['You cannot follow yourself']}, status=status.HTTP_400_BAD_REQUEST)
         elif (not self.request.user.adminApproval):
             raise AuthenticationFailed(
                 detail={"error": ["User has not been approved by admin"]})
+
+
+        print("===============")
+       
+        
+        if 'actor' in request.data:
+            print("===============")
+            host = request.data['actor']
+            # headers = {'Authorization': 'Token 4ae96c6f7a491025f50d568c8599b936cf30035d'}
+            if host != 'https://konnection-client.herokuapp.com':
+                # r = HTTPRequests.get('https://konnection-server.herokuapp.com/service/author/87492ccf-754b-4f63-b768-37464b98c515', headers=headers)
+                print(request.data)
+
+                # requestData = json.loads(request.body)
+                # print(requestData)
+                # print(request.data)
+                authorObj = models.Author.objects.get(id=self.requestAuthorId)
+                author = models.Followers.objects.get(author=authorObj)
+                author.remoteFollowers['abc'] = request.data['actor']
+                author.save()
+                print(author.remoteFollowers)
+                
+                # author.remoteFollowers['a'] = request.data
+                # author.save()
+
         
         authorObj = models.Author.objects.get(id=self.requestAuthorId)
         author = models.Followers.objects.get(author=authorObj)
