@@ -7,10 +7,9 @@ from main import models
 from .models import FriendRequest
 from inbox.models import Inbox
 from followers.serializers import FollowersSerializer, FollowersModificationSerializer, FollowersFriendSerializer
-from .serializers import FriendSerializer
+from author.serializers import AuthorProfileSerializer
 import requests as HTTPRequests
-import json
-from rest_framework.parsers import JSONParser
+
 
 #<slug:id>/followers/
 class FollowersView(generics.RetrieveAPIView):
@@ -96,60 +95,66 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        # parser_classes = [JSONParser]
+        self.get_serializer(instance, data=request.data, partial=True)
 
 
         if (str(self.requestForeignAuthorId) != str(request.user.id)):
            return Response({
                 'error': ['This is not your account, you cannot follow this author']}, status=status.HTTP_403_FORBIDDEN) 
-        # elif (self.requestAuthorId == self.requestForeignAuthorId):
-        #     return Response({
-        #         'error': ['You cannot follow yourself']}, status=status.HTTP_400_BAD_REQUEST)
+        elif (self.requestAuthorId == self.requestForeignAuthorId):
+            return Response({
+                'error': ['You cannot follow yourself']}, status=status.HTTP_400_BAD_REQUEST)
         elif (not self.request.user.adminApproval):
             raise AuthenticationFailed(
                 detail={"error": ["User has not been approved by admin"]})
-
-
-        print("===============")
-       
         
-        if 'actor' in request.data:
-            print("===============")
-            host = request.data['actor']
-            # headers = {'Authorization': 'Token 4ae96c6f7a491025f50d568c8599b936cf30035d'}
-            if host != 'https://konnection-client.herokuapp.com':
-                # r = HTTPRequests.get('https://konnection-server.herokuapp.com/service/author/87492ccf-754b-4f63-b768-37464b98c515', headers=headers)
-                print(request.data)
-
-                # requestData = json.loads(request.body)
-                # print(requestData)
-                # print(request.data)
-                authorObj = models.Author.objects.get(id=self.requestAuthorId)
-                author = models.Followers.objects.get(author=authorObj)
-                author.remoteFollowers['abc'] = request.data['actor']
-                author.save()
-                print(author.remoteFollowers)
-                
-                # author.remoteFollowers['a'] = request.data
-                # author.save()
-
+        # Test required fields 
+        try:
+            actorObj = request.data['actor']
+            actorHost = request.data['actor']['host']
+            objectHost = request.data['object']['host']
+            actorId = request.data['actor']['id']
+        except:
+            return Response({
+                'error': ['Please provide required fields']}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Handle all cases 
+        inboxData = {}
+        if objectHost == 'https://konnection-client.herokuapp.com' and actorHost != 'https://konnection-client.herokuapp.com':
+            authorObj = models.Author.objects.get(id=self.requestAuthorId)
+            author = models.Followers.objects.get(author=authorObj)
+
+            if actorHost not in author.remoteFollowers:
+                author.remoteFollowers[actorHost] = {}
+
+            author.remoteFollowers[actorHost][actorId] = actorObj
+            author.save()
+
+            inboxData = request.data
+        elif objectHost and actorHost == 'https://konnection-client.herokuapp.com':
+            authorObj = models.Author.objects.get(id=self.requestAuthorId)
+            author = models.Followers.objects.get(author=authorObj)
+            foreignAuthor = models.Author.objects.get(id=self.requestForeignAuthorId)
+
+            author.followers.add(foreignAuthor)
+            author.save()
+
+            inboxData['type'] = 'follow'
+            inboxData['summary'] = f"{self.foreignAuthor.username} wants to follow {self.author.username}"
+            inboxData['actor'] = AuthorProfileSerializer(foreignAuthor).data
+            inboxData['object'] = AuthorProfileSerializer(author).data
+        elif objectHost != 'https://konnection-client.herokuapp.com' and actorHost == 'https://konnection-client.herokuapp.com':
+            # TODO: Connect with other team
+            a = ''
+        else: 
+            return Response({
+                'error': ['Bad request']}, status=status.HTTP_400_BAD_REQUEST)
+
+
         authorObj = models.Author.objects.get(id=self.requestAuthorId)
-        author = models.Followers.objects.get(author=authorObj)
-        foreignAuthor = models.Author.objects.get(id=self.requestForeignAuthorId)
-
-        author.followers.add(foreignAuthor)
-        author.save()
-
-        friend_request = FriendRequest.objects.filter(follower=foreignAuthor, author=authorObj)
-        if not friend_request:
-            create_friend_request = FriendRequest.objects.create(follower=foreignAuthor, author=authorObj)
-            friend_request_obj = FriendRequest.objects.get(follower=foreignAuthor, author=authorObj)
-            friend_request_text = FriendSerializer(friend_request_obj).data
-            inbox = Inbox.objects.get(author=authorObj)
-            inbox.items.append(friend_request_text)
-            inbox.save()
+        inbox = Inbox.objects.get(author=authorObj)
+        inbox.items.append(inboxData)
+        inbox.save()
         
         return Response({
             'type': 'follow',
