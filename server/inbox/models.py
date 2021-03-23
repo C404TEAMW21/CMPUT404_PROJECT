@@ -13,10 +13,11 @@ class Inbox(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     items = ArrayField(models.JSONField(), blank=True, default=list, null=True)
 
-    def send_to_inbox(self, post_id):
-        a_post = Post.objects.get(pk=post_id, unlisted=False)
-        data = PostSerializer(a_post).data
-        data['categories'] = list(data['categories'])
+    def send_to_inbox(self, data):
+        # a_post = Post.objects.get(pk=post_id, unlisted=False)
+        # data = PostSerializer(post_data).data\
+        # data['categories'] = list(data['categories'])
+        # return
         self.items.append(data)
         self.save()
 
