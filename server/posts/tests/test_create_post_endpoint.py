@@ -117,12 +117,21 @@ class TestCreatePostEndpoint(TestCase):
         self.client.force_authenticate(user=self.author)
         self.client2.force_authenticate(user=self.author2)
         inbox = Inbox.objects.get(author=self.author2)
+        payload = {
+            'actor': {
+                'host': 'https://konnection-client.herokuapp.com',
+                'id': 'aaaaa',
+            },
+            'object': {
+                'host': 'https://konnection-client.herokuapp.com',
+            }
+        }
         follower_url = reverse(
             'followers:followers modify',
             kwargs={'id': self.author.id, 'foreignId': self.author2.id}
         )
 
-        res = self.client2.put(follower_url)
+        res = self.client2.put(follower_url, payload, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         res = self.client2.get(follower_url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -139,12 +148,21 @@ class TestCreatePostEndpoint(TestCase):
         self.client.force_authenticate(user=self.author)
         self.client2.force_authenticate(user=self.author2)
         inbox = Inbox.objects.get(author=self.author2)
+        payload = {
+            'actor': {
+                'host': 'https://konnection-client.herokuapp.com',
+                'id': 'aaaaa',
+            },
+            'object': {
+                'host': 'https://konnection-client.herokuapp.com',
+            }
+        }
         follower_url = reverse(
             'followers:followers modify',
             kwargs={'id': self.author.id, 'foreignId': self.author2.id}
         )
 
-        res = self.client2.put(follower_url)
+        res = self.client2.put(follower_url, payload, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         res = self.client2.get(follower_url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -168,12 +186,21 @@ class TestCreatePostEndpoint(TestCase):
             'followers:followers modify',
             kwargs={'id': self.author2.id, 'foreignId': self.author.id}
         )
+        payload = {
+            'actor': {
+                'host': 'https://konnection-client.herokuapp.com',
+                'id': 'aaaaa',
+            },
+            'object': {
+                'host': 'https://konnection-client.herokuapp.com',
+            }
+        }
 
-        res = self.client2.put(follower_url)
+        res = self.client2.put(follower_url, payload, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         res = self.client2.get(follower_url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        res = self.client.put(follower_url2)
+        res = self.client.put(follower_url2, payload, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         res = self.client.get(follower_url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
