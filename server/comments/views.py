@@ -66,7 +66,6 @@ class CreateCommentView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         post_id = str(self.kwargs['post_id'])
         post_owner = str(self.kwargs['author_id'])
-        #request_user = self.request.user.id     # person doing POST
         request_user = str(self.request.data['author']['id'])
         
         # post + post author is on our own server
