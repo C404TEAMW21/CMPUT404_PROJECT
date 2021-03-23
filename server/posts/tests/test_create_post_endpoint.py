@@ -278,7 +278,7 @@ class TestUpdatePostEndpoint(TestCase):
 
         self.client.force_authenticate(user=self.author)
         res = self.client.post(self.create_post_url, PAYLOAD)
-        post_id = res.data['id'].split('/')[-2]
+        post_id = res.data['id']
 
         self.update_post_url = reverse(
             'posts:update',
@@ -314,7 +314,7 @@ class TestUpdatePostEndpoint(TestCase):
         """
         self.client.force_authenticate(user=self.author)
         res = self.client.post(self.create_post_url, FRIENDS_VIS_PAYLOAD)
-        post_id = res.data['id'].split('/')[-2]
+        post_id = res.data['id']
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         update_post_url = reverse(
             'posts:update',
@@ -331,7 +331,7 @@ class TestUpdatePostEndpoint(TestCase):
         """
         self.client.force_authenticate(user=self.author)
         res = self.client.post(self.create_post_url, FRIENDS_VIS_PAYLOAD)
-        post_id = res.data['id'].split('/')[-2]
+        post_id = res.data['id']
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         update_post_url = reverse(
             'posts:update',
@@ -536,7 +536,7 @@ class TestSharePostEndpoint(TestCase):
         inbox = Inbox.objects.get(author=self.author2)
         self.assertEqual(len(inbox.items), 1)
     
-    def test_share_post_to_author(self):
+    def test_share_post_to_multiple_authors(self):
         """Testing share a Post to multiple friends' Inbox"""
         
         payload = {
