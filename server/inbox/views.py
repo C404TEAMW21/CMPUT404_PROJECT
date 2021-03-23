@@ -45,15 +45,24 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
         host_name = request.get_host()
 
         # TODO: send Like and Follow
-        if inbox_type == 'post' or inbox_type == 'Like':
+        if inbox_type == 'post':
             post_id = request.data.get('id')
             try:
                 Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
             except Inbox.DoesNotExist as e:
-                return Response('Author not found!',
+                return Response({'error':'Author not found!'},
                                 status=status.HTTP_404_NOT_FOUND)
-            return Response({'data':f'Shared {inbox_type} {post_id} with Author '
+            return Response({'data':f'Shared Post {post_id} with Author '
                                     f'{request_author_id} on {host_name}.'},
+                            status=status.HTTP_200_OK)
+        elif inbox_type == 'Like':
+            post_id = request.data.get('object')
+            try:
+                Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
+            except Inbox.DoesNotExist as e:
+                return Response({'error':'Author not found!'},
+                                status=status.HTTP_404_NOT_FOUND)
+            return Response({'data':f'Sent Like to Post {post_id} on {host_name}.'},
                             status=status.HTTP_200_OK)
         else:
             return Response({'error':'Invalid type, only \'post\', \'Like\''},
