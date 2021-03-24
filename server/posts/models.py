@@ -50,10 +50,6 @@ class Post(models.Model):
     count =  models.PositiveIntegerField(default=0)       # for comments
     size =  models.PositiveIntegerField(default=0)        # page size for comments
 
-    # For comments, see the function get_comments_page_url() below
-    # TODO: turn comment-related attributes into functions instead
-    # TODO: get 5 comments per post
-
     # Default time is in UTC (see settings.py)
     published = models.DateTimeField(default=now)
 

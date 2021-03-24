@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from comments.models import Comment
 from posts.models import Post
 from datetime import datetime
+from author.serializers import AuthorProfileSerializer
 
 from main import models
 import uuid
@@ -46,13 +47,13 @@ class CommentTestCase(TestCase):
     def test_create_comment(self):
         """Test creation of Comment Object"""
         comment = Comment.objects.create(
-            author=self.author,
+            author=AuthorProfileSerializer(self.author).data,
             comment=COMMENT_CONTENT,
             post=self.post,
         )
 
         self.assertEqual(comment.type, 'comment')
-        self.assertEqual(comment.author, self.author)
+        self.assertEqual(comment.author['username'], self.author.username)
         self.assertTrue(isinstance(comment.id, uuid.UUID))
         self.assertEqual(comment.comment, COMMENT_CONTENT)
         self.assertTrue(isinstance(comment.published, datetime))
@@ -61,7 +62,7 @@ class CommentTestCase(TestCase):
     def test_create_plain_text_comment(self):
         """Test Comment Object can choose plain text for content"""
         comment = Comment.objects.create(
-            author=self.author,
+            author=AuthorProfileSerializer(self.author).data,
             comment=COMMENT_CONTENT,
             post=self.post,
             contentType=Comment.CT_PLAIN
@@ -72,7 +73,7 @@ class CommentTestCase(TestCase):
     def test_get_id_url(self):
         """Test get comment url """
         comment = Comment.objects.create(
-            author=self.author,
+            author=AuthorProfileSerializer(self.author).data,
             comment=COMMENT_CONTENT,
             post=self.post,
         )

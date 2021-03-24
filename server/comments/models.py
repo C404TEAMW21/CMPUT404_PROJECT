@@ -7,7 +7,7 @@ from main import utils
 class Comment(models.Model):
     type = "comment"
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    author = models.ForeignKey(mainModels.Author, on_delete=models.CASCADE)
+    author = models.JSONField()
     comment = models.TextField(blank=True, null=True)
     published = models.DateTimeField(auto_now_add=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -41,4 +41,4 @@ class Comment(models.Model):
     )
 
     def get_id_url(self):
-        return f'{utils.HOST}/author/{str(self.author.id)}/posts/{str(self.post.id)}/comments/{self.id}'
+        return f'{utils.HOST}/author/{str(self.post.author.id)}/posts/{str(self.post.id)}/comments/{self.id}'
