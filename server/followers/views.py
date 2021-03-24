@@ -3,11 +3,12 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework import generics, permissions, status
 
-from main import models
+from main import models, utils
 from .models import FriendRequest
 from inbox.models import Inbox
 from followers.serializers import FollowersSerializer, FollowersModificationSerializer, FollowersFriendSerializer
 from author.serializers import AuthorProfileSerializer
+
 import requests as HTTPRequests
 
 
@@ -124,7 +125,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
         
         # Handle all cases 
         inboxData = {}
-        if objectHost == 'https://konnection-client.herokuapp.com' and actorHost != 'https://konnection-client.herokuapp.com':
+        if objectHost == utils.HOST and actorHost != utils.HOST:
             authorObj = models.Author.objects.get(id=self.requestAuthorId)
             author = models.Followers.objects.get(author=authorObj)
 
@@ -135,7 +136,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             author.save()
 
             inboxData = request.data
-        elif objectHost and actorHost == 'https://konnection-client.herokuapp.com':
+        elif objectHost and actorHost == utils.HOST:
             
             if (str(self.requestForeignAuthorId) != str(request.user.id)):
                 return Response({
@@ -153,7 +154,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             inboxData['actor'] = AuthorProfileSerializer(foreignAuthor).data
             inboxData['object'] = AuthorProfileSerializer(author).data
             
-        elif objectHost != 'https://konnection-client.herokuapp.com' and actorHost == 'https://konnection-client.herokuapp.com':
+        elif objectHost != utils.HOST and actorHost == utils.HOST:
             # TODO: Connect with other team
             a = ''
         else: 
