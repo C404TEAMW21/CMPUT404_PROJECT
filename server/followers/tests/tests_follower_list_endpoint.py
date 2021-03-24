@@ -287,11 +287,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -311,11 +311,11 @@ class TestAddFollowerEndpoint(TestCase):
         self.client.force_authenticate(user=authorB)
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
 
@@ -334,11 +334,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -358,11 +358,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         
@@ -380,11 +380,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -409,11 +409,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -433,11 +433,11 @@ class TestAddFollowerEndpoint(TestCase):
         self.client.force_authenticate(user=authorB)
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com'
+                'host': 'https://konnection-server.herokuapp.com/'
             }
         }
 
@@ -454,7 +454,7 @@ class TestAddFollowerEndpoint(TestCase):
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com'
+                'host': 'https://konnection-server.herokuapp.com/'
             }
         }
         self.client.force_authenticate(user=self.team6Credential)
@@ -470,7 +470,7 @@ class TestAddFollowerEndpoint(TestCase):
                 'host': 'https://team6.herokuapp.com',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com'
+                'host': 'https://konnection-server.herokuapp.com/'
             }
         }
         self.client.force_authenticate(user=self.team6Credential)
@@ -485,7 +485,7 @@ class TestAddFollowerEndpoint(TestCase):
             'actor': {
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=self.team6Credential)

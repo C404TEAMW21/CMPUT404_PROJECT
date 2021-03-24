@@ -121,11 +121,11 @@ class TestCreatePostEndpoint(TestCase):
         inbox = Inbox.objects.get(author=self.author2)
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         follower_url = reverse(
@@ -152,11 +152,11 @@ class TestCreatePostEndpoint(TestCase):
         inbox = Inbox.objects.get(author=self.author2)
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         follower_url = reverse(
@@ -190,11 +190,11 @@ class TestCreatePostEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
 
