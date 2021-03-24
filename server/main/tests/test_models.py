@@ -55,7 +55,7 @@ class ModelTests(TestCase):
     def test_author_url(self):
         username='test001'
         password='testpwd'
-        host='https://konnection-server.herokuapp.com'
+        host='https://konnection-server.herokuapp.com/'
         id='77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'
     
         author = get_user_model().objects.create_author(
@@ -69,7 +69,7 @@ class ModelTests(TestCase):
     def test_author_host(self):
         username='test001'
         password='testpwd'
-        host='https://konnection-server.herokuapp.com'
+        host='https://konnection-server.herokuapp.com/'
         author = get_user_model().objects.create_author(
             username=username,
             password=password
