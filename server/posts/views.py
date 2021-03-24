@@ -137,20 +137,16 @@ class CreatePostView(generics.ListCreateAPIView):
             followers = Followers.objects.get(author=author).followers.all()
         except Followers.DoesNotExist:
             return post
-        # use re to match as DRF only returns id with host due to serializer
-        post_id = re.match(r'.*/posts/([0-9a-f-]*)/', post_data['id'])
-        if post_id == None:
-            raise Exception('post id matching error.')
 
         if (post_data['visibility'] == Post.PUBLIC):
             for follower in followers:
                 Inbox.objects.get(author=follower.id) \
-                    .send_to_inbox(post_id.group(1))
+                    .send_to_inbox(post_data)
         if (post_data['visibility'] == Post.FRIENDS):
             for follower in followers:
                 if Followers.is_friends(self, follower, author):
                     Inbox.objects.get(author=follower.id) \
-                        .send_to_inbox(post_id.group(1))
+                        .send_to_inbox(post_data)
         return post
         
     def perform_create(self, serializer):
@@ -193,6 +189,13 @@ class SharePostView(generics.CreateAPIView):
             return Response({'error':'from is empty!'},
                             status=status.HTTP_400_BAD_REQUEST)
         post_id = self.kwargs['pk']
+        try:
+            a_post = Post.objects.get(pk=post_id, unlisted=False)
+        except Post.DoesNotExist as e:
+            return Response({'error': 'Post not found!'},
+                            status=status.HTTP_404_NOT_FOUND)
+        post_data = PostSerializer(a_post).data
+        print(post_data)
         share_to = request.data.get('share_to')
         if share_to:
             if share_to == 'all':
@@ -206,18 +209,18 @@ class SharePostView(generics.CreateAPIView):
                 for friend in friend_list:
                     try:
                         inbox = Inbox.objects.get(author=friend.id)
-                        inbox.send_to_inbox(post_id)
+                        inbox.send_to_inbox(post_data)
                     except:
                         pass
-                return Response({'data': f'Shared {post_id} with {share_to}'},
+                return Response({'data': f'Shared Post {post_id} with {share_to}'},
                                 status=status.HTTP_200_OK)
             else:
                 try:
-                    Inbox.objects.get(author=share_to).send_to_inbox(post_id)
-                except (Post.DoesNotExist, Inbox.DoesNotExist) as e:
-                    return Response({'error': 'Post or Author not found!'},
+                    Inbox.objects.get(author=share_to).send_to_inbox(post_data)
+                except Inbox.DoesNotExist as e:
+                    return Response({'error': 'Author not found!'},
                                     status=status.HTTP_404_NOT_FOUND)
-                return Response({'data': f'Shared {post_id} with {share_to}'},
+                return Response({'data': f'Shared Post {post_id} with {share_to}'},
                                 status=status.HTTP_200_OK)
         else:
             return Response({'error':'share_to is empty!'},
