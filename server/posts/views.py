@@ -195,7 +195,6 @@ class SharePostView(generics.CreateAPIView):
             return Response({'error': 'Post not found!'},
                             status=status.HTTP_404_NOT_FOUND)
         post_data = PostSerializer(a_post).data
-        print(post_data)
         share_to = request.data.get('share_to')
         if share_to:
             if share_to == 'all':

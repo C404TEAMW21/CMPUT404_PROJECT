@@ -197,7 +197,7 @@ class TestCreatePostEndpoint(TestCase):
         """Testing TestCreatePostEndpoint returns comment url"""
         self.client.force_authenticate(user=self.author)
         res1 = self.client.post(self.create_post_url, PAYLOAD)
-        post_id = res1.data['id'].split('/')[-2]
+        post_id = res1.data['id']
         post_object = Post.objects.get(id=post_id)
         Comment.objects.create(author=AuthorProfileSerializer(self.author).data, comment="First comment", post=post_object)
         Comment.objects.create(author=AuthorProfileSerializer(self.author).data, comment="Second comment", post=post_object)
