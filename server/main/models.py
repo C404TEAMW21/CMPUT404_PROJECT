@@ -50,6 +50,17 @@ class Followers(models.Model):
     followers = models.ManyToManyField(Author, related_name='author_followers')
     remoteFollowers = models.JSONField(default=dict)
 
+    def get_all_local_followers(self, author):
+        return Followers.objects.get(author=author).followers.all()
+
+    def get_all_remote_followers(self, author):
+        remote = Followers.objects.get(author=author).remoteFollowers  
+        allAuthorList = []
+        for key, value in remote.items():
+            allAuthorList.extend(value.values())
+    
+        return allAuthorList
+
     def friends(self):
         list = []
         for author in self.followers.all():
