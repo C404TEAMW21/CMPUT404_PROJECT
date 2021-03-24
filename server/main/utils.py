@@ -6,7 +6,7 @@ to be used for main user model
 from enum import Enum
 from django.conf import settings
 
-HOST = "https://konnection-server.herokuapp.com"
+HOST = "https://konnection-server.herokuapp.com/"
 
 class UserType(Enum):
     superuser = 'superuser'

@@ -4,7 +4,6 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-
 from main import models
 import uuid
 
@@ -36,16 +35,88 @@ class TestFollowersListEndpoint(TestCase):
         res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_author_followers(self):
+        "Test return a follower list that include remote followers if the author exists"
+        user = create_author(
+            username='abc001',
+            password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e').int,
+        )
+        remote_author_payload = {
+            "type":"author",
+            "id":"11111111-4b43-11e9-910f-b8ca3a9b9f3e",
+            "url":"http://team6/api/11111111-4b43-11e9-910f-b8ca3a9b9f3e",
+            "host":"http://team6/",
+            "displayName":"Greg Johnson",
+            "github": "http://github.com/gjohnson"
+        }
+        self.client.force_authenticate(user=user)
+        models.Followers.objects.create(author=user)
+        author = models.Followers.objects.get(author=user)
+        # Create Remote user 
+        author.remoteFollowers['teamabc'] = {}
+        author.remoteFollowers['teamabc']['actorId'] = remote_author_payload
+        author.save()
+
+        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
+       
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['items']), 1)
+
+    def test_author_followers(self):
+        "Test return a follower list that include remote and local followers if the author exists"
+        user = create_author(
+            username='abc001',
+            password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e').int,
+        )
+        userB = create_author(
+            username='abc002',
+            password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3a').int,
+        )
+        remote_author_payload = {
+            "type":"author",
+            "id":"11111111-4b43-11e9-910f-b8ca3a9b9f3e",
+            "url":"http://team6/api/11111111-4b43-11e9-910f-b8ca3a9b9f3e",
+            "host":"http://team6/",
+            "displayName":"Greg Johnson",
+            "github": "http://github.com/gjohnson"
+        }
+       
+        self.client.force_authenticate(user=user)
+        models.Followers.objects.create(author=user)
+        author = models.Followers.objects.get(author=user)
+        # Create Remote user 
+        author.remoteFollowers['teamabc'] = {}
+        author.remoteFollowers['teamabc']['actorId'] = remote_author_payload
+        author.save()
+        # Local user
+        author.followers.add(userB)
+        author.save()
+
+        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
+       
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['items']), 2)
+    
+    
     
     def test_invalid_author_followers(self):
         "Test return error if author does not exists"
         user = create_author(
             username='abc001',
             password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e').int,
         )
         self.client.force_authenticate(user=user)
 
-        res = self.client.get('/service/author/abc123/')
+        res = self.client.get('/service/author/abc123/followers/')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -73,7 +144,7 @@ class TestFollowersListEndpoint(TestCase):
         self.client.force_authenticate(user=user)
 
         res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
-
+    
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_follower_object(self):
@@ -216,11 +287,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -240,11 +311,11 @@ class TestAddFollowerEndpoint(TestCase):
         self.client.force_authenticate(user=authorB)
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
 
@@ -263,11 +334,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -287,11 +358,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         
@@ -309,11 +380,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -338,11 +409,11 @@ class TestAddFollowerEndpoint(TestCase):
         )
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -362,11 +433,11 @@ class TestAddFollowerEndpoint(TestCase):
         self.client.force_authenticate(user=authorB)
         payload = {
             'actor': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com'
+                'host': 'https://konnection-server.herokuapp.com/'
             }
         }
 
@@ -383,7 +454,7 @@ class TestAddFollowerEndpoint(TestCase):
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com'
+                'host': 'https://konnection-server.herokuapp.com/'
             }
         }
         self.client.force_authenticate(user=self.team6Credential)
@@ -399,7 +470,7 @@ class TestAddFollowerEndpoint(TestCase):
                 'host': 'https://team6.herokuapp.com',
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com'
+                'host': 'https://konnection-server.herokuapp.com/'
             }
         }
         self.client.force_authenticate(user=self.team6Credential)
@@ -414,7 +485,7 @@ class TestAddFollowerEndpoint(TestCase):
             'actor': {
             },
             'object': {
-                'host': 'https://konnection-client.herokuapp.com',
+                'host': 'https://konnection-server.herokuapp.com/',
             }
         }
         self.client.force_authenticate(user=self.team6Credential)

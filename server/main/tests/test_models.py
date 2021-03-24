@@ -19,7 +19,6 @@ class ModelTests(TestCase):
         self.assertTrue(author.id)
 
     def test_username_stripping_to_alphanumeric(self):
-        
         username='test 001---- 🎉'
         password='testpwd'
         author = get_user_model().objects.create_author(
@@ -56,7 +55,7 @@ class ModelTests(TestCase):
     def test_author_url(self):
         username='test001'
         password='testpwd'
-        host='https://konnection-server.herokuapp.com'
+        host='https://konnection-server.herokuapp.com/'
         id='77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'
     
         author = get_user_model().objects.create_author(
@@ -70,7 +69,7 @@ class ModelTests(TestCase):
     def test_author_host(self):
         username='test001'
         password='testpwd'
-        host='https://konnection-server.herokuapp.com'
+        host='https://konnection-server.herokuapp.com/'
         author = get_user_model().objects.create_author(
             username=username,
             password=password
@@ -190,3 +189,43 @@ class ModelTests(TestCase):
         follower = models.Followers.objects.create(author=follower1) 
         follower.followers.add(author1)
         self.assertEqual(author.is_friends(author1, follower1), True)
+
+    def test_get_all_remote_followers(self):
+        "test test_get_all_remote_followers function to return all remote followers"
+        author_a = get_user_model().objects.create_author(
+            username='test 001---- 🎉',
+            password='testpwd'
+        )
+        remote_author_payload = {
+            "type":"author",
+            "id":"11111111-4b43-11e9-910f-b8ca3a9b9f3e",
+            "url":"http://team6/api/11111111-4b43-11e9-910f-b8ca3a9b9f3e",
+            "host":"http://team6/",
+            "displayName":"Greg Johnson",
+            "github": "http://github.com/gjohnson"
+        }
+
+        author = models.Followers.objects.create(author=author_a)  
+        author.remoteFollowers['teamabc'] = {}
+        author.remoteFollowers['teamabc']['actorId'] = remote_author_payload
+        author.save()
+        
+        self.assertEqual(len(author.get_all_remote_followers(author_a)), 1)
+
+    def test_get_all_local_followers(self):
+        "test test_get_all_local_followers function to return all local followers"
+        author_a = get_user_model().objects.create_author(
+            username='test 001---- 🎉',
+            password='testpwd'
+        )
+        author_b = get_user_model().objects.create_author(
+            username='test 00b---- 🎉',
+            password='testpwd'
+        )
+        
+        author = models.Followers.objects.create(author=author_a) 
+        author.followers.add(author_b)
+        
+        self.assertEqual(len(author.get_all_local_followers(author_a)), 1)
+
+    

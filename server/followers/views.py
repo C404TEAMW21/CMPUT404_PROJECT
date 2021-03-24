@@ -3,11 +3,12 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework import generics, permissions, status
 
-from main import models
+from main import models, utils
 from .models import FriendRequest
 from inbox.models import Inbox
 from followers.serializers import FollowersSerializer, FollowersModificationSerializer, FollowersFriendSerializer
 from author.serializers import AuthorProfileSerializer
+
 import requests as HTTPRequests
 
 
@@ -16,32 +17,38 @@ class FollowersView(generics.RetrieveAPIView):
     serializer_class = FollowersSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-
+    
     def get_object(self):
         requestAuthorId = self.kwargs['id']
 
         if not self.request.user.adminApproval:
             raise AuthenticationFailed(
                 detail={"error": ["User has not been approved by admin"]})
+
         try: 
-            authorExists = models.Followers.objects.filter(author=requestAuthorId).exists()
-            if not authorExists:
+            author_exists = models.Followers.objects.filter(author=requestAuthorId).exists()
+            if not author_exists:
                 authorObj = models.Author.objects.get(id=requestAuthorId)
                 models.Followers.objects.create(author=authorObj)
         except:
-            raise ValidationError({"error": ["User not found"]})
+            raise ValidationError({"error": ["Author not found"]})
 
         try:
             return models.Followers.objects.get(author=requestAuthorId)
         except:
-            raise ValidationError({"error": ["User not found"]})
+            raise ValidationError({"error": ["Author not found"]})
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
+        remote_followers_list = models.Followers.get_all_remote_followers(self, self.kwargs['id'])
+
+        for item in serializer.data['followers']:
+            remote_followers_list.append(item)
+
         return Response({
             'type': 'followers',
-            'items': serializer.data['followers'],
+            'items': remote_followers_list,
         })
 
 #/<slug:id>/followers/<slug:foreignId>/
@@ -98,10 +105,8 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
         self.get_serializer(instance, data=request.data, partial=True)
 
 
-        if (str(self.requestForeignAuthorId) != str(request.user.id)):
-           return Response({
-                'error': ['This is not your account, you cannot follow this author']}, status=status.HTTP_403_FORBIDDEN) 
-        elif (self.requestAuthorId == self.requestForeignAuthorId):
+
+        if (self.requestAuthorId == self.requestForeignAuthorId):
             return Response({
                 'error': ['You cannot follow yourself']}, status=status.HTTP_400_BAD_REQUEST)
         elif (not self.request.user.adminApproval):
@@ -120,7 +125,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
         
         # Handle all cases 
         inboxData = {}
-        if objectHost == 'https://konnection-client.herokuapp.com' and actorHost != 'https://konnection-client.herokuapp.com':
+        if objectHost == utils.HOST and actorHost != utils.HOST:
             authorObj = models.Author.objects.get(id=self.requestAuthorId)
             author = models.Followers.objects.get(author=authorObj)
 
@@ -131,7 +136,12 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             author.save()
 
             inboxData = request.data
-        elif objectHost and actorHost == 'https://konnection-client.herokuapp.com':
+        elif objectHost and actorHost == utils.HOST:
+            
+            if (str(self.requestForeignAuthorId) != str(request.user.id)):
+                return Response({
+                    'error': ['This is not your account, you cannot follow this author']}, status=status.HTTP_403_FORBIDDEN) 
+
             authorObj = models.Author.objects.get(id=self.requestAuthorId)
             author = models.Followers.objects.get(author=authorObj)
             foreignAuthor = models.Author.objects.get(id=self.requestForeignAuthorId)
@@ -143,7 +153,8 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             inboxData['summary'] = f"{self.foreignAuthor.username} wants to follow {self.author.username}"
             inboxData['actor'] = AuthorProfileSerializer(foreignAuthor).data
             inboxData['object'] = AuthorProfileSerializer(author).data
-        elif objectHost != 'https://konnection-client.herokuapp.com' and actorHost == 'https://konnection-client.herokuapp.com':
+            
+        elif objectHost != utils.HOST and actorHost == utils.HOST:
             # TODO: Connect with other team
             a = ''
         else: 
