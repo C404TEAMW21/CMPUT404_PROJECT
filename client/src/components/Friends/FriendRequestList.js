@@ -46,11 +46,11 @@ const FriendRequestList = (props) => {
     }
   };
 
-  const handleAccept = async (indexToRemove, authorId) => {
+  const handleAccept = async (indexToRemove, author) => {
     const response = await sendFriendFollowRequest(
       context.cookie,
-      authorId,
-      context.user.id
+      author,
+      context.user
     );
 
     if (response.status !== 200) {
@@ -68,6 +68,7 @@ const FriendRequestList = (props) => {
       {friendRequests.map((author, index) => (
         <FriendFollowerComponent
           parent={FRIEND_REQUEST_LIST}
+          author={author}
           username={author.username}
           authorId={author.id}
           index={index}
