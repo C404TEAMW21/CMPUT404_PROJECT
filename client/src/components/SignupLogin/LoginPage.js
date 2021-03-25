@@ -120,7 +120,7 @@ const LoginPage = (props) => {
         </Dimmer>
       )}
       <AppName className="app-name" />
-      <h2 className="title">LOGIN</h2>
+      <h2 className="signuplogin-title">LOGIN</h2>
       <SignupLoginForm onSubmit={onSubmit} buttonText="Login" />
       <div className="link-container">
         <p className="link-info">Don't have an account?</p>
