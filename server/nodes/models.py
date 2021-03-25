@@ -30,7 +30,7 @@ class Node(models.Model):
                 server_user = user_model.objects.get(username=self.remote_server_username)
                 # update server_user
                 server_user.username = self.remote_server_username
-                server_user.password = self.remote_server_password
+                server_user.set_password(self.remote_server_password)
                 server_user.url = self.remote_server_url
                 server_user.adminApproval = self.adminApproval
                 server_user.save()
