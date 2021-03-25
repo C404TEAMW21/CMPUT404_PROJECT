@@ -189,12 +189,19 @@ class SharePostView(generics.CreateAPIView):
             return Response({'error':'from is empty!'},
                             status=status.HTTP_400_BAD_REQUEST)
         post_id = self.kwargs['pk']
+        post_data = None
         try:
             a_post = Post.objects.get(pk=post_id, unlisted=False)
+            post_data = PostSerializer(a_post).data
         except Post.DoesNotExist as e:
+            sharer_items = Inbox.objects.get(author=sharer_id).items
+            for item in sharer_items:
+                if str(post_id) == item['id']:
+                    post_data = item
+        if post_data == None:
             return Response({'error': 'Post not found!'},
                             status=status.HTTP_404_NOT_FOUND)
-        post_data = PostSerializer(a_post).data
+
         share_to = request.data.get('share_to')
         if share_to:
             if share_to == 'all':
