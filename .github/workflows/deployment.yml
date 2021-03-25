@@ -19,3 +19,5 @@ jobs:
           branch: "main"
         env:
           HD_REACT_APP_GITHUB_KEY: ${{secrets.REACT_APP_GITHUB_KEY}}
+          HD_REACT_APP_TEAM6_BAUTH_USERNAME: ${{secrets.REACT_APP_TEAM6_BAUTH_USERNAME}}
+          HD_REACT_APP_TEAM6_BAUTH_PASSWORD: ${{secrets.REACT_APP_TEAM6_BAUTH_PASSWORD}}

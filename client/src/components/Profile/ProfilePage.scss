@@ -3,6 +3,13 @@
   display: flex;
   min-height: 100%;
 
+  .profile {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-direction: column;
+  }
+
   .profile-data {
     margin-left: 50px;
     margin-right: 72px;
@@ -11,6 +18,16 @@
     border-radius: 20px;
     width: 500px;
     height: 200px;
+  }
+
+  .search-container {
+    display: inline-flex;
+  }
+
+  .ui.input > input {
+    width: 300px;
+    margin-right: 10px;
+    box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.25);
   }
 
   .ui.bottom.attached.segment {
