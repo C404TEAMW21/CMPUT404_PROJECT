@@ -48,11 +48,20 @@ export const checkIfFollowing = async (token, A, B) => {
   }
 };
 
-export const sendFriendFollowRequest = async (token, A, B) => {
+export const sendFriendFollowRequest = async (token, authorA, authorB) => {
   try {
     const response = await axios.put(
-      `${SERVER_HOST}/service/author/${A}/followers/${B}/`,
-      {},
+      `${SERVER_HOST}/service/author/${authorA.id}/followers/${authorB.id}/`,
+      {
+        type: "Follow",
+        summary: "AuthorB wants to follow AuthorA",
+        actor: {
+          ...authorB,
+        },
+        object: {
+          ...authorA,
+        },
+      },
       {
         headers: {
           "Content-Type": "application/json",

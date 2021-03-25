@@ -63,12 +63,10 @@ const MyProfilePage = () => {
   };
 
   const onSendFriendRequestClick = async () => {
-    const authorId = window.location.pathname.split("/").pop();
-
     const response = await sendFriendFollowRequest(
       context.cookie,
-      authorId,
-      context.user.id
+      currentAuthor,
+      context.user
     );
 
     if (response.status !== 200) {

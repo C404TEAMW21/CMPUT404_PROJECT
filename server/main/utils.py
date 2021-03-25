@@ -7,6 +7,7 @@ from enum import Enum
 from django.conf import settings
 
 HOST = "https://konnection-server.herokuapp.com/"
+FRONTEND_HOST = "https://konnection-client.herokuapp.com"
 
 class UserType(Enum):
     superuser = 'superuser'

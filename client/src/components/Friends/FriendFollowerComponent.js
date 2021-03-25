@@ -50,7 +50,7 @@ const FriendFollowerComponent = (props) => {
   };
 
   const handleAccept = () => {
-    props.handleAccept(props.index, props.authorId);
+    props.handleAccept(props.index, props.author);
   };
 
   if (loading) {
