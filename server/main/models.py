@@ -10,7 +10,7 @@ class UserManager(BaseUserManager):
     def create_author(self, username, password, **extra_fields):
         author = self.model(username=re.sub(r'\W+', '', username), **extra_fields)
         author.set_password(password)
-        author.url = f'{utils.HOST}/author/{author.id}'
+        author.url = f'{utils.FRONTEND_HOST}/author/{author.id}'
         author.save(using=self._db)
 
         return author
@@ -43,7 +43,7 @@ class Author(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'username'
 
     def get_id_url(self):
-        return f'{utils.HOST}/author/{str(self.id)}'
+        return f'{utils.FRONTEND_HOST}/author/{str(self.id)}'
 
 class Followers(models.Model):
     author = models.ForeignKey(Author, related_name="followers", on_delete=models.CASCADE)
