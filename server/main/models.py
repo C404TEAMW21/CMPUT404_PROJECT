@@ -60,7 +60,7 @@ class Followers(models.Model):
             allAuthorList.extend(value.values())
     
         return allAuthorList
-
+    # TODO: Delete this function 
     def friends(self):
         list = []
         for author in self.followers.all():
@@ -71,7 +71,7 @@ class Followers(models.Model):
             except Followers.DoesNotExist:
                 pass
         return list
-    
+    # TODO: Delete this function 
     def is_friends(self, author1, author2):
         try:
             author1_followers = Followers.objects.get(author=author1).followers.all()
@@ -83,5 +83,38 @@ class Followers(models.Model):
         return False
 
 class Following(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="following", unique=False, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, related_name="following", unique=False, on_delete=models.CASCADE)
     following = models.ManyToManyField(Author, related_name='author_following')
+    remoteFollowing = models.JSONField(default=dict)
+
+    def get_all_local_following(self, author):
+        return Following.objects.get(author=author).following.all()
+
+    def get_all_remote_following(self, author):
+        return Following.objects.get(author=author).remoteFollowing  
+
+    def get_all_local_friends(self, author):
+        return Followers.objects.get(author=author).followers.all() & Following.objects.get(author=author).following.all()
+
+    def get_all_remote_friends(self, author):
+        remote_followers_obj = Followers.objects.get(author=author).remoteFollowers.values()
+        remote_followering_obj = Following.objects.get(author=author).remoteFollowing.values()
+        remote_follower_list = []
+        remote_following_list = []
+        friends_list = []
+        for follower in remote_followers_obj:
+            remote_follower_list.extend(follower.keys())
+
+        for following in remote_followering_obj:
+            remote_following_list.extend(following.keys())
+       
+        friends = list( set(remote_follower_list) & set(remote_following_list))
+        
+        for friend in friends:
+            for i in remote_followering_obj:
+                friends_list.append(i[friend])
+    
+        return friends_list
+
+    
+      
