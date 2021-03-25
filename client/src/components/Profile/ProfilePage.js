@@ -9,6 +9,7 @@ import FriendRequestList from "../Friends/FriendRequestList";
 import FriendList from "../Friends/FriendList";
 import FollowerList from "../Friends/FollowerList";
 import FollowingList from "../Friends/FollowingList";
+import ProfileSearchBar from "./ProfileSearchBar";
 import { getUserObject, sendFriendFollowRequest } from "../../ApiUtils";
 
 const recentPosts = "Recent Posts";
@@ -88,12 +89,15 @@ const MyProfilePage = () => {
         />
       )}
       <div className="profile-page-container">
-        <div className="profile-data">
-          <ProfileData
-            author={currentAuthor}
-            onSendFriendRequestClick={onSendFriendRequestClick}
-            updateError={updateError}
-          />
+        <div className="profile">
+          <div className="profile-data">
+            <ProfileData
+              author={currentAuthor}
+              onSendFriendRequestClick={onSendFriendRequestClick}
+              updateError={updateError}
+            />
+          </div>
+          <ProfileSearchBar token={context.cookie} />
         </div>
 
         <div className="profile-posts">
