@@ -11,7 +11,7 @@ class InboxSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
 
     def get_author(self, obj):
-        return f"{utils.HOST}/author/{obj.author.id}"
+        return f"{utils.FRONTEND_HOST}/author/{obj.author.id}"
 
     def paginated_items(self, obj):
         data = []
