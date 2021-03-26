@@ -1,5 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, get_object_or_404
+from django.db import IntegrityError
+
 from rest_framework import authentication, generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -64,16 +66,20 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                                 status=status.HTTP_404_NOT_FOUND)
 
             # Gather information for the Like object creation
-            object_type = Like.LIKE_COMMENT if ('comments' in id_url) else Like.LIKE_POST
-            if (id_url.endswith('/')):
-                object_id = id_url.split('/')[-2]
-            else:
-                object_id = id_url.split('/')[-1]
-            like_author_id = request.data.get('author')['id'].split('/')[-1]
-            Like.objects.create(
-                author=request.data.get('author'), author_id=like_author_id, 
-                object=id_url, object_type=object_type, object_id=object_id
-            )
+            try:
+                object_type = Like.LIKE_COMMENT if ('comments' in id_url) else Like.LIKE_POST
+                if (id_url.endswith('/')):
+                    object_id = id_url.split('/')[-2]
+                else:
+                    object_id = id_url.split('/')[-1]
+                like_author_id = request.data.get('author')['id'].split('/')[-1]
+                Like.objects.create(
+                    author=request.data.get('author'), author_id=like_author_id, 
+                    object=id_url, object_type=object_type, object_id=object_id
+                )
+            except IntegrityError:
+                return Response({'data':f'You have already sent a like to {object_type} {id_url} on {host_name}.'},
+                            status=status.HTTP_200_OK)
             
             return Response({'data':f'Sent like to {object_type} {id_url} on {host_name}.'},
                             status=status.HTTP_200_OK)
