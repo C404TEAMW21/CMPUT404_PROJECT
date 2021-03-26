@@ -1,4 +1,4 @@
-import requests
+import requests, json
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404
@@ -224,8 +224,8 @@ class SharePostView(generics.CreateAPIView):
                         url = f"{friend['host']}/service/author/{friend['id']}/inbox/"
                     print(url)
                     # TODO change username: password based on server
-                    req = requests.post(url, data=post_data, auth=('test003', 'test003'))
-                return Response(req.status_code)
+                    req = requests.post(url, json=post_data, auth=('test003', 'test003'))
+
                 for friend in friend_list:
                     try:
                         inbox = Inbox.objects.get(author=friend.id)
