@@ -1,4 +1,4 @@
-import re
+import requests
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404
@@ -205,6 +205,11 @@ class SharePostView(generics.CreateAPIView):
         share_to = request.data.get('share_to')
         if share_to:
             if share_to == 'all':
+                # friend_list = Followers.get_all_local_followers(self, sharer_id)
+                # print(friend_list)
+                # TODO change to friends
+                remote_friend_list = Followers.get_all_remote_followers(self, sharer_id)
+                # print(remote_friend_list)
                 try:
                     friend_list = Followers.objects.get(author=sharer_id) \
                         .friends()
@@ -212,6 +217,15 @@ class SharePostView(generics.CreateAPIView):
                     return Response({'data': f'No friends to share to'},
                                     status=status.HTTP_200_OK)
 
+                for friend in remote_friend_list:
+                    if friend['host'][-1] == '/':
+                        url = f"{friend['host']}service/author/{friend['id']}/inbox/"
+                    else:
+                        url = f"{friend['host']}/service/author/{friend['id']}/inbox/"
+                    print(url)
+                    # TODO change username: password based on server
+                    req = requests.post(url, data=post_data, auth=('test003', 'test003'))
+                return Response(req.status_code)
                 for friend in friend_list:
                     try:
                         inbox = Inbox.objects.get(author=friend.id)
