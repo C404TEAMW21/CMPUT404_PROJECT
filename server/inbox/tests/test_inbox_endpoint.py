@@ -85,7 +85,7 @@ class TestInboxEndpoint(TestCase):
         res = self.client.post(self.inbox_url, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'],
-                         "Invalid type, only \'post\', \'Like\'")
+                         "Invalid type, only \'post\', \'like\'")
 
     def test_get_self_inbox(self):
         """Test Author getting Author's own inbox"""

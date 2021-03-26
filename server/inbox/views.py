@@ -8,6 +8,7 @@ from posts.serializers import PostSerializer
 from author.serializers import AuthorProfileSerializer
 from main.models import Author
 from posts.models import Post
+from likes.models import Like
 from .models import Inbox
 from .serializers import InboxSerializer
 
@@ -41,10 +42,9 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
     # POST: send a Post, Like or Follow to Inbox
     def post(self, request, *args, **kwargs):
         request_author_id = self.kwargs['author_id']
-        inbox_type = request.data.get('type')
+        inbox_type = request.data.get('type').lower()
         host_name = request.get_host()
 
-        # TODO: send Like and Follow
         if inbox_type == 'post':
             post_id = request.data.get('id')
             try:
@@ -55,17 +55,30 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
             return Response({'data':f'Shared Post {post_id} with Author '
                                     f'{request_author_id} on {host_name}.'},
                             status=status.HTTP_200_OK)
-        elif inbox_type == 'Like':
-            post_id = request.data.get('object')
+        elif inbox_type == 'like':
+            id_url = request.data.get('object')
             try:
                 Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
             except Inbox.DoesNotExist as e:
                 return Response({'error':'Author not found!'},
                                 status=status.HTTP_404_NOT_FOUND)
-            return Response({'data':f'Sent Like to Post {post_id} on {host_name}.'},
+
+            # Gather information for the Like object creation
+            object_type = Like.LIKE_COMMENT if ('comments' in id_url) else Like.LIKE_POST
+            if (id_url.endswith('/')):
+                object_id = id_url.split('/')[-2]
+            else:
+                object_id = id_url.split('/')[-1]
+            like_author_id = request.data.get('author')['id'].split('/')[-1]
+            Like.objects.create(
+                author=request.data.get('author'), author_id=like_author_id, 
+                object=id_url, object_type=object_type, object_id=object_id
+            )
+            
+            return Response({'data':f'Sent like to {object_type} {id_url} on {host_name}.'},
                             status=status.HTTP_200_OK)
         else:
-            return Response({'error':'Invalid type, only \'post\', \'Like\''},
+            return Response({'error':'Invalid type, only \'post\', \'like\''},
                             status=status.HTTP_400_BAD_REQUEST)
 
     # DELETE: Clear the inbox

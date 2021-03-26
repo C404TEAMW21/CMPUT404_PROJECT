@@ -25,4 +25,5 @@ urlpatterns = [
     path('service/', include('author.urls')),
     path('service/author/', include('inbox.urls')),
     path('service/author/', include('followers.urls')),
+    path('service/author/', include('likes.urls')),
 ]
