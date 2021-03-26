@@ -148,3 +148,8 @@ class TestLikeEndpoint(TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.data.get('type'), 'liked')
         self.assertEqual(len(res.data.get('items')), 2)
+
+        first_item = res.data.get('items')[0]
+        self.assertEqual(first_item['type'], 'like')
+        self.assertEqual(first_item['author'], self.create_different_authors(author_id1))
+        self.assertEqual(first_item['object'], self.comment)
