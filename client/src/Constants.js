@@ -3,6 +3,9 @@ export const SERVER_HOST =
     ? "https://konnection-server.herokuapp.com"
     : "http://127.0.0.1:8000";
 
+export const TEAM6_HOST = "https://team6-project-socialdistrib.herokuapp.com";
+export const TEAM2_HOST = "https://dry-plateau-09130.herokuapp.com";
+
 export const ROUTE_LOGIN = "/login";
 export const ROUTE_SIGNUP = "/signup";
 export const ROUTE_MY_FEED = "/myfeed";
