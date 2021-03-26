@@ -80,7 +80,7 @@ const SignupPage = () => {
   return (
     <div className="page">
       <AppName className="app-name" />
-      <h2 className="title">SIGNUP</h2>
+      <h2 className="signuplogin-title">SIGNUP</h2>
       <SignupLoginForm onSubmit={onSubmit} buttonText="Sign up" />
       <div className="link-container">
         <p className="link-info">Already have an account?</p>

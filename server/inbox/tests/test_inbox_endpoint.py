@@ -93,7 +93,7 @@ class TestInboxEndpoint(TestCase):
         res = self.client.get(self.inbox_url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn(('type', 'inbox'), res.data.items())
-        self.assertEqual(f'{utils.HOST}/author/{self.author_1.id}', res.data['author'])
+        self.assertEqual(f'{utils.FRONTEND_HOST}/author/{self.author_1.id}', res.data['author'])
         self.assertIn('items', res.data)
 
     def test_get_others_inbox(self):

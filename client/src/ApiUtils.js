@@ -1,5 +1,5 @@
 import axios from "axios";
-import { SERVER_HOST } from "./Constants";
+import { SERVER_HOST, TEAM2_HOST, TEAM6_HOST } from "./Constants";
 
 export const getUserObject = async (token, id) => {
   try {
@@ -48,11 +48,20 @@ export const checkIfFollowing = async (token, A, B) => {
   }
 };
 
-export const sendFriendFollowRequest = async (token, A, B) => {
+export const sendFriendFollowRequest = async (token, authorA, authorB) => {
   try {
     const response = await axios.put(
-      `${SERVER_HOST}/service/author/${A}/followers/${B}/`,
-      {},
+      `${SERVER_HOST}/service/author/${authorA.id}/followers/${authorB.id}/`,
+      {
+        type: "Follow",
+        summary: "AuthorB wants to follow AuthorA",
+        actor: {
+          ...authorB,
+        },
+        object: {
+          ...authorA,
+        },
+      },
       {
         headers: {
           "Content-Type": "application/json",
@@ -164,6 +173,46 @@ export const deletePost = async (token, userId, postId) => {
       }
     );
     return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+const getAuthorsKonnections = (token) =>
+  axios.get(`${SERVER_HOST}/service/authors/`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Token ${token}`,
+    },
+  });
+
+const getAuthorsTeam6 = () =>
+  axios.get(`https://team6-project-socialdistrib.herokuapp.com/api/authors`, {
+    auth: {
+      username: process.env.REACT_APP_TEAM6_BAUTH_USERNAME,
+      password: process.env.REACT_APP_TEAM6_BAUTH_PASSWORD,
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+const getAuthorsTeam2 = () =>
+  axios.get(`${TEAM2_HOST}/api/authors/`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+export const getAllAuthors = async (token) => {
+  try {
+    const responses = await axios.all([
+      getAuthorsKonnections(token),
+      getAuthorsTeam6(),
+      getAuthorsTeam2(),
+    ]);
+
+    return responses;
   } catch (error) {
     return error.response;
   }
