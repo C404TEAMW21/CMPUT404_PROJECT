@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Search, Button, Label } from "semantic-ui-react";
 import { getAllAuthors } from "../../ApiUtils";
+import { useHistory } from "react-router-dom";
 import "./ProfilePage.scss";
 
 const ProfileSearchBar = (props) => {
+  let history = useHistory();
+
   const [value, setValue] = useState("");
   const [results, setResults] = useState([]);
   const [rawResults, setRawResults] = useState([]);
@@ -38,6 +41,8 @@ const ProfileSearchBar = (props) => {
       let item = {
         title: author.displayName,
         description: author.host,
+        author,
+        onClick: authorOnClick,
       };
 
       formatted.push(item);
@@ -52,8 +57,15 @@ const ProfileSearchBar = (props) => {
     const author = rawResults.filter((a) => {
       return a.displayName == result.title;
     });
+  };
 
-    console.log(author);
+  const authorOnClick = (e, { author }) => {
+    const authorId = author.id.split("/").pop();
+
+    history.push({
+      pathname: `/author/${authorId}`,
+      state: { author },
+    });
   };
 
   return (

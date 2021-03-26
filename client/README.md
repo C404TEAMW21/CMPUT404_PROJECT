@@ -203,3 +203,8 @@ Setting up Env Variables for React
 - From [StackOverflow](https://stackoverflow.com/a/49579700)
 - From [tarzen chugh](https://stackoverflow.com/users/7845230/tarzen-chugh)
 - Accessed March 19 2021
+
+Pass props via react router
+
+- From [StackOverflow](https://stackoverflow.com/a/60256650)
+- From [akhouri](https://stackoverflow.com/users/2875250/akhouri)

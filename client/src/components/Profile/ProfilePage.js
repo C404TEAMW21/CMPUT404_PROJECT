@@ -36,7 +36,10 @@ const MyProfilePage = () => {
 
   useEffect(() => {
     const authorId = window.location.pathname.split("/").pop();
-    getOtherAuthorObject(authorId);
+
+    if (context.user) {
+      getOtherAuthorObject(authorId);
+    }
   }, [location]);
 
   const handleItemClick = (e, { name, section }) => {
@@ -45,6 +48,12 @@ const MyProfilePage = () => {
   };
 
   const getOtherAuthorObject = async (authorId) => {
+    // if remote author passed in
+    if (location.state && location.state.author) {
+      updateCurrentAuthor(location.state.author);
+      return;
+    }
+
     if (context.user) {
       if (authorId === context.user.id) return;
     }
@@ -98,47 +107,49 @@ const MyProfilePage = () => {
           <ProfileSearchBar token={context.cookie} />
         </div>
 
-        <div className="profile-posts">
-          <Menu attached="top" tabular>
-            <Menu.Item
-              name={recentPosts}
-              active={activeItem === recentPosts}
-              onClick={handleItemClick}
-              section={placeholder}
-            />
-            <Menu.Item
-              name={friends}
-              active={activeItem === friends}
-              onClick={handleItemClick}
-              section={<FriendList updateError={updateError} />}
-            />
-            <Menu.Item
-              name={followers}
-              active={activeItem === followers}
-              onClick={handleItemClick}
-              section={<FollowerList updateError={updateError} />}
-            />
-            {/* Save following list for future sprint */}
-            {false && (
+        {!location.state && (
+          <div className="profile-posts">
+            <Menu attached="top" tabular>
               <Menu.Item
-                name={following}
-                active={activeItem === following}
+                name={recentPosts}
+                active={activeItem === recentPosts}
                 onClick={handleItemClick}
-                section={<FollowingList updateError={updateError} />}
+                section={placeholder}
               />
-            )}
-            {showElement() && (
               <Menu.Item
-                name={friendRequests}
-                active={activeItem === friendRequests}
+                name={friends}
+                active={activeItem === friends}
                 onClick={handleItemClick}
-                section={<FriendRequestList updateError={updateError} />}
+                section={<FriendList updateError={updateError} />}
               />
-            )}
-          </Menu>
+              <Menu.Item
+                name={followers}
+                active={activeItem === followers}
+                onClick={handleItemClick}
+                section={<FollowerList updateError={updateError} />}
+              />
+              {/* Save following list for future sprint */}
+              {false && (
+                <Menu.Item
+                  name={following}
+                  active={activeItem === following}
+                  onClick={handleItemClick}
+                  section={<FollowingList updateError={updateError} />}
+                />
+              )}
+              {showElement() && (
+                <Menu.Item
+                  name={friendRequests}
+                  active={activeItem === friendRequests}
+                  onClick={handleItemClick}
+                  section={<FriendRequestList updateError={updateError} />}
+                />
+              )}
+            </Menu>
 
-          <Segment attached="bottom">{currentSection}</Segment>
-        </div>
+            <Segment attached="bottom">{currentSection}</Segment>
+          </div>
+        )}
       </div>
     </div>
   );

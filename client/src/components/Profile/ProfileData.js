@@ -13,6 +13,7 @@ const MyProfileData = (props) => {
 
   const [name, updateName] = useState("Loading...");
   const [github, updateGithub] = useState("N/A");
+  const [host, updateHost] = useState("N/A");
   const [showEditBtn, updateShowEditBtn] = useState(false);
   const [showFriendRequestBtn, updateShowFriendRequestBtn] = useState(false);
   const [showUnFollowBtn, updateShowUnFollowBtn] = useState(false);
@@ -26,6 +27,7 @@ const MyProfileData = (props) => {
     nameToRender(authorId);
     selectBtnToShow(authorId);
     githubToRender(authorId);
+    hostToRender(authorId);
   }, [location, props.author]);
 
   const selectBtnToShow = async (authorId) => {
@@ -126,6 +128,20 @@ const MyProfileData = (props) => {
     }
   };
 
+  const hostToRender = (authorId) => {
+    let result = "N/A";
+
+    if (context.user) {
+      if (authorId !== context.user.id) {
+        result = props.author.host ? props.author.host : "N/A";
+      } else {
+        result = context.user.host ? context.user.host : "N/A";
+      }
+
+      updateHost(result);
+    }
+  };
+
   return (
     <div>
       <div className="profile-top-section">
@@ -158,6 +174,12 @@ const MyProfileData = (props) => {
             GitHub:
           </Header>
           <span>{github}</span>
+        </div>
+        <div className="display-name-heading">
+          <Header as="h4" floated="left">
+            Host:
+          </Header>
+          <span>{host}</span>
         </div>
       </div>
     </div>
