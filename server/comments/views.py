@@ -5,7 +5,8 @@ from django.shortcuts import render
 from .serializers import CommentSerializer
 from .models import Comment
 from posts.models import Post
-from main.models import Author, Followers
+from main.models import Author
+from followers.models import Follower
 from inbox.models import Inbox
 from rest_framework import generics, status
 from rest_framework.response import Response

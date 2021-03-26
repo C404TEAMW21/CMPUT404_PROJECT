@@ -45,43 +45,42 @@ class Author(AbstractBaseUser, PermissionsMixin):
     def get_id_url(self):
         return f'{utils.FRONTEND_HOST}/author/{str(self.id)}'
 
-class Followers(models.Model):
-    author = models.ForeignKey(Author, related_name="followers", on_delete=models.CASCADE)
-    followers = models.ManyToManyField(Author, related_name='author_followers')
-    remoteFollowers = models.JSONField(default=dict)
+    #followers = models.ManyToManyField(Author, related_name='author_followers')
+    #remoteFollowers = models.JSONField(default=dict)
 
-    def get_all_local_followers(self, author):
-        return Followers.objects.get(author=author).followers.all()
+    # def get_all_local_followers(self, author):
+    #     return Followers.objects.get(author=author).followers.all()
 
-    def get_all_remote_followers(self, author):
-        remote = Followers.objects.get(author=author).remoteFollowers  
-        allAuthorList = []
-        for key, value in remote.items():
-            allAuthorList.extend(value.values())
+    # def get_all_remote_followers(self, author):
+    #     remote = Followers.objects.get(author=author).remoteFollowers  
+    #     allAuthorList = []
+    #     for key, value in remote.items():
+    #         allAuthorList.extend(value.values())
     
-        return allAuthorList
+    #     return allAuthorList
 
-    def friends(self):
-        list = []
-        for author in self.followers.all():
-            try:
-                object = Followers.objects.get(author=author)
-                if self.author in object.followers.all():
-                    list.append(author)
-            except Followers.DoesNotExist:
-                pass
-        return list
+    # def friends(self):
+    #     list = []
+    #     for author in self.followers.all():
+    #         try:
+    #             object = Followers.objects.get(author=author)
+    #             if self.author in object.followers.all():
+    #                 list.append(author)
+    #         except Followers.DoesNotExist:
+    #             pass
+    #     return list
     
-    def is_friends(self, author1, author2):
-        try:
-            author1_followers = Followers.objects.get(author=author1).followers.all()
-            author2_followers = Followers.objects.get(author=author2).followers.all()
-            if (author1 in author2_followers) and (author2 in author1_followers):
-                return True
-        except Followers.DoesNotExist:
-            pass
-        return False
+    # def is_friends(self, author1, author2):
+    #     try:
+    #         author1_followers = Followers.objects.get(author=author1).followers.all()
+    #         author2_followers = Followers.objects.get(author=author2).followers.all()
+    #         if (author1 in author2_followers) and (author2 in author1_followers):
+    #             return True
+    #     except Followers.DoesNotExist:
+    #         pass
+    #     return False
 
-class Following(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="following", unique=False, on_delete=models.CASCADE)
-    following = models.ManyToManyField(Author, related_name='author_following')
+# class Following(models.Model):
+#     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="following", unique=False, on_delete=models.CASCADE)
+#     following = models.ManyToManyField(Author, related_name='author_following')
+#     remote_followering = models.JSONField(default=dict)

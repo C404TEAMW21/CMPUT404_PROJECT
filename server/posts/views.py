@@ -7,7 +7,8 @@ from django.http import Http404
 from django.core.paginator import Paginator
 from rest_framework.response import Response
 
-from main.models import Author, Followers
+from main.models import Author
+from followers.models import Follower
 from .models import Post
 from .serializers import PostSerializer
 from inbox.models import Inbox

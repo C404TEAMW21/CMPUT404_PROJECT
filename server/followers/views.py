@@ -3,227 +3,96 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework import generics, permissions, status
 
+from django.shortcuts import render, get_object_or_404
+
 from main import models, utils
-from .models import FriendRequest
-from inbox.models import Inbox
-from followers.serializers import FollowersSerializer, FollowersModificationSerializer, FollowersFriendSerializer
-from author.serializers import AuthorProfileSerializer
-
-import requests as HTTPRequests
+from .serializers import FollowerSerializer
+from .models import Follower
 
 
-#<slug:id>/followers/
-class FollowersView(generics.RetrieveAPIView):
-    serializer_class = FollowersSerializer
+# /<uuid:author_id>/followers/
+class FollowersView(generics.ListAPIView):
+    http_method_names = ['get']
+    serializer_class = FollowerSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
-    
-    def get_object(self):
-        requestAuthorId = self.kwargs['id']
 
-        if not self.request.user.adminApproval:
-            raise AuthenticationFailed(
-                detail={"error": ["User has not been approved by admin"]})
+    # GET: get all followers of author
+    def get_queryset(self):
+        queryset = Follower.objects.filter(author=self.kwargs['author_id'])
+        return queryset
 
-        try: 
-            author_exists = models.Followers.objects.filter(author=requestAuthorId).exists()
-            if not author_exists:
-                authorObj = models.Author.objects.get(id=requestAuthorId)
-                models.Followers.objects.create(author=authorObj)
-        except:
-            raise ValidationError({"error": ["Author not found"]})
-
-        try:
-            return models.Followers.objects.get(author=requestAuthorId)
-        except:
-            raise ValidationError({"error": ["Author not found"]})
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        remote_followers_list = models.Followers.get_all_remote_followers(self, self.kwargs['id'])
-
-        for item in serializer.data['followers']:
-            remote_followers_list.append(item)
-
-        return Response({
+    def get(self, request, *args, **kwargs):
+        followers = self.get_queryset()
+        items = FollowerSerializer(followers, many=True).data
+        response = {
             'type': 'followers',
-            'items': remote_followers_list,
-        })
+            'items': items
+        }
+        return Response(response)
 
-#/<slug:id>/followers/<slug:foreignId>/
-class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = FollowersModificationSerializer
+# <uuid:author_id>/followers/<uuid:follower_id>
+class FollowersUpdateView(generics.RetrieveUpdateDestroyAPIView):
+    http_method_names = ['get', 'delete', 'put']
+    serializer_class = FollowerSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
+
+    # returns a follower object with the matching author_id and follower_id
+    # returns 404 otherwise
+    def get_follower(self):
+        author_id = self.kwargs['author_id']
+        follower_id = self.kwargs['follower_id']
+        a_post = get_object_or_404(
+            Follower,
+            author=author_id,
+            follower_id=follower_id)
+        return a_post
     
-    def get_object(self):
-        self.requestAuthorId = self.kwargs['id']
-        self.requestForeignAuthorId = self.kwargs['foreignId']
-        
-        if not self.request.user.adminApproval:
-            raise AuthenticationFailed(
-                detail={"error": ["User has not been approved by admin"]})
-
-        try :
-            authorExists = models.Followers.objects.filter(author=self.requestAuthorId).exists()
-            if not authorExists:
-                authorObj = models.Author.objects.get(id=self.requestAuthorId)
-                models.Followers.objects.create(author=authorObj)
-        except:
-            raise ValidationError({"error": ["User not found"]})
-
-
-        try:
-            self.author = models.Author.objects.get(id=self.requestAuthorId)
-            self.foreignAuthor = models.Author.objects.get(id=self.requestForeignAuthorId)
-                  
-            return models.Followers.objects.filter(author=self.requestAuthorId)
-
-        except:
-            raise ValidationError({"error": ["User not found"]})
-
+    # GET the follower object with the right author_id and follower_id
     def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
+        follower = self.get_follower()
+        return Response(FollowerSerializer(follower).data)
 
-        if not self.request.user.adminApproval:
-            raise AuthenticationFailed(
-                detail={"error": ["User has not been approved by admin"]})
-                
-        return Response({
-            'type': 'follower',
-            'items': [{
-                'status': self.foreignAuthor in serializer.data['followers'],
-                'author':  self.author.id,
-                'follower': self.foreignAuthor.id,
-            }]
-        })
-
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.get_serializer(instance, data=request.data, partial=True)
-
-
-
-        if (self.requestAuthorId == self.requestForeignAuthorId):
-            return Response({
-                'error': ['You cannot follow yourself']}, status=status.HTTP_400_BAD_REQUEST)
-        elif (not self.request.user.adminApproval):
-            raise AuthenticationFailed(
-                detail={"error": ["User has not been approved by admin"]})
-        
-        # Test required fields 
-        try:
-            actorObj = request.data['actor']
-            actorHost = request.data['actor']['host']
-            objectHost = request.data['object']['host']
-            actorId = request.data['actor']['id']
-        except:
-            return Response({
-                'error': ['Please provide required fields']}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Handle all cases 
-        inboxData = {}
-        if objectHost == utils.HOST and actorHost != utils.HOST:
-            authorObj = models.Author.objects.get(id=self.requestAuthorId)
-            author = models.Followers.objects.get(author=authorObj)
-
-            if actorHost not in author.remoteFollowers:
-                author.remoteFollowers[actorHost] = {}
-
-            author.remoteFollowers[actorHost][actorId] = actorObj
-            author.save()
-
-            inboxData = request.data
-        elif objectHost and actorHost == utils.HOST:
-            
-            if (str(self.requestForeignAuthorId) != str(request.user.id)):
-                return Response({
-                    'error': ['This is not your account, you cannot follow this author']}, status=status.HTTP_403_FORBIDDEN) 
-
-            authorObj = models.Author.objects.get(id=self.requestAuthorId)
-            author = models.Followers.objects.get(author=authorObj)
-            foreignAuthor = models.Author.objects.get(id=self.requestForeignAuthorId)
-
-            author.followers.add(foreignAuthor)
-            author.save()
-
-            inboxData['type'] = 'follow'
-            inboxData['summary'] = f"{self.foreignAuthor.username} wants to follow {self.author.username}"
-            inboxData['actor'] = AuthorProfileSerializer(foreignAuthor).data
-            inboxData['object'] = AuthorProfileSerializer(author).data
-            
-        elif objectHost != utils.HOST and actorHost == utils.HOST:
-            # TODO: Connect with other team
-            a = ''
-        else: 
-            return Response({
-                'error': ['Bad request']}, status=status.HTTP_400_BAD_REQUEST)
-
-
-        authorObj = models.Author.objects.get(id=self.requestAuthorId)
-        inbox = Inbox.objects.get(author=authorObj)
-        inbox.items.append(inboxData)
-        inbox.save()
-        
-        return Response({
-            'type': 'follow',
-            'items': [{
-                'status': True,
-                'author':  self.author.id,
-                'follower': self.foreignAuthor.id,
-            }]
-        })
-    
+    # DELETE - Only the followee or follower can perform the unfollow
     def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        if (self.kwargs['author_id'] != self.request.user.id
+            and self.kwargs['follower_id'] != self.request.user.id
+            and self.request.user.type != 'node'):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-        if not serializer.is_valid():
-            raise ValidationError({"error": ["User not found"]})
+        if self.get_follower():
+            self.get_follower().delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-        if (str(self.requestForeignAuthorId) != str(request.user.id)):
-           return Response({
-                'error': ['This is not your account, you cannot unfollow this author']}, status=status.HTTP_403_FORBIDDEN) 
-        elif (self.requestAuthorId == self.requestForeignAuthorId):
-            return Response({
-                'error': ['You cannot unfollow yourself']}, status=status.HTTP_400_BAD_REQUEST)
-        elif (self.foreignAuthor not in serializer.data['followers']):
-            return Response({
-                'error': ['You are not following this author, hence, you can unfollow']}, status=status.HTTP_400_BAD_REQUEST)
-        elif (not self.request.user.adminApproval):
-            raise AuthenticationFailed(
-                detail={"error": ["User has not been approved by admin"]})
+    # PUT - Add a new follower (only follower can perform the follow)
+    def update(self, request, *args, **kwargs):
+        if (self.kwargs['follower_id'] != self.request.user.id
+            and self.request.user.type != 'node'):
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-
-        authorObj = models.Author.objects.get(id=self.requestAuthorId)
-        author = models.Followers.objects.get(author=authorObj)
-        foreignAuthor = models.Author.objects.get(id=self.requestForeignAuthorId)
-
-        author.followers.remove(foreignAuthor)
-        author.save()
-
-        FriendRequest.objects.filter(follower=foreignAuthor, author=authorObj).delete()
-
-        return Response({
-            'type': 'unfollow',
-            'items': [{
-                'status': False,
-                'author':  author.author.id,
-                'follower': foreignAuthor.id,
-            }]
-        })
-
-class FollowersFriendView(generics.RetrieveAPIView):
-    serializer_class = FollowersFriendSerializer
-    authenticate_classes = (authentication.TokenAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_object(self):
-        author_id = self.kwargs['id']
-        try:
-            query = models.Followers.objects.get(author=author_id)
-        except:
-            query = None
-        return query
+        mandatory_keys = ['id', 'displayName', 'url', 'github', 'host']
+        if all(key in request.data for key in mandatory_keys):
+            try:
+                author = models.Author.objects.get(id=self.kwargs['author_id'])
+            except models.Author.DoesNotExist:
+                return Response(
+                    {'data': 'Author you want to follow DNE'},
+                    status=status.HTTP_400_BAD_REQUEST)
+            try:
+                follower = Follower.objects.create(
+                    author=author,
+                    follower_id=self.kwargs['follower_id'],
+                    follower=request.data
+                )
+                data = FollowerSerializer(follower).data
+            except:
+                data = {'data': 'You are already following this author'}
+            
+            return Response(data,status=status.HTTP_200_OK)
+        else:
+            return Response(
+                    {'data': "need all of the following keys: 'id', 'displayName', 'url', 'github', 'host'"},
+                    status=status.HTTP_400_BAD_REQUEST)
