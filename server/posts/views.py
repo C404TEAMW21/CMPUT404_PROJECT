@@ -222,7 +222,7 @@ class SharePostView(generics.CreateAPIView):
                         url = f"{friend['host']}service/author/{friend['id']}/inbox/"
                     else:
                         url = f"{friend['host']}/service/author/{friend['id']}/inbox/"
-                    print(url)
+
                     # TODO change username: password based on server
                     req = requests.post(url, json=post_data, auth=('test003', 'test003'))
 
