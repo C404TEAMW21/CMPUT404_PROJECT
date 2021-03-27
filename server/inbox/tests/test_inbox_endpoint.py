@@ -22,7 +22,7 @@ def create_payload(item_type, item_id):
 
 # TODO: add test cases for Like and Follow
 class TestInboxEndpoint(TestCase):
-    """Test Inbox API ://service/author/{AUTHOR_ID}/inbox/
+    """Test Inbox API ://api/author/{AUTHOR_ID}/inbox/
 
     GET - get the Inbox
     POST - send Follow, Like, Post to the Inbox
@@ -85,7 +85,7 @@ class TestInboxEndpoint(TestCase):
         res = self.client.post(self.inbox_url, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'],
-                         "Invalid type, only \'post\', \'Like\'")
+                         "Invalid type, only \'post\', \'like\'")
 
     def test_get_self_inbox(self):
         """Test Author getting Author's own inbox"""

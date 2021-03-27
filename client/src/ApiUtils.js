@@ -3,7 +3,7 @@ import { SERVER_HOST, TEAM2_HOST, TEAM6_HOST } from "./Constants";
 
 export const getUserObject = async (token, id) => {
   try {
-    const response = await axios.get(`${SERVER_HOST}/service/author/${id}/`, {
+    const response = await axios.get(`${SERVER_HOST}/api/author/${id}/`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Token ${token}`,
@@ -18,7 +18,7 @@ export const getUserObject = async (token, id) => {
 
 export const getCurrentUserObject = async (token) => {
   try {
-    const response = await axios.get(`${SERVER_HOST}/service/author/me/`, {
+    const response = await axios.get(`${SERVER_HOST}/api/author/me/`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Token ${token}`,
@@ -34,7 +34,7 @@ export const getCurrentUserObject = async (token) => {
 export const checkIfFollowing = async (token, A, B) => {
   try {
     const response = await axios.get(
-      `${SERVER_HOST}/service/author/${A}/followers/${B}/`,
+      `${SERVER_HOST}/api/author/${A}/followers/${B}/`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -51,7 +51,7 @@ export const checkIfFollowing = async (token, A, B) => {
 export const sendFriendFollowRequest = async (token, authorA, authorB) => {
   try {
     const response = await axios.put(
-      `${SERVER_HOST}/service/author/${authorA.id}/followers/${authorB.id}/`,
+      `${SERVER_HOST}/api/author/${authorA.id}/followers/${authorB.id}/`,
       {
         type: "Follow",
         summary: "AuthorB wants to follow AuthorA",
@@ -78,7 +78,7 @@ export const sendFriendFollowRequest = async (token, authorA, authorB) => {
 export const getAllFollowers = async (token, id) => {
   try {
     const response = await axios.get(
-      `${SERVER_HOST}/service/author/${id}/followers/`,
+      `${SERVER_HOST}/api/author/${id}/followers/`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +95,7 @@ export const getAllFollowers = async (token, id) => {
 export const unFollowAuthor = async (token, A, B) => {
   try {
     const response = await axios.delete(
-      `${SERVER_HOST}/service/author/${A}/followers/${B}/`,
+      `${SERVER_HOST}/api/author/${A}/followers/${B}/`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -111,15 +111,12 @@ export const unFollowAuthor = async (token, A, B) => {
 
 export const getInboxPosts = async (token, id) => {
   try {
-    const response = await axios.get(
-      `${SERVER_HOST}/service/author/${id}/inbox`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      }
-    );
+    const response = await axios.get(`${SERVER_HOST}/api/author/${id}/inbox`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
     const posts = response.data.items.filter(function (item) {
       return item.type == "post";
     });
@@ -133,7 +130,7 @@ export const getInboxPosts = async (token, id) => {
 export const getAllFriends = async (token, id) => {
   try {
     const response = await axios.get(
-      `${SERVER_HOST}/service/author/${id}/friends/`,
+      `${SERVER_HOST}/api/author/${id}/friends/`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -149,7 +146,7 @@ export const getAllFriends = async (token, id) => {
 
 export const getSpecificAuthorPost = async (token, path) => {
   try {
-    const response = await axios.get(`${SERVER_HOST}/service${path}/`, {
+    const response = await axios.get(`${SERVER_HOST}/api${path}/`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Token ${token}`,
@@ -164,7 +161,7 @@ export const getSpecificAuthorPost = async (token, path) => {
 export const deletePost = async (token, userId, postId) => {
   try {
     const response = await axios.delete(
-      `${SERVER_HOST}/service/author/${userId}/posts/${postId}/`,
+      `${SERVER_HOST}/api/author/${userId}/posts/${postId}/`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -179,7 +176,7 @@ export const deletePost = async (token, userId, postId) => {
 };
 
 const getAuthorsKonnections = (token) =>
-  axios.get(`${SERVER_HOST}/service/authors/`, {
+  axios.get(`${SERVER_HOST}/api/authors/`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Token ${token}`,

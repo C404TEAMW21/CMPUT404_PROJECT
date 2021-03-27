@@ -103,7 +103,7 @@ const LoginPage = (props) => {
 
     try {
       const response = await axios.post(
-        `${SERVER_HOST}/service/author/auth/`,
+        `${SERVER_HOST}/api/author/auth/`,
         request
       );
       return response;
