@@ -14,7 +14,7 @@ from likes.models import Like
 from .models import Inbox
 from .serializers import InboxSerializer
 
-# service/author/{AUTHOR_ID}/inbox/
+# api/author/{AUTHOR_ID}/inbox/
 class InboxView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = InboxSerializer
     authenticate_classes = (authentication.TokenAuthentication,)

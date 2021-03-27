@@ -68,7 +68,7 @@ const SignupPage = () => {
 
     try {
       const response = await axios.post(
-        `${SERVER_HOST}/service/author/create/`,
+        `${SERVER_HOST}/api/author/create/`,
         request
       );
       return response.status;

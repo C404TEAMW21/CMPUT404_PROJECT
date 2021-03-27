@@ -19,7 +19,7 @@ const MyFeedPage = () => {
   const getAllMyPosts = async () => {
     try {
       const response = await axios.get(
-        `${SERVER_HOST}/service/author/${context.user.id}/posts/`,
+        `${SERVER_HOST}/api/author/${context.user.id}/posts/`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -37,7 +37,7 @@ const MyFeedPage = () => {
   const getAllInboxPosts = async () => {
     try {
       const response = await axios.get(
-        `${SERVER_HOST}/service/author/${context.user.id}/inbox/`,
+        `${SERVER_HOST}/api/author/${context.user.id}/inbox/`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -71,7 +71,7 @@ const MyFeedPage = () => {
 
     try {
       const response = await axios.delete(
-        `${SERVER_HOST}/service/author/${context.user.id}/posts/${postId}/`,
+        `${SERVER_HOST}/api/author/${context.user.id}/posts/${postId}/`,
         {
           headers: {
             "Content-Type": "application/json",

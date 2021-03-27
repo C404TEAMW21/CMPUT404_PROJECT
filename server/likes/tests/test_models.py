@@ -16,8 +16,8 @@ class LikeTestCase(TestCase):
             "displayName": ""
         }
 
-        self.comment =  "http://127.0.0.1:8000/service/author/8e5a01f5-b9a2-436b-b29d-900a28d46068/posts/2ed70465-0e94-4049-a472-167229a11c78/comments/3ad70465-0e94-4049-a472-167229a11c78"
-        self.post =  "http://127.0.0.1:8000/service/author/8e5a01f5-b9a2-436b-b29d-900a28d46068/posts/2ed70465-0e94-4049-a472-167229a11c78"
+        self.comment =  "http://127.0.0.1:8000/api/author/8e5a01f5-b9a2-436b-b29d-900a28d46068/posts/2ed70465-0e94-4049-a472-167229a11c78/comments/3ad70465-0e94-4049-a472-167229a11c78"
+        self.post =  "http://127.0.0.1:8000/api/author/8e5a01f5-b9a2-436b-b29d-900a28d46068/posts/2ed70465-0e94-4049-a472-167229a11c78"
 
     def test_create_like_for_comment(self):
         """Test creation of Like object for comment"""

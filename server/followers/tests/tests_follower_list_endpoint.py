@@ -18,7 +18,7 @@ def author_b_follow_author_a_url(aId, bId):
             kwargs={'id': aId, 'foreignId': bId}
     )
 class TestFollowersListEndpoint(TestCase):
-    """Test API(GET)://service/author/{id}/followers"""
+    """Test API(GET)://api/author/{id}/followers"""
     def setUp(self):
         self.client = APIClient()
         
@@ -32,7 +32,7 @@ class TestFollowersListEndpoint(TestCase):
         )
         self.client.force_authenticate(user=user)
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -60,7 +60,7 @@ class TestFollowersListEndpoint(TestCase):
         author.remoteFollowers['teamabc']['actorId'] = remote_author_payload
         author.save()
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
        
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['items']), 1)
@@ -99,7 +99,7 @@ class TestFollowersListEndpoint(TestCase):
         author.followers.add(userB)
         author.save()
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
        
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['items']), 2)
@@ -116,7 +116,7 @@ class TestFollowersListEndpoint(TestCase):
         )
         self.client.force_authenticate(user=user)
 
-        res = self.client.get('/service/author/abc123/followers/')
+        res = self.client.get('/api/author/abc123/followers/')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -129,7 +129,7 @@ class TestFollowersListEndpoint(TestCase):
             id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e').int,
         )
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
         
@@ -143,7 +143,7 @@ class TestFollowersListEndpoint(TestCase):
         )
         self.client.force_authenticate(user=user)
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
     
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -157,14 +157,14 @@ class TestFollowersListEndpoint(TestCase):
         )
         self.client.force_authenticate(user=user)
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data['items']), 0)
 
 
 class TestFollowerCheckEndpoint(TestCase):
-    """Test API(GET)://service/author/{id}/followers/{foreign_id}"""
+    """Test API(GET)://api/author/{id}/followers/{foreign_id}"""
     def setUp(self):
         self.client = APIClient()
         self.authorA = create_author(
@@ -186,7 +186,7 @@ class TestFollowerCheckEndpoint(TestCase):
 
         self.client.force_authenticate(user=self.authorA)
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
        
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertFalse(res.data['items'][0]['status'])
@@ -200,7 +200,7 @@ class TestFollowerCheckEndpoint(TestCase):
             id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb').int,
         )
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
        
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
     
@@ -214,7 +214,7 @@ class TestFollowerCheckEndpoint(TestCase):
         )
         self.client.force_authenticate(user=authorB)
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
        
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -223,7 +223,7 @@ class TestFollowerCheckEndpoint(TestCase):
        
         self.client.force_authenticate(user=self.authorA)
 
-        res = self.client.get('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
+        res = self.client.get('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
        
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'][0], 'User not found')
@@ -238,7 +238,7 @@ class TestFollowerCheckEndpoint(TestCase):
         )
         self.client.force_authenticate(user=self.authorA)
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/')
        
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'][0], 'User not found')
@@ -253,13 +253,13 @@ class TestFollowerCheckEndpoint(TestCase):
         )
         self.client.force_authenticate(user=authorB)
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['items'][0]['status'], False)
     
 class TestAddFollowerEndpoint(TestCase):
-    """Test API(PUT)://service/author/{id}/followers/{foreign_id}"""
+    """Test API(PUT)://api/author/{id}/followers/{foreign_id}"""
     def setUp(self):
         self.client = APIClient()
         
@@ -319,7 +319,7 @@ class TestAddFollowerEndpoint(TestCase):
             }
         }
 
-        res = self.client.put('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/hello/', payload, format='json')
+        res = self.client.put('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/hello/', payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'][0], 'User not found')
@@ -343,7 +343,7 @@ class TestAddFollowerEndpoint(TestCase):
         }
         self.client.force_authenticate(user=authorB)
 
-        res = self.client.put('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', payload, format='json')
+        res = self.client.put('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'][0], 'User not found')
@@ -366,7 +366,7 @@ class TestAddFollowerEndpoint(TestCase):
             }
         }
         
-        res = self.client.put('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', payload, format='json')
+        res = self.client.put('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -389,7 +389,7 @@ class TestAddFollowerEndpoint(TestCase):
         }
         self.client.force_authenticate(user=authorB)
 
-        res = self.client.put('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', payload, format='json')
+        res = self.client.put('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -418,7 +418,7 @@ class TestAddFollowerEndpoint(TestCase):
         }
         self.client.force_authenticate(user=authorB)
 
-        res = self.client.put('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/', payload, format='json')
+        res = self.client.put('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/', payload, format='json')
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -511,7 +511,7 @@ class TestAddFollowerEndpoint(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
 class TestDeleteFollowerEndpoint(TestCase):
-    """Test API(Delete)://service/author/{id}/followers/{foreign_id}"""
+    """Test API(Delete)://api/author/{id}/followers/{foreign_id}"""
     def setUp(self):
         self.client = APIClient()
         
@@ -535,7 +535,7 @@ class TestDeleteFollowerEndpoint(TestCase):
         authorA.followers.add(authorB)
 
         self.client.force_authenticate(user=authorB)
-        res = self.client.delete('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
+        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -549,7 +549,7 @@ class TestDeleteFollowerEndpoint(TestCase):
         )
 
         self.client.force_authenticate(user=authorB)
-        res = self.client.delete('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
+        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'][0], 'You are not following this author, hence, you can unfollow')
@@ -567,7 +567,7 @@ class TestDeleteFollowerEndpoint(TestCase):
         authorA.followers.add(authorB)
         self.client.force_authenticate(user=authorB)
 
-        res = self.client.delete('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/hello/')
+        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/hello/')
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'][0], 'User not found')
@@ -585,7 +585,7 @@ class TestDeleteFollowerEndpoint(TestCase):
         authorA.followers.add(authorB)
         self.client.force_authenticate(user=authorB)
 
-        res = self.client.delete('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
+        res = self.client.delete('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'][0], 'User not found')
@@ -599,7 +599,7 @@ class TestDeleteFollowerEndpoint(TestCase):
             id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
         )
 
-        res = self.client.delete('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
+        res = self.client.delete('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -613,7 +613,7 @@ class TestDeleteFollowerEndpoint(TestCase):
         )
         self.client.force_authenticate(user=authorB)
 
-        res = self.client.delete('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
+        res = self.client.delete('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -637,12 +637,12 @@ class TestDeleteFollowerEndpoint(TestCase):
         self.client.force_authenticate(user=authorB)
         self.client.force_authenticate(user=authorB)
 
-        res = self.client.delete('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/' )
+        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/' )
 
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 class TestFriendsListEndpoint(TestCase):
-    """Test API(GET):://service/author/{id}/friends/"""
+    """Test API(GET):://api/author/{id}/friends/"""
 
     def setUp(self):
         self.client = APIClient()
@@ -660,7 +660,7 @@ class TestFriendsListEndpoint(TestCase):
         )
         self.client.force_authenticate(user=user)
 
-        res = self.client.get(f'/service/author/{self.id}/friends/')
+        res = self.client.get(f'/api/author/{self.id}/friends/')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, {})
@@ -683,17 +683,17 @@ class TestFriendsListEndpoint(TestCase):
     #     )
         
     #     self.client.force_authenticate(user=authorB)
-    #     res = self.client.put(f'/service/author/{self.id}/followers/{self.id2}/')
+    #     res = self.client.put(f'/api/author/{self.id}/followers/{self.id2}/')
         
     #     self.client2.force_authenticate(user=authorA)
-    #     res = self.client2.put(f'/service/author/{self.id2}/followers/{self.id}/')
+    #     res = self.client2.put(f'/api/author/{self.id2}/followers/{self.id}/')
 
-    #     res = self.client.get(f'/service/author/{self.id}/friends/')
+    #     res = self.client.get(f'/api/author/{self.id}/friends/')
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #     self.assertEqual(len(res.data['friends']), 1)
     #     self.assertEqual(res.data['friends'][0]['username'], 'user2')
 
-    #     res = self.client2.get(f'/service/author/{self.id2}/friends/')
+    #     res = self.client2.get(f'/api/author/{self.id2}/friends/')
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #     self.assertEqual(len(res.data['friends']), 1)
     #     self.assertEqual(res.data['friends'][0]['username'], 'user1')

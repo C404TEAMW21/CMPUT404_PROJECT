@@ -13,7 +13,7 @@ const PublicFeedPage = () => {
 
   const getAllPublicPosts = async () => {
     try {
-      const response = await axios.get(`${SERVER_HOST}/service/public/`);
+      const response = await axios.get(`${SERVER_HOST}/api/public/`);
       updatePosts(response.data);
     } catch (error) {
       updateError(true);
@@ -27,7 +27,7 @@ const PublicFeedPage = () => {
 
     try {
       const response = await axios.delete(
-        `${SERVER_HOST}/service/author/${context.user.id}/posts/${postId}/`,
+        `${SERVER_HOST}/api/author/${context.user.id}/posts/${postId}/`,
         {
           headers: {
             "Content-Type": "application/json",
