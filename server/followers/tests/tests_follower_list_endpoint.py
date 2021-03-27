@@ -35,34 +35,6 @@ class TestFollowersListEndpoint(TestCase):
         res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-<<<<<<< HEAD
-
-    def test_author_followers(self):
-        "Test return a follower list that include remote followers if the author exists"
-        user = create_author(
-            username='abc001',
-            password='abcpwd',
-            adminApproval=True,
-            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e').int,
-        )
-        remote_author_payload = {
-            "type":"author",
-            "id":"11111111-4b43-11e9-910f-b8ca3a9b9f3e",
-            "url":"http://team6/api/11111111-4b43-11e9-910f-b8ca3a9b9f3e",
-            "host":"http://team6/",
-            "displayName":"Greg Johnson",
-            "github": "http://github.com/gjohnson"
-        }
-        self.client.force_authenticate(user=user)
-        models.Followers.objects.create(author=user)
-        author = models.Followers.objects.get(author=user)
-        # Create Remote user 
-        author.remoteFollowers['teamabc'] = {}
-        author.remoteFollowers['teamabc']['actorId'] = remote_author_payload
-        author.save()
-
-        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
-=======
     # TODO: TEST
     # def test_author_followers(self):
     #     "Test return a follower list that include remote followers if the author exists"
@@ -89,7 +61,6 @@ class TestFollowersListEndpoint(TestCase):
     #     author.save()
 
     #     res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
->>>>>>> fix follower put and delete
        
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #     self.assertEqual(len(res.data['items']), 1)
@@ -118,20 +89,6 @@ class TestFollowersListEndpoint(TestCase):
     #         "github": "http://github.com/gjohnson"
     #     }
        
-<<<<<<< HEAD
-        self.client.force_authenticate(user=user)
-        models.Followers.objects.create(author=user)
-        author = models.Followers.objects.get(author=user)
-        # Create Remote user 
-        author.remoteFollowers['teamabc'] = {}
-        author.remoteFollowers['teamabc']['actorId'] = remote_author_payload
-        author.save()
-        # Local user
-        author.followers.add(userB)
-        author.save()
-
-        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
-=======
     #     self.client.force_authenticate(user=user)
     #     models.Followers.objects.create(author=user)
     #     author = models.Followers.objects.get(author=user)
@@ -144,7 +101,6 @@ class TestFollowersListEndpoint(TestCase):
     #     author.save()
 
     #     res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
->>>>>>> fix follower put and delete
        
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #     self.assertEqual(len(res.data['items']), 2)
@@ -202,21 +158,7 @@ class TestFollowersListEndpoint(TestCase):
     #     )
     #     self.client.force_authenticate(user=user)
 
-<<<<<<< HEAD
-    def test_create_follower_object(self):
-        "Test create follower object is does not exists"
-        user = create_author(
-            username='abc001',
-            password='abcpwd',
-            adminApproval=True,
-            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'),
-        )
-        self.client.force_authenticate(user=user)
-
-        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
-=======
     #     res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/')
->>>>>>> fix follower put and delete
 
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #     self.assertEqual(len(res.data['items']), 0)
@@ -274,11 +216,7 @@ class TestFollowerCheckEndpoint(TestCase):
     #     )
     #     self.client.force_authenticate(user=authorB)
 
-<<<<<<< HEAD
-        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
-=======
     #     res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
->>>>>>> fix follower put and delete
        
     #     self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -288,11 +226,7 @@ class TestFollowerCheckEndpoint(TestCase):
        
     #     self.client.force_authenticate(user=self.authorA)
 
-<<<<<<< HEAD
-        res = self.client.get('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
-=======
     #     res = self.client.get('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
->>>>>>> fix follower put and delete
        
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'][0], 'User not found')
@@ -308,11 +242,7 @@ class TestFollowerCheckEndpoint(TestCase):
     #     )
     #     self.client.force_authenticate(user=self.authorA)
 
-<<<<<<< HEAD
-        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/')
-=======
     #     res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/')
->>>>>>> fix follower put and delete
        
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'][0], 'User not found')
@@ -327,11 +257,7 @@ class TestFollowerCheckEndpoint(TestCase):
     #     )
     #     self.client.force_authenticate(user=authorB)
 
-<<<<<<< HEAD
-        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
-=======
     #     res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
->>>>>>> fix follower put and delete
 
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #     self.assertEqual(res.data['items'][0]['status'], False)
@@ -421,54 +347,7 @@ class TestAddFollowerEndpoint(TestCase):
     #     }
     #     self.client.force_authenticate(user=authorB)
 
-<<<<<<< HEAD
-    def test_adding_invalid_follower(self):
-        "Test adding follower with invalid author B uuid"
-        authorB = create_author(
-            username='abc002',
-            password='abcpwd',
-            adminApproval=True,
-            id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
-        )
-        self.client.force_authenticate(user=authorB)
-        payload = {
-            'actor': {
-                'host': 'https://konnection-server.herokuapp.com/',
-                'id': 'aaaaa',
-            },
-            'object': {
-                'host': 'https://konnection-server.herokuapp.com/',
-            }
-        }
-
-        res = self.client.put('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/hello/', payload, format='json')
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'][0], 'User not found')
-
-    def test_adding_follower_to_invalid_author(self):
-        "Test adding follower with invalid author B uuid"
-        authorB = create_author(
-            username='abc002',
-            password='abcpwd',
-            adminApproval=True,
-            id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
-        )
-        payload = {
-            'actor': {
-                'host': 'https://konnection-server.herokuapp.com/',
-                'id': 'aaaaa',
-            },
-            'object': {
-                'host': 'https://konnection-server.herokuapp.com/',
-            }
-        }
-        self.client.force_authenticate(user=authorB)
-
-        res = self.client.put('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', payload, format='json')
-=======
     #     res = self.client.put('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', payload, format='json')
->>>>>>> fix follower put and delete
 
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'][0], 'User not found')
@@ -673,22 +552,8 @@ class TestDeleteFollowerEndpoint(TestCase):
     #         id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
     #     )
 
-<<<<<<< HEAD
-    def test_unfollowing_an_not_following_author(self):
-        "Test author B unfollowing an author that is not in their following"
-        authorB = create_author(
-            username='abc002',
-            password='abcpwd',
-            adminApproval=True,
-            id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
-        )
-
-        self.client.force_authenticate(user=authorB)
-        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
-=======
     #     self.client.force_authenticate(user=authorB)
     #     res = self.client.delete('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
->>>>>>> fix follower put and delete
 
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'][0], 'You are not following this author, hence, you can unfollow')
@@ -707,11 +572,7 @@ class TestDeleteFollowerEndpoint(TestCase):
     #     authorA.followers.add(authorB)
     #     self.client.force_authenticate(user=authorB)
 
-<<<<<<< HEAD
-        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/hello/')
-=======
     #     res = self.client.delete('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/hello/')
->>>>>>> fix follower put and delete
 
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'][0], 'User not found')
@@ -730,11 +591,7 @@ class TestDeleteFollowerEndpoint(TestCase):
     #     authorA.followers.add(authorB)
     #     self.client.force_authenticate(user=authorB)
 
-<<<<<<< HEAD
-        res = self.client.delete('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
-=======
     #     res = self.client.delete('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
->>>>>>> fix follower put and delete
 
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'][0], 'User not found')
@@ -762,23 +619,7 @@ class TestDeleteFollowerEndpoint(TestCase):
     #     )
     #     self.client.force_authenticate(user=authorB)
 
-<<<<<<< HEAD
-    def test_unfollowing_user_admin_approval(self):
-        "Test deleting follower endpoint is safeguard by adminApproval"
-        authorB = create_author(
-            username='abc002',
-            password='abcpwd',
-            adminApproval=False,
-            id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
-        )
-        self.client.force_authenticate(user=authorB)
-
-        res = self.client.delete('/api/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
-
-        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
-=======
     #     res = self.client.delete('/service/author/hello/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
->>>>>>> fix follower put and delete
 
     #     self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
     # TODO: TEST
@@ -802,11 +643,7 @@ class TestDeleteFollowerEndpoint(TestCase):
     #     self.client.force_authenticate(user=authorB)
     #     self.client.force_authenticate(user=authorB)
 
-<<<<<<< HEAD
-        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/' )
-=======
     #     res = self.client.delete('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fcc/' )
->>>>>>> fix follower put and delete
 
     #     self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -819,9 +656,6 @@ class TestFriendsListEndpoint(TestCase):
         self.id = '77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'
         self.id2 = '88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'
 
-<<<<<<< HEAD
-        res = self.client.get(f'/api/author/{self.id}/friends/')
-=======
     # TODO: TEST  
     # def test_author_followers(self):
     #     "Test returns an empty list if no friends"
@@ -834,7 +668,6 @@ class TestFriendsListEndpoint(TestCase):
     #     self.client.force_authenticate(user=user)
 
     #     res = self.client.get(f'/service/author/{self.id}/friends/')
->>>>>>> fix follower put and delete
 
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #     self.assertEqual(res.data, {})
