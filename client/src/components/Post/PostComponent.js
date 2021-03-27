@@ -68,7 +68,7 @@ const PostComponent = (props) => {
 
     try {
       const response = await axios.post(
-        `${SERVER_HOST}/service/author/${context.user.id}/posts/${postId}/share/`,
+        `${SERVER_HOST}/api/author/${context.user.id}/posts/${postId}/share/`,
         body,
         {
           headers: {
