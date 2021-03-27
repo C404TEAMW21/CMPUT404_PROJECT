@@ -14,7 +14,7 @@ import json
 CONTENT = 'This is a short comment'
 
 class TestCreateCommentEndpoint(TestCase):
-    """Tests the endpoint service/author/{AUTHOR_ID}/posts/{POST_ID}/comments
+    """Tests the endpoint api/author/{AUTHOR_ID}/posts/{POST_ID}/comments
 
     GET - returns a list of comments
     POST - creates a comment
