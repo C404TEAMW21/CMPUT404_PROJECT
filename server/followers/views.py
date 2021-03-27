@@ -68,7 +68,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
         try:
             remote_follower = instance.values('remoteFollowers')[
                 0]['remoteFollowers']
-            if instance.filter(followers=request_foreign_author_id) and request_foreign_author_id not in remote_follower:
+            if not instance.filter(followers=request_foreign_author_id) and request_foreign_author_id not in remote_follower:
                 return Response({'message': ['They are not following one another']})
         except:
             raise ValidationError({"error": ["Bad request"]})
