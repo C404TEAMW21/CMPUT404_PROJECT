@@ -29,6 +29,16 @@
   margin-top: 1em;
 }
 
+.ui.form.edit-post-form {
+  width: 70%;
+  margin-top: 1em;
+}
+
+.field.edit-existing-image {
+  display: flex;
+  justify-content: center;
+}
+
 .ui.button.create-post-btn {
   box-shadow: 5px 10px 10px rgba(163, 163, 163, 0.19),
     0 3px 3px rgba(141, 141, 141, 0.23);
@@ -55,6 +65,16 @@
       rgba(83, 32, 229, 1) 30%,
       rgba(225, 27, 229, 1) 100%
     ) !important;
+  }
+}
+
+.delete-post-btn {
+  float: right;
+  box-shadow: 5px 10px 10px rgba(163, 163, 163, 0.19),
+    0 3px 3px rgba(141, 141, 141, 0.23) !important;
+
+  &:hover {
+    box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.19), 0 3px 3px rgba(0, 0, 0, 0.23) !important;
   }
 }
 
