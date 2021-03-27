@@ -13,7 +13,7 @@ from .serializers import PostSerializer
 from inbox.models import Inbox
 
 
-# service/author/{AUTHOR_ID}/posts/{POST_ID}
+# api/author/{AUTHOR_ID}/posts/{POST_ID}
 class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyModelMixin
     http_method_names = ['get', 'post', 'delete', 'put']
     serializer_class = PostSerializer
@@ -84,7 +84,7 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
         serializer.save(**kwargs)
 
 
-# service/author/{AUTHOR_ID}/posts/
+# api/author/{AUTHOR_ID}/posts/
 class CreatePostView(generics.ListCreateAPIView):
     http_method_names = ['get', 'post']
     serializer_class = PostSerializer
@@ -110,7 +110,7 @@ class CreatePostView(generics.ListCreateAPIView):
         return queryset
     
     # GET: Paginated posts
-    # /service/author/<AUTHOR_ID>/posts?page=1&size=2
+    # /api/author/<AUTHOR_ID>/posts?page=1&size=2
     def get(self, request, *args, **kwargs):
         page_size = request.query_params.get('size') or 20
         page = request.query_params.get('page') or 1
@@ -154,7 +154,7 @@ class CreatePostView(generics.ListCreateAPIView):
         serializer.save(author=Author.objects.get(id=request_author_id))
 
 
-# service/public/
+# api/public/
 class PublicPostView(generics.ListAPIView):
     serializer_class = PostSerializer
 
@@ -164,7 +164,7 @@ class PublicPostView(generics.ListAPIView):
         return queryset
     
     # GET: Paginated posts
-    # service/public?page=1&size=2
+    # api/public?page=1&size=2
     def get(self, request, *args, **kwargs):
         page_size = request.query_params.get('size') or 20
         page = request.query_params.get('page') or 1
@@ -179,7 +179,7 @@ class PublicPostView(generics.ListAPIView):
         return Response(data)
 
 
-# service/author/{AUTHOR_ID}/posts/{POST_ID}/share
+# api/author/{AUTHOR_ID}/posts/{POST_ID}/share
 class SharePostView(generics.CreateAPIView):
     serializer_class = PostSerializer
 

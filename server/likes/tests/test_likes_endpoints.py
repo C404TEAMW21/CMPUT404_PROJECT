@@ -7,13 +7,13 @@ from likes.models import Like
 
 
 class TestLikeEndpoint(TestCase):
-    """ Test Get API : service/author/{author_id}/post/{post_id}/likes
+    """ Test Get API : api/author/{author_id}/post/{post_id}/likes
             GET - get the likes for a post
 
-        Test Get API : service/author/{author_id}/post/{post_id}/comments/{comment_id}/likes
+        Test Get API : api/author/{author_id}/post/{post_id}/comments/{comment_id}/likes
             GET - get the likes for a comment
 
-        Test Get API : service/author/{author_id}/liked
+        Test Get API : api/author/{author_id}/liked
             GET - get the liked for an autor
     """
 
@@ -27,8 +27,8 @@ class TestLikeEndpoint(TestCase):
         self.post_author = '1e5a01f5-b9a2-436b-b29d-900a28d46068'
         self.post_id = '2ed70465-0e94-4049-a472-167229a11c78'
         self.comment_id = '3ad70465-0e94-4049-a472-167229a11c78'
-        self.post =  f"http://127.0.0.1:8000/service/author/{self.post_author}/posts/{self.post_id}"
-        self.comment =  f"http://127.0.0.1:8000/service/author/{self.post_author}/posts/{self.post_id}/comments/{self.comment_id}"
+        self.post =  f"http://127.0.0.1:8000/api/author/{self.post_author}/posts/{self.post_id}"
+        self.comment =  f"http://127.0.0.1:8000/api/author/{self.post_author}/posts/{self.post_id}/comments/{self.comment_id}"
        
         self.client = APIClient()
     

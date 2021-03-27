@@ -20,7 +20,7 @@ import requests
 import json
 
 
-# service/author/{AUTHOR_ID}/inbox/
+# api/author/{AUTHOR_ID}/inbox/
 class InboxView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = InboxSerializer
     authenticate_classes = (authentication.TokenAuthentication,)

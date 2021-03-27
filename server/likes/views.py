@@ -8,7 +8,7 @@ from .serializers import LikeSerializer
 from .models import Like
 
 
-# service/author/{author_id}/post/{post_id}/likes
+# api/author/{author_id}/post/{post_id}/likes
 class ListPostLikesView(generics.ListCreateAPIView):
     http_method_names = ['get']
     serializer_class = LikeSerializer
@@ -22,7 +22,7 @@ class ListPostLikesView(generics.ListCreateAPIView):
         return queryset
 
     # GET: Paginated likes for posts
-    # service/author/{author_id}/post/{post_id}/likes?page=1&size=2
+    # api/author/{author_id}/post/{post_id}/likes?page=1&size=2
     def get(self, request, *args, **kwargs):
         page_size = request.query_params.get('size') or 20
         page = request.query_params.get('page') or 1
@@ -36,7 +36,7 @@ class ListPostLikesView(generics.ListCreateAPIView):
 
         return Response(data)
 
-# service/author/{author_id}/post/{post_id}/comments/{comment_id}/likes
+# api/author/{author_id}/post/{post_id}/comments/{comment_id}/likes
 class ListCommentLikesView(generics.ListCreateAPIView):
     http_method_names = ['get']
     serializer_class = LikeSerializer
@@ -50,7 +50,7 @@ class ListCommentLikesView(generics.ListCreateAPIView):
         return queryset
 
     # GET: Paginated likes for comments
-    # service/author/{author_id}/post/{post_id}/comments/{comment_id}/likes?page=1&size=2
+    # api/author/{author_id}/post/{post_id}/comments/{comment_id}/likes?page=1&size=2
     def get(self, request, *args, **kwargs):
         page_size = request.query_params.get('size') or 20
         page = request.query_params.get('page') or 1
@@ -64,7 +64,7 @@ class ListCommentLikesView(generics.ListCreateAPIView):
 
         return Response(data)
 
-# service/author/{author_id}/liked
+# api/author/{author_id}/liked
 class ListLikedView(generics.RetrieveAPIView):
     http_method_names = ['get']
     serializer_class = LikeSerializer
