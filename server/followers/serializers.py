@@ -16,14 +16,10 @@ class FollowersModificationSerializer(serializers.ModelSerializer):
     
 
     def get_followers(self, obj):
-        
-        print("====")
         context = self.context
         request = context.get("request")
         qs = request
-        print(FollowersSerializer(request, many=True).data)
-     
-       
+
         return qs
     class Meta:
         model = models.Followers
