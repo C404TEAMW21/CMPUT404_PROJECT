@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404
 
 from main import models, utils
 from .serializers import FollowerSerializer
-from .models import Follower
+from .models import Follower, Following
 
 
 # /<uuid:author_id>/followers/
@@ -69,12 +69,19 @@ class FollowersUpdateView(generics.RetrieveUpdateDestroyAPIView):
 
     # PUT - Add a new follower (only follower can perform the follow)
     def update(self, request, *args, **kwargs):
-        if (self.kwargs['follower_id'] != self.request.user.id
-            and self.request.user.type != 'node'):
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         mandatory_keys = ['id', 'displayName', 'url', 'github', 'host']
         if all(key in request.data for key in mandatory_keys):
+            # Check follower or node is performing the action
+            if (self.kwargs['follower_id'] != self.request.user.id
+            and self.request.user.type != 'node'):
+                return Response(status=status.HTTP_403_FORBIDDEN)
+
+            # check if payload follower id is the same as the one in url
+            if (str(self.kwargs['follower_id']) != request.data['id']):
+                return Response(
+                    {'data': 'follower_id in url does not match id in payload'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
             try:
                 author = models.Author.objects.get(id=self.kwargs['author_id'])
             except models.Author.DoesNotExist:
@@ -88,6 +95,11 @@ class FollowersUpdateView(generics.RetrieveUpdateDestroyAPIView):
                     follower=request.data
                 )
                 data = FollowerSerializer(follower).data
+
+                following = Following.objects.create(
+                    author_id=self.kwargs['follower_id'],
+                    following_id=self.kwargs['author_id']
+                )
             except:
                 data = {'data': 'You are already following this author'}
             
@@ -96,3 +108,28 @@ class FollowersUpdateView(generics.RetrieveUpdateDestroyAPIView):
             return Response(
                     {'data': "need all of the following keys: 'id', 'displayName', 'url', 'github', 'host'"},
                     status=status.HTTP_400_BAD_REQUEST)
+
+# <uuid:author_id>/friends/
+class FriendView(generics.ListAPIView):
+    http_method_names = ['get']
+    serializer_class = FollowerSerializer
+
+    # GET: get all followers of author
+    def get_queryset(self):
+        queryset = Follower.objects.filter(author=self.kwargs['author_id'])
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        followers = self.get_queryset()
+
+        friends = []
+        for follower in followers:
+            if (Following.objects.filter(
+                author_id=self.kwargs['author_id'], following_id=follower.follower_id).exists()):
+                friends.append(follower.follower)
+
+        response = {
+            'type': 'followers',
+            'items': friends
+        }
+        return Response(response)
