@@ -24,4 +24,4 @@ class Like(models.Model):
     )
 
     class Meta:
-        unique_together = ('author', 'object')
+        unique_together = ('author_id', 'object')
