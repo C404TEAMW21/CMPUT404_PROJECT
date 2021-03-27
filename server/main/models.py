@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.conf import settings
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 import uuid
 import re
 from main import utils
@@ -54,12 +57,8 @@ class Followers(models.Model):
         return Followers.objects.get(author=author).followers.all()
 
     def get_all_remote_followers(self, author):
-        remote = Followers.objects.get(author=author).remoteFollowers  
-        allAuthorList = []
-        for key, value in remote.items():
-            allAuthorList.extend(value.values())
-    
-        return allAuthorList
+        return Followers.objects.get(author=author).remoteFollowers  
+        
 
     def friends(self):
         list = []
@@ -83,5 +82,15 @@ class Followers(models.Model):
         return False
 
 class Following(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="following", unique=False, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, related_name="following", unique=False, on_delete=models.CASCADE)
     following = models.ManyToManyField(Author, related_name='author_following')
+    remoteFollowering = models.JSONField(default=dict)
+
+
+# create Inbox object after Author is created and called save()
+@receiver(post_save, sender=Author)
+def my_handler(sender, instance, **kwargs):
+    if not Followers.objects.filter(author=instance).exists():
+        Followers.objects.create(author=instance)
+    if not Following.objects.filter(author=instance).exists():
+        Following.objects.create(author=instance)
