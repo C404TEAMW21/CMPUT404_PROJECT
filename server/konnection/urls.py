@@ -20,9 +20,10 @@ from posts import views as posts_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('service/', include('posts.urls')),
-    path('service/author/', include('comments.urls')),
-    path('service/', include('author.urls')),
-    path('service/author/', include('inbox.urls')),
-    path('service/author/', include('followers.urls')),
+    path('api/', include('posts.urls')),
+    path('api/author/', include('comments.urls')),
+    path('api/', include('author.urls')),
+    path('api/author/', include('inbox.urls')),
+    path('api/author/', include('followers.urls')),
+    path('api/author/', include('likes.urls')),
 ]

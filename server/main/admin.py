@@ -22,3 +22,4 @@ class UserAdmin(BaseUserAdmin):
 
 admin.site.register(models.Author, UserAdmin)
 admin.site.register(models.Followers)
+admin.site.register(models.Following)

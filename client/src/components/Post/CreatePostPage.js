@@ -23,7 +23,7 @@ const CreatePostPage = (props) => {
 
     try {
       const response = await axios.post(
-        `${SERVER_HOST}/service/author/${context.user.id}/posts/`,
+        `${SERVER_HOST}/api/author/${context.user.id}/posts/`,
         body,
         {
           headers: {

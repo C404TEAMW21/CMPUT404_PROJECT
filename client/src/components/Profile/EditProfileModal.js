@@ -42,7 +42,7 @@ const EditProfileModal = (props) => {
   const updateUserProfile = async () => {
     try {
       const response = await axios.put(
-        `${SERVER_HOST}/service/author/${context.user.id}/`,
+        `${SERVER_HOST}/api/author/${context.user.id}/`,
         {
           displayName: currentDisplayName,
           github: githubUsername,

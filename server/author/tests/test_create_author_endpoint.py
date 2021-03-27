@@ -18,7 +18,7 @@ def create_author(**params):
     return get_user_model().objects.create_author(**params)
      
 class TestCreateAuthorEndpoint(TestCase):
-    """Test API(POST)://service/author/create/"""
+    """Test API(POST)://api/author/create/"""
     def setUp(self):
         self.client = APIClient()
 
@@ -82,7 +82,7 @@ class TestCreateAuthorEndpoint(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
 class TestAuthAuthorEndpoint(TestCase):
-    """Test API(POST)://service/author/auth/"""
+    """Test API(POST)://api/author/auth/"""
     def setUp(self):
         self.client = APIClient()
 
@@ -144,7 +144,7 @@ class TestAuthAuthorEndpoint(TestCase):
 
 
 class TestAuthGetAuthorEndpoint(TestCase):
-    """Test API(GET)://service/author/{AUTHOR_ID}/"""
+    """Test API(GET)://api/author/{AUTHOR_ID}/"""
     def setUp(self):
         self.client = APIClient()
         
@@ -157,13 +157,13 @@ class TestAuthGetAuthorEndpoint(TestCase):
         )
         self.client.force_authenticate(user=user)
 
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/')
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
     
     def test_get_author_endpoint_without_auth(self):
         """Test unsuccessful getting author profile if user is not logged in"""
-        res = self.client.get('/service/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/')
+        res = self.client.get('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/')
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -176,12 +176,12 @@ class TestAuthGetAuthorEndpoint(TestCase):
         )
         self.client.force_authenticate(user)
 
-        res = self.client.get('/service/author/hello-what-is-this/')
+        res = self.client.get('/api/author/hello-what-is-this/')
        
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
           
 class TestUpdateAuthorProfileEndpoint(TestCase):
-    """Test API(PUT)://service/author/{AUTHOR_ID}/"""
+    """Test API(PUT)://api/author/{AUTHOR_ID}/"""
     def setUp(self):
         self.client = APIClient()
         self.author = create_author(
@@ -198,7 +198,7 @@ class TestUpdateAuthorProfileEndpoint(TestCase):
         }
         self.client.force_authenticate(user=self.author)
 
-        res = self.client.put(f'/service/author/{self.authorID}/', payload)
+        res = self.client.put(f'/api/author/{self.authorID}/', payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['displayName'], 'abc100')
@@ -216,7 +216,7 @@ class TestUpdateAuthorProfileEndpoint(TestCase):
         }
         self.client.force_authenticate(user=self.author)
 
-        res = self.client.put(f'/service/author/{otherAuthor.id}/', payload)
+        res = self.client.put(f'/api/author/{otherAuthor.id}/', payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -227,12 +227,12 @@ class TestUpdateAuthorProfileEndpoint(TestCase):
             'github':'https://github.com/IanSeng'
         }
 
-        res = self.client.put(f'/service/author/{self.authorID}/', payload)
+        res = self.client.put(f'/api/author/{self.authorID}/', payload)
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 class TestMeProfileEndpoint(TestCase):
-    """Test API(GET)://service/author/me/"""
+    """Test API(GET)://api/author/me/"""
     def setUp(self):
         self.client = APIClient()
         
@@ -275,7 +275,7 @@ class TestMeProfileEndpoint(TestCase):
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
         
 class TestGetAllAuthorsEndpoint(TestCase):
-    """Test API(GET)://service/authors/"""
+    """Test API(GET)://api/authors/"""
     def setUp(self):
         self.client = APIClient()
     
