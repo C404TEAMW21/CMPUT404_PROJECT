@@ -82,7 +82,6 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                 except Node.DoesNotExist:
                     return Response({'error':'Could not find remote server user'}, status=status.HTTP_404_NOT_FOUND)
 
-                headers = {'content-type': 'application/json'}
                 r = requests.post(
                     f"{object_host}api/author/{request_author_id}/inbox/",
                     json=request.data,
