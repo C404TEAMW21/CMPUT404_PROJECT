@@ -37,7 +37,12 @@ const FriendRequestList = (props) => {
           break;
         }
 
-        if (response.data.items[0].status !== true) result.push(item);
+        if (
+          response.data.items &&
+          response.data.items.length > 0 &&
+          response.data.items[0].status !== true
+        )
+          result.push(item);
       }
 
       updateFriendRequests(result);
