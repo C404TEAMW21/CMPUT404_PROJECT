@@ -10,7 +10,7 @@ import {
   Checkbox,
 } from "semantic-ui-react";
 import ImageUploader from "react-images-upload";
-import "./CreatePostPage.scss";
+import "./PostPage.scss";
 
 const visibilityOptions = [
   { key: "p", text: "Public", value: "PUBLIC" },

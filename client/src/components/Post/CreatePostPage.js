@@ -6,7 +6,7 @@ import PostSuccess from "./PostSuccess";
 import { Context } from "../../Context";
 import { SERVER_HOST } from "../../Constants";
 
-import "./CreatePostPage.scss";
+import "./PostPage.scss";
 
 const CreatePostPage = (props) => {
   const context = useContext(Context);

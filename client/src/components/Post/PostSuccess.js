@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { Button, Icon } from "semantic-ui-react";
 import { PAGE_CREATE_POST } from "../../Constants";
 import { Context } from "../../Context";
-import "./CreatePostPage.scss";
+import "./PostPage.scss";
 
 const PostSuccess = (props) => {
   const context = useContext(Context);
