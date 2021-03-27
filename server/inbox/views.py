@@ -68,22 +68,6 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
             parsed_uri = urlparse(id_url)
             object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
 
-            # Gather information for the Like object creation
-            try:
-                object_type = Like.LIKE_COMMENT if ('comments' in id_url) else Like.LIKE_POST
-                if (id_url.endswith('/')):
-                    object_id = id_url.split('/')[-2]
-                else:
-                    object_id = id_url.split('/')[-1]
-                like_author_id = request.data.get('author')['id'].split('/')[-1]
-                Like.objects.create(
-                    author=request.data.get('author'), author_id=like_author_id, 
-                    object=id_url, object_type=object_type, object_id=object_id
-                )
-            except IntegrityError:
-                return Response({'data':f'You have already sent a like to {object_type} {id_url} on {host_name}.'},
-                            status=status.HTTP_200_OK)
-
             # Sending a LIKE from (us or remote server) to us
             if (object_host == utils.HOST):
                 try:
@@ -101,13 +85,28 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                 headers = {'content-type': 'application/json'}
                 r = requests.post(
                     f"{object_host}api/author/{request_author_id}/inbox/",
-                    data=json.dumps(request.data),
-                    headers=headers,
+                    json=request.data,
                     auth=(remote_server.konnection_username, remote_server.konnection_password))
 
                 if r.status_code < 200 or r.status_code >= 300:
                     return Response({'error':'Could not complete the request to the remote server'},
                         status=r.status_code)
+            
+            # Gather information for the Like object creation
+            try:
+                object_type = Like.LIKE_COMMENT if ('comments' in id_url) else Like.LIKE_POST
+                if (id_url.endswith('/')):
+                    object_id = id_url.split('/')[-2]
+                else:
+                    object_id = id_url.split('/')[-1]
+                like_author_id = request.data.get('author')['id'].split('/')[-1]
+                Like.objects.create(
+                    author=request.data.get('author'), author_id=like_author_id, 
+                    object=id_url, object_type=object_type, object_id=object_id
+                )
+            except IntegrityError:
+                return Response({'data':f'You have already sent a like to {object_type} {id_url} on {host_name}.'},
+                            status=status.HTTP_200_OK)
             
             return Response({'data':f'Sent like to {object_type} {id_url} on {host_name}.'},
                             status=status.HTTP_200_OK)
