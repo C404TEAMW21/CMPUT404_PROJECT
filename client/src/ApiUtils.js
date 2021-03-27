@@ -187,7 +187,7 @@ const getAuthorsKonnections = (token) =>
   });
 
 const getAuthorsTeam6 = () =>
-  axios.get(`https://team6-project-socialdistrib.herokuapp.com/api/authors`, {
+  axios.get(`${TEAM6_HOST}/api/authors`, {
     auth: {
       username: process.env.REACT_APP_TEAM6_BAUTH_USERNAME,
       password: process.env.REACT_APP_TEAM6_BAUTH_PASSWORD,
@@ -209,7 +209,7 @@ export const getAllAuthors = async (token) => {
     const responses = await axios.all([
       getAuthorsKonnections(token),
       getAuthorsTeam6(),
-      getAuthorsTeam2(),
+      // getAuthorsTeam2(),
     ]);
 
     return responses;
