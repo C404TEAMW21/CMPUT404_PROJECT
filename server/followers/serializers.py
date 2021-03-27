@@ -14,16 +14,23 @@ class FollowersSerializer(serializers.ModelSerializer):
 class FollowersModificationSerializer(serializers.ModelSerializer):
     followers = serializers.SerializerMethodField()
     
+
     def get_followers(self, obj):
-        followersObj = obj.all().first()
-        allFollowers = followersObj.followers.all()
-        return allFollowers
         
+        print("====")
+        context = self.context
+        request = context.get("request")
+        qs = request
+        print(FollowersSerializer(request, many=True).data)
+     
+       
+        return qs
     class Meta:
         model = models.Followers
-        fields = ('followers',)
+        fields = ('followers',)   
 
 class FriendSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = FriendRequest
         summary = serializers.SerializerMethodField()
