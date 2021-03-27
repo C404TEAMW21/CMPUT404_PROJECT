@@ -192,16 +192,13 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
 
             author.followers.remove(foreign_author_obj)
             author.save()
-        except Exception as e:
-            print(e)
+        except:
             try:
                 author_obj = models.Author.objects.get(id=request_author_id)
                 author = models.Followers.objects.get(author=author_obj)
                 author.remoteFollowers.pop(request_foreign_author_id)
                 author.save()
-            except Exception as e:
-                print("=======")
-                print(e)
+            except:
                 return Response({
                     'error': ['Bad request']}, status=status.HTTP_400_BAD_REQUEST)
 
