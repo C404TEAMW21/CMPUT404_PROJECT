@@ -219,9 +219,9 @@ class SharePostView(generics.CreateAPIView):
 
                 for friend in remote_friend_list:
                     if friend['host'][-1] == '/':
-                        url = f"{friend['host']}service/author/{friend['id']}/inbox/"
+                        url = f"{friend['host']}api/author/{friend['id']}/inbox/"
                     else:
-                        url = f"{friend['host']}/service/author/{friend['id']}/inbox/"
+                        url = f"{friend['host']}/api/author/{friend['id']}/inbox/"
 
                     # TODO change username: password based on server
                     req = requests.post(url, json=post_data, auth=('test003', 'test003'))
@@ -238,8 +238,18 @@ class SharePostView(generics.CreateAPIView):
                 try:
                     Inbox.objects.get(author=share_to).send_to_inbox(post_data)
                 except Inbox.DoesNotExist as e:
-                    return Response({'error': 'Author not found!'},
-                                    status=status.HTTP_404_NOT_FOUND)
+                    remote_friend_list = Followers.get_all_remote_followers(self, sharer_id)
+                    # for friend in remote_friend_list:
+
+                        if friend['host'][-1] == '/':
+                            url = f"{friend['host']}api/author/{friend['id']}/inbox/"
+                        else:
+                            url = f"{friend['host']}/api/author/{friend['id']}/inbox/"
+                    url = "https://cyver.herokuapp.com/api/author/c3e8800e-926b-4275-9026-89c99950bbda/inbox/"
+                    req = requests.post(url, json=post_data, auth=('ianserver', 'thisisforian'))
+                    # return Response({'error': 'Author not found!'},
+                    #                 status=status.HTTP_404_NOT_FOUND)
+                    return Response(req.status_code)
                 return Response({'data': f'Shared Post {post_id} with {share_to}'},
                                 status=status.HTTP_200_OK)
         else:
