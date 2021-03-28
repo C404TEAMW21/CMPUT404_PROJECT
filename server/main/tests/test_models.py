@@ -293,5 +293,4 @@ class ModelTests(TestCase):
         author_a_following.remote_following['11111111-4b43-11e9-910f-b8ca3a9b9f3e'] = remote_author_b_payload
         author_a_following.save()
 
-        print(author_a_following.get_all_remote_friends(author_a))
         self.assertEqual(len(author_a_following.get_all_remote_friends(author_a)), 1)
