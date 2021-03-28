@@ -295,11 +295,3 @@ class ModelTests(TestCase):
 
         print(author_a_following.get_all_remote_friends(author_a))
         self.assertEqual(len(author_a_following.get_all_remote_friends(author_a)), 1)
-
-
-    
-
-
-    
-
-    
