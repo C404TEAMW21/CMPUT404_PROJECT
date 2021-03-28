@@ -47,13 +47,15 @@ const MyProfileData = (props) => {
       authorId,
       context.user.id
     );
-    if (response.status !== 200) {
+    if (response.status !== 200 && response.status !== 404) {
       props.updateError(true);
       return;
     }
 
-    if (response.data.items.length > 0) {
-      const following = response.data.items[0].status === true;
+    if (response.status === 404) {
+      updateShowFriendRequestBtn(true);
+    } else if (response.data.items.length > 0) {
+      const following = response.data.items[0].follower === context.user.id;
       updateShowFriendRequestBtn(!following);
       updateShowUnFollowBtn(following);
     }
