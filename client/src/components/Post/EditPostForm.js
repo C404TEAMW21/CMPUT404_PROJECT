@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Form,
@@ -8,8 +8,10 @@ import {
   Radio,
   Message,
   Checkbox,
+  Image,
 } from "semantic-ui-react";
 import ImageUploader from "react-images-upload";
+import axios from "axios";
 import "./PostPage.scss";
 
 const visibilityOptions = [
@@ -18,19 +20,43 @@ const visibilityOptions = [
   { key: "a", text: "Author", value: "AUTHOR" },
 ];
 
-const CreatePost = (props) => {
+const EditPostForm = ({ data, handleSavePost, setDeletePost, postSuccess }) => {
   const [title, updateTitle] = useState("");
   const [description, updateDescription] = useState("");
   const [content, updateContent] = useState("");
   const [titleError, updateTitleError] = useState(null);
   const [descError, updateDescError] = useState(null);
+  const [hasImage, updateHasImage] = useState(false);
   const [image, updateImage] = useState([]);
   const [contentType, updateContentType] = useState("text/markdown");
   const [visibility, updateVisibility] = useState("PUBLIC");
   const [unlisted, updateUnlisted] = useState(false);
   const [formError, updateFormError] = useState(false);
   const [formErrorMessage, updateFormErrorMessage] = useState(null);
-  const [loading, updateLoading] = useState(false);
+  const [loading, updateLoading] = useState(true);
+
+  useEffect(() => {
+    if (data.title !== undefined) {
+      populateData();
+    }
+  }, [data]);
+
+  const populateData = () => {
+    updateTitle(data.title);
+    updateDescription(data.description);
+
+    if (data.contentType.includes("image")) {
+      updateContent(data.content);
+      updateContentType(data.contentType);
+      updateHasImage(true);
+    } else {
+      updateContent(data.content);
+      updateContentType(data.contentType);
+    }
+    updateVisibility(data.visibility);
+    updateUnlisted(data.unlisted);
+    updateLoading(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,12 +93,11 @@ const CreatePost = (props) => {
     }
 
     updateLoading(true);
-    const response = await props.submit(postInfo);
+    const response = await handleSavePost(postInfo);
     updateLoading(false);
 
-    if (response.status === 201) {
-      const postId = response.data.id.split("/").splice(-2)[0];
-      props.postSuccess(postId);
+    if (response && response.status === 200) {
+      postSuccess();
     } else {
       const message = (
         <Message
@@ -135,6 +160,12 @@ const CreatePost = (props) => {
     updateImage(image);
   };
 
+  const removeExistingImage = () => {
+    updateContent("");
+    updateContentType("text/markdown");
+    updateHasImage(false);
+  };
+
   const truncateFileName = (filename) => {
     if (filename.length > 15)
       return "..." + filename.substr(filename.length - 15);
@@ -149,9 +180,14 @@ const CreatePost = (props) => {
     updateUnlisted(!unlisted);
   };
 
+  const onDeletePost = (e) => {
+    e.preventDefault();
+    setDeletePost();
+  };
+
   return (
     <Form
-      className="create-post-form"
+      className="edit-post-form"
       onSubmit={handleSubmit}
       error={formError}
       loading={loading}
@@ -176,46 +212,64 @@ const CreatePost = (props) => {
         onChange={handleInputChange}
         error={descError}
       />
-      <Form.Field
-        control={TextArea}
-        name="content"
-        label="Content"
-        placeholder="Post content"
-        value={content}
-        onChange={handleInputChange}
-        disabled={image[0] ? true : false}
-      />
-      <Form.Group inline>
-        <label>Content Type:</label>
+      {!hasImage && (
         <Form.Field
-          control={Radio}
-          label="Common Mark"
-          value="text/markdown"
-          checked={contentType === "text/markdown"}
-          onChange={handleRadioChange}
+          control={TextArea}
+          name="content"
+          label="Content"
+          placeholder="Post content"
+          value={content}
+          onChange={handleInputChange}
           disabled={image[0] ? true : false}
         />
-        <Form.Field
-          control={Radio}
-          label="Plain Text"
-          value="text/plain"
-          checked={contentType === "text/plain"}
-          onChange={handleRadioChange}
-          disabled={image[0] ? true : false}
-        />
-      </Form.Group>
-      <Form.Field disabled={content ? true : false}>
-        <ImageUploader
-          label={image[0] ? truncateFileName(image[0].name) : "Upload an Image"}
-          buttonText="Choose Image"
-          withIcon={true}
-          onChange={addImage}
-          singleImage={true}
-          withPreview={true}
-          imgExtension={[".jpg", ".png"]}
-          maxFileSize={5242880}
-        />
-      </Form.Field>
+      )}
+      {!hasImage && (
+        <Form.Group inline>
+          <label>Content Type:</label>
+          <Form.Field
+            control={Radio}
+            label="Common Mark"
+            value="text/markdown"
+            checked={contentType === "text/markdown"}
+            onChange={handleRadioChange}
+            disabled={image[0] ? true : false}
+          />
+          <Form.Field
+            control={Radio}
+            label="Plain Text"
+            value="text/plain"
+            checked={contentType === "text/plain"}
+            onChange={handleRadioChange}
+            disabled={image[0] ? true : false}
+          />
+        </Form.Group>
+      )}
+      {hasImage ? (
+        <Form.Field className="edit-existing-image">
+          <Image src={content} size="medium" />
+          <Button
+            className="edit-remove-image-btn"
+            icon="close"
+            onClick={removeExistingImage}
+            content="Remove Image"
+          />
+        </Form.Field>
+      ) : (
+        <Form.Field disabled={content ? true : false}>
+          <ImageUploader
+            label={
+              image[0] ? truncateFileName(image[0].name) : "Upload an Image"
+            }
+            buttonText="Choose Image"
+            withIcon={true}
+            onChange={addImage}
+            singleImage={true}
+            withPreview={true}
+            imgExtension={[".jpg", ".png"]}
+            maxFileSize={5242880}
+          />
+        </Form.Field>
+      )}
       <Form.Field
         width={6}
         control={Select}
@@ -231,13 +285,16 @@ const CreatePost = (props) => {
         checked={unlisted}
         onChange={handleCheckboxChange}
       />
-      <Form.Field>
-        <Button className="create-post-btn" type="submit">
-          Create Post
-        </Button>
-      </Form.Field>
+
+      <Button className="create-post-btn" type="submit" content="Save Post" />
+      <Button
+        color="red"
+        className="delete-post-btn"
+        onClick={onDeletePost}
+        content="Delete Post"
+      />
     </Form>
   );
 };
 
-export default CreatePost;
+export default EditPostForm;

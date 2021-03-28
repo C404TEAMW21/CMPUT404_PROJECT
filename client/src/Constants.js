@@ -4,7 +4,12 @@ export const SERVER_HOST =
     : "http://127.0.0.1:8000";
 
 export const TEAM6_HOST = "https://team6-project-socialdistrib.herokuapp.com";
-export const TEAM2_HOST = "https://dry-plateau-09130.herokuapp.com";
+
+// justin's team
+export const TEAM2_HOST = "https://cyver.herokuapp.com";
+
+//anas' team
+export const TEAM8_HOST = "https://yonder.moe";
 
 export const ROUTE_LOGIN = "/login";
 export const ROUTE_SIGNUP = "/signup";

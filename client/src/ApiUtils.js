@@ -1,5 +1,5 @@
 import axios from "axios";
-import { SERVER_HOST, TEAM2_HOST, TEAM6_HOST } from "./Constants";
+import { SERVER_HOST, TEAM2_HOST, TEAM6_HOST, TEAM8_HOST } from "./Constants";
 
 export const getUserObject = async (token, id) => {
   try {
@@ -184,7 +184,7 @@ const getAuthorsKonnections = (token) =>
   });
 
 const getAuthorsTeam6 = () =>
-  axios.get(`https://team6-project-socialdistrib.herokuapp.com/api/authors`, {
+  axios.get(`${TEAM6_HOST}/api/authors`, {
     auth: {
       username: process.env.REACT_APP_TEAM6_BAUTH_USERNAME,
       password: process.env.REACT_APP_TEAM6_BAUTH_PASSWORD,
@@ -194,8 +194,17 @@ const getAuthorsTeam6 = () =>
     },
   });
 
+// justin's team
 const getAuthorsTeam2 = () =>
   axios.get(`${TEAM2_HOST}/api/authors/`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+// anas' team
+const getAuthorsTeam8 = () =>
+  axios.get(`${TEAM8_HOST}/api/authors/`, {
     headers: {
       "Content-Type": "application/json",
     },
@@ -207,6 +216,7 @@ export const getAllAuthors = async (token) => {
       getAuthorsKonnections(token),
       getAuthorsTeam6(),
       getAuthorsTeam2(),
+      getAuthorsTeam8(),
     ]);
 
     return responses;
