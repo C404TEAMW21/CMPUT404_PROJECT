@@ -6,8 +6,8 @@ from rest_framework import generics, permissions, status
 from main import models, utils
 from .models import FriendRequest
 from inbox.models import Inbox
-from followers.serializers import FollowersSerializer, FollowersModificationSerializer, FriendSerializer
-from author.serializers import AuthorProfileSerializer, AuthorSerializer
+from followers.serializers import FollowersSerializer, FollowersModificationSerializer
+from author.serializers import AuthorProfileSerializer
 
 import requests as HTTPRequests
 import json
