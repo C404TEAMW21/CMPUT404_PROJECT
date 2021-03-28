@@ -6,8 +6,8 @@ from rest_framework import generics, permissions, status
 from main import models, utils
 from .models import FriendRequest
 from inbox.models import Inbox
-from followers.serializers import FollowersSerializer, FollowersModificationSerializer, FollowersFriendSerializer
-from author.serializers import AuthorProfileSerializer
+from followers.serializers import FollowersSerializer, FollowersModificationSerializer, FriendSerializer
+from author.serializers import AuthorProfileSerializer, AuthorSerializer
 
 import requests as HTTPRequests
 import json
@@ -19,8 +19,6 @@ def admin_approval_safeguard(self):
             detail={"error": ["User has not been approved by admin"]})
 
 # <slug:id>/followers/
-
-
 class FollowersView(generics.RetrieveAPIView):
     serializer_class = FollowersSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
@@ -213,14 +211,28 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class FollowersFriendView(generics.RetrieveAPIView):
-    serializer_class = FollowersFriendSerializer
+    serializer_class = AuthorProfileSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get_object(self):
-        author_id = self.kwargs['id']
+    def retrieve(self, request, *args, **kwargs):
+        admin_approval_safeguard(self)
+        request_author_id = self.kwargs['id']
         try:
-            query = models.Followers.objects.get(author=author_id)
+            models.Following.objects.get(author=request_author_id)
         except:
-            query = None
-        return query
+            return Response(
+                {'error': ["Author not found"]},
+                status=status.HTTP_404_NOT_FOUND)
+
+        local_friends = models.Following.get_all_local_friends(self, request_author_id)
+        remote_friends_list = list(models.Following.get_all_remote_friends(self, request_author_id).values())
+        local_friends_list = AuthorProfileSerializer(local_friends, many=True).data  
+        
+        for item in local_friends_list:
+            remote_friends_list.append(item)
+
+        return Response({
+            'type': 'friends',
+            'items': remote_friends_list,
+        })

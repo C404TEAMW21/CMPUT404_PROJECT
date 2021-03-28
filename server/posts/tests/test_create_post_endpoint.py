@@ -143,74 +143,76 @@ class TestCreatePostEndpoint(TestCase):
         inbox = Inbox.objects.get(author=self.author2)
         self.assertEqual(len(inbox.items), 1)
 
-    def test_create_friends_post_sent_to_followers(self):
-        """Testing TestCreatePostEndpoint does not send friend Post to
-        followers inbox
-        """
-        self.client.force_authenticate(user=self.author)
-        self.client2.force_authenticate(user=self.author2)
-        inbox = Inbox.objects.get(author=self.author2)
-        payload = {
-            'actor': {
-                'host': 'https://konnection-server.herokuapp.com/',
-                'id': 'aaaaa',
-            },
-            'object': {
-                'host': 'https://konnection-server.herokuapp.com/',
-            }
-        }
-        follower_url = reverse(
-            'followers:followers modify',
-            kwargs={'id': self.author.id, 'foreignId': self.author2.id}
-        )
+    # TODO: Hailan
+    # def test_create_friends_post_sent_to_followers(self):
+    #     """Testing TestCreatePostEndpoint does not send friend Post to
+    #     followers inbox
+    #     """
+    #     self.client.force_authenticate(user=self.author)
+    #     self.client2.force_authenticate(user=self.author2)
+    #     inbox = Inbox.objects.get(author=self.author2)
+    #     payload = {
+    #         'actor': {
+    #             'host': 'https://konnection-server.herokuapp.com/',
+    #             'id': 'aaaaa',
+    #         },
+    #         'object': {
+    #             'host': 'https://konnection-server.herokuapp.com/',
+    #         }
+    #     }
+    #     follower_url = reverse(
+    #         'followers:followers modify',
+    #         kwargs={'id': self.author.id, 'foreignId': self.author2.id}
+    #     )
 
-        res = self.client2.put(follower_url, payload, format='json')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        res = self.client2.get(follower_url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(inbox.items), 0)
-        res = self.client.post(self.create_post_url, FRIENDS_VIS_PAYLOAD)
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        inbox = Inbox.objects.get(author=self.author2)
-        self.assertEqual(len(inbox.items), 0)
+    #     res = self.client2.put(follower_url, payload, format='json')
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     res = self.client2.get(follower_url)
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(inbox.items), 0)
+    #     res = self.client.post(self.create_post_url, FRIENDS_VIS_PAYLOAD)
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     inbox = Inbox.objects.get(author=self.author2)
+    #     self.assertEqual(len(inbox.items), 0)
 
-    def test_create_friends_post_sent_to_friends(self):
-        """Testing TestCreatePostEndpoint sends friend Post to friends inbox
-        """
-        self.client.force_authenticate(user=self.author)
-        self.client2.force_authenticate(user=self.author2)
-        inbox = Inbox.objects.get(author=self.author2)
-        follower_url = reverse(
-            'followers:followers modify',
-            kwargs={'id': self.author.id, 'foreignId': self.author2.id}
-        )
-        follower_url2 = reverse(
-            'followers:followers modify',
-            kwargs={'id': self.author2.id, 'foreignId': self.author.id}
-        )
-        payload = {
-            'actor': {
-                'host': 'https://konnection-server.herokuapp.com/',
-                'id': 'aaaaa',
-            },
-            'object': {
-                'host': 'https://konnection-server.herokuapp.com/',
-            }
-        }
+    # TODO: Hailan
+    # def test_create_friends_post_sent_to_friends(self):
+    #     """Testing TestCreatePostEndpoint sends friend Post to friends inbox
+    #     """
+    #     self.client.force_authenticate(user=self.author)
+    #     self.client2.force_authenticate(user=self.author2)
+    #     inbox = Inbox.objects.get(author=self.author2)
+    #     follower_url = reverse(
+    #         'followers:followers modify',
+    #         kwargs={'id': self.author.id, 'foreignId': self.author2.id}
+    #     )
+    #     follower_url2 = reverse(
+    #         'followers:followers modify',
+    #         kwargs={'id': self.author2.id, 'foreignId': self.author.id}
+    #     )
+    #     payload = {
+    #         'actor': {
+    #             'host': 'https://konnection-server.herokuapp.com/',
+    #             'id': 'aaaaa',
+    #         },
+    #         'object': {
+    #             'host': 'https://konnection-server.herokuapp.com/',
+    #         }
+    #     }
 
-        res = self.client2.put(follower_url, payload, format='json')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        res = self.client2.get(follower_url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        res = self.client.put(follower_url2, payload, format='json')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        res = self.client.get(follower_url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(inbox.items), 0)
-        res = self.client.post(self.create_post_url, FRIENDS_VIS_PAYLOAD)
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        inbox = Inbox.objects.get(author=self.author2)
-        self.assertEqual(len(inbox.items), 2)
+    #     res = self.client2.put(follower_url, payload, format='json')
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     res = self.client2.get(follower_url)
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     res = self.client.put(follower_url2, payload, format='json')
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     res = self.client.get(follower_url)
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(inbox.items), 0)
+    #     res = self.client.post(self.create_post_url, FRIENDS_VIS_PAYLOAD)
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     inbox = Inbox.objects.get(author=self.author2)
+    #     self.assertEqual(len(inbox.items), 2)
 
     def test_get_post_endpoint(self):
         """Testing TestCreatePostEndpoint gets all the posts by the 
@@ -575,7 +577,7 @@ class TestSharePostEndpoint(TestCase):
         inbox = Inbox.objects.get(author=self.author2)
         self.assertEqual(len(inbox.items), 1)
     
-    # TODO: TEST
+    # TODO: Kean
     # def test_share_post_to_multiple_authors(self):
     #     """Testing share a Post to multiple friends' Inbox"""
         
@@ -587,15 +589,15 @@ class TestSharePostEndpoint(TestCase):
 
     #     # author is friend with author2 and author3
     #     self.client3.force_authenticate(user=self.author3)
-    #     authorC = mainModels.Followers.objects.create(author=self.author3)
+    #     authorC = mainModels.Followers.objects.get(author=self.author3)
     #     authorC.followers.add(self.author)
 
     #     self.client2.force_authenticate(user=self.author2)
-    #     authorB = mainModels.Followers.objects.create(author=self.author2)
+    #     authorB = mainModels.Followers.objects.get(author=self.author2)
     #     authorB.followers.add(self.author)
         
     #     self.client.force_authenticate(user=self.author)
-    #     authorA = mainModels.Followers.objects.create(author=self.author)
+    #     authorA = mainModels.Followers.objects.get(author=self.author)
     #     authorA.followers.add(self.author2)
     #     authorA.followers.add(self.author3)
 
