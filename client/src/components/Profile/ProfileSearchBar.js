@@ -9,7 +9,6 @@ const ProfileSearchBar = (props) => {
 
   const [value, setValue] = useState("");
   const [results, setResults] = useState([]);
-  const [rawResults, setRawResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
@@ -37,9 +36,6 @@ const ProfileSearchBar = (props) => {
         }
       });
 
-      console.log(raw);
-      setRawResults(raw);
-
       let formatted = [];
       raw.forEach((author) => {
         let item = {
@@ -61,12 +57,6 @@ const ProfileSearchBar = (props) => {
     setLoading(false);
   };
 
-  const handleResultSelection = (e, { result }) => {
-    const author = rawResults.filter((a) => {
-      return a.displayName == result.title;
-    });
-  };
-
   const authorOnClick = (e, { author }) => {
     const authorId = author.id.split("/").pop();
 
@@ -84,7 +74,6 @@ const ProfileSearchBar = (props) => {
           fluid
           results={results}
           onSearchChange={handleSearchChange}
-          onResultSelect={handleResultSelection}
           value={value}
           open={open}
           icon={null}
