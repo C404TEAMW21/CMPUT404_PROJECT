@@ -322,7 +322,6 @@ class TestAddFollowerEndpoint(TestCase):
         
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    # TODO: TEST
     def test_adding_follower_with_incorrect_credentials(self):
         "Test adding follower with invalid author B credentials"
         authorB = create_author(
@@ -705,55 +704,69 @@ class TestFriendsListEndpoint(TestCase):
 
     def setUp(self):
         self.client = APIClient()
-        self.client2 = APIClient()
-        self.id = '77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'
-        self.id2 = '88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'
-
-    # TODO: TEST  
-    # def test_author_followers(self):
-    #     "Test returns an empty list if no friends"
-    #     user = create_author(
-    #         username='abc001',
-    #         password='abcpwd',
-    #         adminApproval=True,
-    #         id=uuid.UUID(self.id),
-    #     )
-    #     self.client.force_authenticate(user=user)
-
-    #     res = self.client.get(f'/service/author/{self.id}/friends/')
-
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(res.data, {})
-
-    # def test_friends(self):
-    #     """Test returns a list of friends"""
-
-    #     authorA = create_author(
-    #         username='user1',
-    #         password='abcpwd',
-    #         adminApproval=True,
-    #         id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'),
-    #     )
-
-    #     authorB = create_author(
-    #         username='user2',
-    #         password='abcpwd',
-    #         adminApproval=True,
-    #         id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
-    #     )
         
-    #     self.client.force_authenticate(user=authorB)
-    #     res = self.client.put(f'/api/author/{self.id}/followers/{self.id2}/')
-        
-    #     self.client2.force_authenticate(user=authorA)
-    #     res = self.client2.put(f'/api/author/{self.id2}/followers/{self.id}/')
+        self.author_a = create_author(
+            username='abc001',
+            password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID('77f1df52-4b43-11e9-910f-b8ca3a9b9f3e'),
+        )
 
-    #     res = self.client.get(f'/api/author/{self.id}/friends/')
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(res.data['friends']), 1)
-    #     self.assertEqual(res.data['friends'][0]['username'], 'user2')
+    def test_author_no_friends(self):
+        "Test returns an empty list if no friends"
+        self.client.force_authenticate(user=self.author_a)
 
-    #     res = self.client2.get(f'/api/author/{self.id2}/friends/')
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(res.data['friends']), 1)
-    #     self.assertEqual(res.data['friends'][0]['username'], 'user1')
+        res = self.client.get(f'/api/author/{self.author_a.id}/friends/')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['items']), 0)
+
+
+    def test_author_friends(self):
+        "Test returns a list of local and remote friends"
+        author_b = create_author(
+            username='abc002',
+            password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID('87f1df52-4b43-11e9-910f-b8ca3a9b9f3d'),
+        )
+        remote_author_c_payload = {
+            "type":"author",
+            "id":"11111111-4b43-11e9-910f-b8ca3a9b9f3e",
+            "url":"http://team6/api/11111111-4b43-11e9-910f-b8ca3a9b9f3e",
+            "host":"http://team6/",
+            "displayName":"Greg Johnson",
+            "github": "http://github.com/gjohnson"
+        }
+        author_d = create_author(
+            username='abc003',
+            password='abcpwd',
+            adminApproval=True,
+            id=uuid.UUID('67f1df52-4b43-11e9-910f-b8ca3a9b9f3a'),
+        )
+        # Creating local friends
+        author_a_followers = models.Followers.objects.get(author=self.author_a)
+        author_a_followers.followers.add(author_b)
+        author_a_followers.followers.add(author_d)
+        author_a_followers.remoteFollowers['11111111-4b43-11e9-910f-b8ca3a9b9f3e'] = remote_author_c_payload
+        author_a_followers.save()
+        # Creating remote friendsTest returns a list of local and remote friends
+        author_a_following = models.Following.objects.get(author=self.author_a)
+        author_a_following.following.add(author_b)
+        author_a_following.remote_following['11111111-4b43-11e9-910f-b8ca3a9b9f3e'] = remote_author_c_payload
+        author_a_following.save()
+        self.client.force_authenticate(user=self.author_a)
+
+        res = self.client.get(f'/api/author/{self.author_a.id}/friends/')
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['items']), 2)
+
+    def test_invalid_author_friends(self):
+        "Test searching friends for invalid author"
+        self.client.force_authenticate(user=self.author_a)
+
+        res = self.client.get(f'/api/author/aaaa/friends/')
+
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
