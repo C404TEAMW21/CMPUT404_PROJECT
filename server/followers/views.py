@@ -26,20 +26,21 @@ class FollowersView(generics.RetrieveAPIView):
     authenticate_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get_object(self):
-        self.request_author_id = self.kwargs['id']
-        admin_approval_safeguard(self)
-
-        try:
-            return models.Followers.objects.get(author=self.request_author_id)
-        except:
-            raise ValidationError({"error": ["Author not found"]})
-
     def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
+        admin_approval_safeguard(self)
+        request_author_id = self.kwargs['id']
+        try:
+            author_followers = models.Followers.objects.get(
+                author=request_author_id)
+        except:
+            return Response(
+                {'error': ["Author not found"]},
+                status=status.HTTP_404_NOT_FOUND)
+
         remote_followers_list = list(
             models.Followers.get_all_remote_followers(self, self.kwargs['id']).values())
+
+        serializer = self.get_serializer(author_followers)
 
         for item in serializer.data['followers']:
             remote_followers_list.append(item)
@@ -50,6 +51,8 @@ class FollowersView(generics.RetrieveAPIView):
         })
 
 # /<slug:id>/followers/<slug:foreignId>/
+
+
 class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Followers.objects.all()
     serializer_class = FollowersModificationSerializer
@@ -59,19 +62,23 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
     def retrieve(self, request, *args, **kwargs):
         request_author_id = self.kwargs['id']
         request_foreign_author_id = self.kwargs['foreignId']
+        admin_approval_safeguard(self)
         try:
             instance = models.Followers.objects.filter(
                 author=request_author_id)
         except:
-            raise ValidationError({"error": ["Author not found"]})
+            return Response(
+                {'error': ["Author not found"]},
+                status=status.HTTP_404_NOT_FOUND)
 
         try:
-            remote_follower = instance.values('remoteFollowers')[
-                0]['remoteFollowers']
-            if instance.filter(followers=request_foreign_author_id) and request_foreign_author_id not in remote_follower:
-                return Response({'message': ['They are not following one another']})
+            remote_follower = instance.values('remoteFollowers')[0]['remoteFollowers']
+            if not instance.filter(followers=request_foreign_author_id) and request_foreign_author_id not in remote_follower:
+                return Response({'message': ['They are not following one another']}, status=status.HTTP_404_NOT_FOUND)
         except:
-            raise ValidationError({"error": ["Bad request"]})
+            return Response(
+                {'error': ["Bad Request"]},
+                status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
             'type': 'follower',
@@ -122,7 +129,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
 
             if str(request_foreign_author_id) != str(request.user.id):
                 return Response({
-                    'error': ['This is not your account, you cannot follow this author']}, status=status.HTTP_403_FORBIDDEN)
+                    'error': ['This is not your account, you cannot follow this author']}, status=status.HTTP_401_UNAUTHORIZED)
 
             try:
                 foreign_author = models.Author.objects.get(
@@ -130,7 +137,9 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                 author_obj = models.Author.objects.get(id=request_author_id)
                 author = models.Followers.objects.get(author=author_obj)
             except:
-                raise ValidationError({"error": ["Author not found"]})
+                return Response(
+                    {'error': ["Author not found"]},
+                        status=status.HTTP_404_NOT_FOUND)
 
             author.followers.add(foreign_author)
             author.save()
@@ -168,14 +177,14 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         request_author_id = self.kwargs['id']
         request_foreign_author_id = self.kwargs['foreignId']
-
+        admin_approval_safeguard(self)
         try:
             actor_host = request.data['actor']['host']
             # TODO: DELETE remote author, making HTTP call
         except:
             pass
-
-        try:
+        # A/follows/B delete 
+        try: 
             author_obj = models.Author.objects.get(id=request_author_id)
             author = models.Followers.objects.get(author=author_obj)
             foreign_author_obj = models.Author.objects.get(
@@ -190,8 +199,8 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                 author.remoteFollowers.pop(request_foreign_author_id)
                 author.save()
             except:
-                pass
-
+                return Response({
+                    'error': ['Bad request']}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
             'type': 'unfollow',
