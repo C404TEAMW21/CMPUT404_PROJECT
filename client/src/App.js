@@ -20,6 +20,7 @@ import {
 } from "./Constants";
 import "./App.scss";
 import SpecificPostPage from "./components/SpecificPost/SpecificPostPage";
+import EditPostPage from "./components/Post/EditPostPage";
 
 const App = (props) => {
   const context = useContext(Context);
@@ -125,6 +126,13 @@ const App = (props) => {
           path="/author/:author_id/posts/:post_id"
           component={LandingPage}
           subComponent={SpecificPostPage}
+        />
+        <PrivateRoute
+          exact
+          isAuthorized={context.cookie}
+          path="/editpost/:post_id"
+          component={LandingPage}
+          subComponent={EditPostPage}
         />
       </Switch>
     </div>

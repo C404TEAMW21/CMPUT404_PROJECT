@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { useHistory } from "react-router-dom";
 import axios from "axios";
 import { Card, Icon, Image, Button, Label, Dropdown } from "semantic-ui-react";
 import ReactMarkdown from "react-markdown";
@@ -21,9 +22,9 @@ const defaultProps = {
 
 const PostComponent = (props) => {
   const context = useContext(Context);
+  let history = useHistory();
   const [deletePost, setDeletePost] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
-  const [sharedFriends, setSharedFriends] = useState(false);
 
   const passedValues = { ...defaultProps, ...props };
   const {
@@ -78,7 +79,6 @@ const PostComponent = (props) => {
         }
       );
 
-      setSharedFriends(true);
       setShareLoading(false);
     } catch (error) {
       setShareLoading(false);
@@ -106,6 +106,17 @@ const PostComponent = (props) => {
     return `/author/${author.id}/posts/${postId}`;
   };
 
+  const handleSpecificPost = () => {
+    history.push(getPostHref());
+  };
+
+  const handleEditPost = () => {
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    history.push(`/editpost/${postId}`);
+  };
+
   return (
     <div className="custom-card">
       <DeletePostModal
@@ -115,7 +126,7 @@ const PostComponent = (props) => {
         setOpen={deletePostClick}
         handleDeletePost={props.handleDeletePost}
       />
-      <Card fluid raised centered href={getPostHref()}>
+      <Card fluid raised centered>
         <Card.Content>
           <Button.Group as="div" floated="right">
             <Dropdown
@@ -132,10 +143,7 @@ const PostComponent = (props) => {
               }
             >
               <Dropdown.Menu>
-                <Dropdown.Item
-                  disabled={sharedFriends}
-                  onClick={sharePostFriends}
-                >
+                <Dropdown.Item onClick={sharePostFriends}>
                   Friends
                 </Dropdown.Item>
                 <Dropdown.Item>Author</Dropdown.Item>
@@ -156,7 +164,13 @@ const PostComponent = (props) => {
           {context.user &&
             author.id === context.user.id &&
             visibility === "PUBLIC" && (
-              <Button basic color="black" floated="right" icon="pencil" />
+              <Button
+                basic
+                color="black"
+                floated="right"
+                icon="pencil"
+                onClick={handleEditPost}
+              />
             )}
           <Card.Header>{title}</Card.Header>
           <Card.Meta>
@@ -193,7 +207,7 @@ const PostComponent = (props) => {
             </Label>
           </Button>
           <Button as="div" labelPosition="left">
-            <Button color="blue" floated="right">
+            <Button color="blue" floated="right" onClick={handleSpecificPost}>
               <Icon name="comments" />
               Comment
             </Button>

@@ -6,7 +6,7 @@ import PostSuccess from "./PostSuccess";
 import { Context } from "../../Context";
 import { SERVER_HOST } from "../../Constants";
 
-import "./CreatePostPage.scss";
+import "./PostPage.scss";
 
 const CreatePostPage = (props) => {
   const context = useContext(Context);
@@ -61,7 +61,7 @@ const CreatePostPage = (props) => {
   return (
     <div className="create-post-page">
       {success ? (
-        <PostSuccess postId={createdPostId} />
+        <PostSuccess postId={createdPostId} version="created" />
       ) : (
         <div className="create-post-form-page">
           <Header as="h2">

@@ -9,10 +9,16 @@ from rest_framework.response import Response
 from posts.serializers import PostSerializer
 from author.serializers import AuthorProfileSerializer
 from main.models import Author
+from nodes.models import Node
+from main import utils
 from posts.models import Post
 from likes.models import Like
 from .models import Inbox
 from .serializers import InboxSerializer
+from urllib.parse import urlparse
+import requests
+import json
+
 
 # api/author/{AUTHOR_ID}/inbox/
 class InboxView(generics.RetrieveUpdateDestroyAPIView):
@@ -52,19 +58,39 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
             try:
                 Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
             except Inbox.DoesNotExist as e:
-                return Response({'error':'Author not found!'},
+                return Response({'error':'Author not found! Please check author_id in URL.'},
                                 status=status.HTTP_404_NOT_FOUND)
             return Response({'data':f'Shared Post {post_id} with Author '
                                     f'{request_author_id} on {host_name}.'},
                             status=status.HTTP_200_OK)
         elif inbox_type == 'like':
             id_url = request.data.get('object')
-            try:
-                Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
-            except Inbox.DoesNotExist as e:
-                return Response({'error':'Author not found!'},
-                                status=status.HTTP_404_NOT_FOUND)
+            parsed_uri = urlparse(id_url)
+            object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
 
+            # Sending a LIKE from (us or remote server) to us
+            if (object_host == utils.HOST):
+                try:
+                    Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
+                except Inbox.DoesNotExist as e:
+                    return Response({'error':'Author not found! Please check author_id in URL.'},
+                                    status=status.HTTP_404_NOT_FOUND)
+            # Sending a LIKE from us to remote server
+            else:
+                try:
+                    remote_server = Node.objects.get(remote_server_url=object_host)
+                except Node.DoesNotExist:
+                    return Response({'error':'Could not find remote server user'}, status=status.HTTP_404_NOT_FOUND)
+
+                r = requests.post(
+                    f"{object_host}api/author/{request_author_id}/inbox/",
+                    json=request.data,
+                    auth=(remote_server.konnection_username, remote_server.konnection_password))
+
+                if r.status_code < 200 or r.status_code >= 300:
+                    return Response({'error':'Could not complete the request to the remote server'},
+                        status=r.status_code)
+            
             # Gather information for the Like object creation
             try:
                 object_type = Like.LIKE_COMMENT if ('comments' in id_url) else Like.LIKE_POST

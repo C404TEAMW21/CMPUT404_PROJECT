@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Button, Label } from "semantic-ui-react";
+import { Search, Button, Message } from "semantic-ui-react";
 import { getAllAuthors } from "../../ApiUtils";
 import { useHistory } from "react-router-dom";
 import "./ProfilePage.scss";
@@ -12,44 +12,52 @@ const ProfileSearchBar = (props) => {
   const [rawResults, setRawResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState(false);
 
   const handleSearchChange = (e, { name, value }) => {
     setValue(value);
     setOpen(false);
+    setError(false);
   };
   const handleOnSubmit = async () => {
     setLoading(true);
     const responses = await getAllAuthors(props.token);
 
-    let raw = [];
+    if (responses.constructor === Array) {
+      let raw = [];
 
-    responses.forEach((response) => {
-      let filteredAuthors;
-      if (response.status === 200) {
-        filteredAuthors = response.data.filter((author) => {
-          return author.displayName.toLowerCase().includes(value.trim());
-        });
+      responses.forEach((response) => {
+        let filteredAuthors;
+        if (response.status === 200) {
+          filteredAuthors = response.data.filter((author) => {
+            return author.displayName.toLowerCase().includes(value.trim());
+          });
 
-        raw = raw.concat(filteredAuthors);
-      }
-    });
+          raw = raw.concat(filteredAuthors);
+        }
+      });
 
-    setRawResults(raw);
+      console.log(raw);
+      setRawResults(raw);
 
-    let formatted = [];
-    raw.forEach((author) => {
-      let item = {
-        title: author.displayName,
-        description: author.host,
-        author,
-        onClick: authorOnClick,
-      };
+      let formatted = [];
+      raw.forEach((author) => {
+        let item = {
+          title: author.displayName,
+          description: author.host,
+          author,
+          onClick: authorOnClick,
+        };
 
-      formatted.push(item);
-    });
+        formatted.push(item);
+      });
 
-    setOpen(true);
-    setResults(formatted);
+      setOpen(true);
+      setResults(formatted);
+    } else {
+      setError(true);
+    }
+
     setLoading(false);
   };
 
@@ -88,6 +96,14 @@ const ProfileSearchBar = (props) => {
           content="Search"
         />
       </div>
+      {error && (
+        <Message
+          error
+          size="large"
+          header="Error"
+          content="Something happened on our end. Please try again later."
+        />
+      )}
     </div>
   );
 };

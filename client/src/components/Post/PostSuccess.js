@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { Button, Icon } from "semantic-ui-react";
 import { PAGE_CREATE_POST } from "../../Constants";
 import { Context } from "../../Context";
-import "./CreatePostPage.scss";
+import "./PostPage.scss";
 
 const PostSuccess = (props) => {
   const context = useContext(Context);
@@ -21,13 +21,15 @@ const PostSuccess = (props) => {
     <div className="post-success">
       <Icon name="check circle outline" className="check-icon" size="huge" />
       <div className="success-content">
-        <h1>Post created successfully!</h1>
+        <h1>Post {props.version} successfully!</h1>
         <Button className="success-view-post" onClick={handleViewPostClick}>
           View Post
         </Button>
-        <Button className="success-createpost" onClick={handleCreateClick}>
-          Create Another Post
-        </Button>
+        {props.version === "created" && (
+          <Button className="success-createpost" onClick={handleCreateClick}>
+            Create Another Post
+          </Button>
+        )}
       </div>
     </div>
   );

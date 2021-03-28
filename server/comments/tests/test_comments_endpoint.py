@@ -106,45 +106,45 @@ class TestCreateCommentEndpoint(TestCase):
         self.client.force_authenticate(user=self.author2)
         res = self.client.post(self.create_comment_url, self.payload(self.author2), format='json')
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
-    # TODO: TEST
-    # def test_create_comment_endpoint_for_friends(self):
-    #     """Test create and getting comments as a friend or the post author"""
-    #     # This is a FRIENDS post
-    #     post = Post.objects.filter(visibility=Post.PUBLIC).update(visibility=Post.FRIENDS)
-    #     authorA = models.Followers.objects.create(author=self.author)
-    #     authorB = models.Followers.objects.create(author=self.author2)
-    #     authorC = models.Followers.objects.create(author=self.author3)
-    #     authorA.followers.add(self.author2)
-    #     authorA.followers.add(self.author3)
-    #     authorB.followers.add(self.author)
-    #     authorC.followers.add(self.author)
+ 
+    def test_create_comment_endpoint_for_friends(self):
+        """Test create and getting comments as a friend or the post author"""
+        # This is a FRIENDS post
+        post = Post.objects.filter(visibility=Post.PUBLIC).update(visibility=Post.FRIENDS)
+        authorA = models.Followers.objects.get(author=self.author)
+        authorB = models.Followers.objects.get(author=self.author2)
+        authorC = models.Followers.objects.get(author=self.author3)
+        authorA.followers.add(self.author2)
+        authorA.followers.add(self.author3)
+        authorB.followers.add(self.author)
+        authorC.followers.add(self.author)
 
-    #     # friend makes a comment
-    #     self.client.force_authenticate(user=self.author2)
-    #     res = self.client.post(self.create_comment_url, self.payload(self.author2), format='json')
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        # friend makes a comment
+        self.client.force_authenticate(user=self.author2)
+        res = self.client.post(self.create_comment_url, self.payload(self.author2), format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-    #     # original post author makes a comment
-    #     self.client2 = APIClient()
-    #     self.client2.force_authenticate(user=self.author)
-    #     res = self.client2.post(self.create_comment_url, self.payload(self.author), format='json')
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        # original post author makes a comment
+        self.client2 = APIClient()
+        self.client2.force_authenticate(user=self.author)
+        res = self.client2.post(self.create_comment_url, self.payload(self.author), format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-    #     # second friend makes a comment
-    #     self.client3 = APIClient()
-    #     self.client3.force_authenticate(user=self.author3)
-    #     res = self.client3.post(self.create_comment_url, self.payload(self.author3), format='json')
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        # second friend makes a comment
+        self.client3 = APIClient()
+        self.client3.force_authenticate(user=self.author3)
+        res = self.client3.post(self.create_comment_url, self.payload(self.author3), format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
-    #     # original author can see all three comments
-    #     res = self.client2.generic(method='GET', path=self.create_comment_url, data=self.receive_comments_payload(self.author), content_type='application/json')
-    #     res = self.client2.get(self.create_comment_url, self.receive_comments_payload(self.author), format='json')
-    #     self.assertEqual(len(res.data), 3)
+        # original author can see all three comments
+        res = self.client2.generic(method='GET', path=self.create_comment_url, data=self.receive_comments_payload(self.author), content_type='application/json')
+        res = self.client2.get(self.create_comment_url, self.receive_comments_payload(self.author), format='json')
+        self.assertEqual(len(res.data), 3)
 
-    #     # friend can see two comments
-    #     res = self.client.get(self.create_comment_url, self.receive_comments_payload(self.author2), format='json')
-    #     self.assertEqual(len(res.data), 2)
+        # friend can see two comments
+        res = self.client.get(self.create_comment_url, self.receive_comments_payload(self.author2), format='json')
+        self.assertEqual(len(res.data), 2)
 
-    #     # second friend can see two comments
-    #     res = self.client3.get(self.create_comment_url)
-    #     self.assertEqual(len(res.data), 2)
+        # second friend can see two comments
+        res = self.client3.get(self.create_comment_url)
+        self.assertEqual(len(res.data), 2)
