@@ -61,7 +61,7 @@ const CreatePostPage = (props) => {
   return (
     <div className="create-post-page">
       {success ? (
-        <PostSuccess postId={createdPostId} />
+        <PostSuccess postId={createdPostId} version="created" />
       ) : (
         <div className="create-post-form-page">
           <Header as="h2">
