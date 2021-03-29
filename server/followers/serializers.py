@@ -31,6 +31,7 @@ class FollowersModificationSerializer(serializers.ModelSerializer):
         model = models.Followers
         fields = ('followers',)   
 
+
 # class FriendSerializer(serializers.ModelSerializer):
     
 #     class Meta:
