@@ -314,10 +314,11 @@ class TestAddFollowerEndpoint(TestCase):
             },
             'object': {
                 'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'bbbb',
             }
         }
         self.client.force_authenticate(user=authorB)
-        
+    
         res = self.client.put(author_b_follow_author_a_url(self.authorA.id, authorB.id), payload, format='json')
         
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -338,6 +339,7 @@ class TestAddFollowerEndpoint(TestCase):
             },
             'object': {
                 'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'aaaaa',
             }
         }
 
@@ -361,6 +363,7 @@ class TestAddFollowerEndpoint(TestCase):
             },
             'object': {
                 'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'bbbb',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -384,6 +387,7 @@ class TestAddFollowerEndpoint(TestCase):
             },
             'object': {
                 'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'bbbbb',
             }
         }
         
@@ -406,6 +410,7 @@ class TestAddFollowerEndpoint(TestCase):
             },
             'object': {
                 'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'bbbbb',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -435,6 +440,7 @@ class TestAddFollowerEndpoint(TestCase):
             },
             'object': {
                 'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'bbbbb',
             }
         }
         self.client.force_authenticate(user=authorB)
@@ -458,7 +464,8 @@ class TestAddFollowerEndpoint(TestCase):
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-server.herokuapp.com/'
+                'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'bbbbb',
             }
         }
 
@@ -475,7 +482,8 @@ class TestAddFollowerEndpoint(TestCase):
                 'id': 'aaaaa',
             },
             'object': {
-                'host': 'https://konnection-server.herokuapp.com/'
+                'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'bbbbb',
             }
         }
         self.client.force_authenticate(user=self.team6Credential)
@@ -551,12 +559,13 @@ class TestDeleteFollowerEndpoint(TestCase):
             adminApproval=True,
             id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
         )
+        delete_payload = {'host': 'https://konnection-server.herokuapp.com/'}
        
         authorA = models.Followers.objects.get(author=self.authorA)
         authorA.followers.add(authorB)
 
         self.client.force_authenticate(user=authorB)
-        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/')
+        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', data=delete_payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -568,9 +577,10 @@ class TestDeleteFollowerEndpoint(TestCase):
             adminApproval=True,
             id=uuid.UUID('88f1df52-4b43-11e9-910f-b8ca3a9b9fbb'),
         )
+        delete_payload = {'host': 'https://konnection-server.herokuapp.com/'}
 
         self.client.force_authenticate(user=authorB)
-        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/' )
+        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', data=delete_payload)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
@@ -674,7 +684,7 @@ class TestDeleteFollowerEndpoint(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_deleting_remote_follower(self):
-        "Test return true for remote authro to unfollow local"
+        "Test return true for remote author to unfollow local"
         authorB = create_author(
             username='abc002',
             password='abcpwd',
@@ -689,13 +699,14 @@ class TestDeleteFollowerEndpoint(TestCase):
             "displayName":"Greg Johnson",
             "github": "http://github.com/gjohnson"
         }
+        delete_payload = {'host': 'https://konnection-server.herokuapp.com/'}
         author = models.Followers.objects.get(author=self.authorA)
         self.client.force_authenticate(user=authorB)
         # Create Remote user 
         author.remoteFollowers['11111111-4b43-11e9-910f-b8ca3a9b9f3e'] = remote_author_payload
         author.save()
 
-        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/11111111-4b43-11e9-910f-b8ca3a9b9f3e/' )
+        res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/11111111-4b43-11e9-910f-b8ca3a9b9f3e/', data=delete_payload )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
