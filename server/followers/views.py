@@ -50,9 +50,81 @@ class FollowersView(generics.RetrieveAPIView):
             'items': remote_followers_list,
         })
 
+# <slug:id>/following/<slug:foreignId>/
+class FollowingView(generics.RetrieveAPIView):
+    serializer_class = FollowersSerializer
+    authenticate_classes = (authentication.TokenAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def retrieve(self, request, *args, **kwargs):
+        admin_approval_safeguard(self)
+        request_author_id = self.kwargs['id']
+        request_foreign_author_id = self.kwargs['foreignId']
+        try:
+            author_following = models.Following.objects.get(
+                author=request_author_id)
+        except:
+            return Response(
+                {'error': ["Author not found"]},
+                status=status.HTTP_404_NOT_FOUND)
+        
+         # Check required fields in the body
+        try:
+            actor_host = request.data['actor']['host']
+            object_host = request.data['object']['host']
+        except:
+            return Response({
+                'error': ['Please provide required fields']}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Remote following
+            if actor_host == utils.HOST and object_host != utils.HOST:
+                remote_following_ids = author_following.remote_following.keys()
+                if request_foreign_author_id in remote_following_ids:
+                    return Response({
+                        'type': 'following',
+                        'items': [{
+                            'status': True,
+                            'author':  request_author_id,
+                            'following': request_foreign_author_id,
+                        }]
+                    })
+            # Local following
+            elif actor_host == utils.HOST and object_host == utils.HOST:
+                try:
+                    author = models.Author.objects.get(id=request_foreign_author_id)
+                except:
+                    Response(
+                        {'error': ["Following Author doesn't exist"]},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+                local_following = author_following.following.all()
+                local_following_json = AuthorProfileSerializer(local_following, many=True).data
+                for i in local_following_json:
+                    if(i.get('id') == request_foreign_author_id):
+                        return Response({
+                            'type': 'following',
+                            'items': [{
+                                'status': True,
+                                'author':  request_author_id,
+                                'following': request_foreign_author_id,
+                            }]
+                        })
+
+            return Response({
+                'type': 'following',
+                'items': [{
+                    'status': False,
+                    'author':  request_author_id,
+                    'following': request_foreign_author_id,
+                }]
+            })
+        except:
+            return Response(
+                {'error': ["Bad Request"]},
+                status=status.HTTP_400_BAD_REQUEST)
+
 # /<slug:id>/followers/<slug:foreignId>/
-
-
 class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Followers.objects.all()
     serializer_class = FollowersModificationSerializer
