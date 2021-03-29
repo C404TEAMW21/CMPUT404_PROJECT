@@ -96,7 +96,6 @@ class FollowingView(generics.RetrieveAPIView):
                         {'error': ["Following Author doesn't exist"]},
                         status=status.HTTP_400_BAD_REQUEST)
 
-                #models.Following.objects(author=request_author_id, following__in=[]).
                 local_following = author_following.following.all()
                 local_following_json = AuthorProfileSerializer(local_following, many=True).data
                 for i in local_following_json:
