@@ -133,22 +133,58 @@ class CreatePostView(generics.ListCreateAPIView):
             return Response(status=status.HTTP_403_FORBIDDEN)
         
         post = self.create(request, *args, **kwargs)
-
         post_data = post.data
-        try:
-            followers = Followers.objects.get(author=author).followers.all()
-        except Followers.DoesNotExist:
-            return post
 
         if (post_data['visibility'] == Post.PUBLIC):
-            for follower in followers:
-                Inbox.objects.get(author=follower.id) \
-                    .send_to_inbox(post_data)
+            local_followers = Followers.get_all_local_followers(self, author.id)
+            remote_followers = Followers.get_all_remote_followers(self, author.id).values()
+
+            for follower in local_followers:
+                try:
+                    Inbox.objects.get(author=follower.id).send_to_inbox(post_data)
+                except:
+                    pass
+            for follower in remote_followers:
+                host_name = follower['host']
+                if host_name[-1] == '/':
+                    url = f"{follower['host']}api/author/{follower['id']}/inbox/"
+                else:
+                    host_name = follower['host'] + '/'
+                    url = f"{follower['host']}/api/author/{follower['id']}/inbox/"
+                try:
+                    remote_server = Node.objects.get(remote_server_url=host_name)
+                    req = requests.post(url,
+                                        json=post_data,
+                                        auth=(remote_server.konnection_username,
+                                              remote_server.konnection_password))
+                except Node.DoesNotExist:
+                    pass
+
         if (post_data['visibility'] == Post.FRIENDS):
-            for follower in followers:
-                if Followers.is_friends(self, follower, author):
-                    Inbox.objects.get(author=follower.id) \
-                        .send_to_inbox(post_data)
+            local_friends = Following.get_all_local_friends(self, author.id)
+            remote_friends = Following.get_all_remote_friends(self, author.id).values()
+
+            for friend in local_friends:
+                try:
+                    Inbox.objects.get(author=follower.id).send_to_inbox(post_data)
+                except:
+                    pass
+            for friend in remote_friends:
+                host_name = friend['host']
+                if host_name[-1] == '/':
+                    url = f"{friend['host']}api/author/{friend['id']}/inbox/"
+                else:
+                    host_name = friend['host'] + '/'
+                    url = f"{friend['host']}/api/author/{friend['id']}/inbox/"
+                try:
+                    remote_server = Node.objects.get(remote_server_url=host_name)
+                    req = requests.post(url,
+                                        json=post_data,
+                                        auth=(remote_server.konnection_username,
+                                              remote_server.konnection_password))
+                except Node.DoesNotExist:
+                    pass
+
         return post
         
     def perform_create(self, serializer):
@@ -212,12 +248,13 @@ class SharePostView(generics.CreateAPIView):
         if share_to:
             if share_to == 'all':
                 friend_list = Following.get_all_local_friends(self, sharer_id)
-                remote_friend_list = Following.get_all_remote_friends(self, sharer_id)
+                remote_friend_list = Following.get_all_remote_friends(self, sharer_id) \
+                                     .values()
                 if len(friend_list) == 0 and len(remote_friend_list) == 0:
                     return Response({'data': f'No friends to share to'},
                                     status=status.HTTP_200_OK)
 
-                for friend in remote_friend_list.values():
+                for friend in remote_friend_list:
                     host_name = friend['host']
                     if host_name[-1] == '/':
                         url = f"{friend['host']}api/author/{friend['id']}/inbox/"
