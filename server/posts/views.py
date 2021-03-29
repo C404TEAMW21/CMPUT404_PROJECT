@@ -227,14 +227,12 @@ class SharePostView(generics.CreateAPIView):
 
                     try:
                         remote_server = Node.objects.get(remote_server_url=host_name)
+                        req = requests.post(url,
+                                            json=post_data,
+                                            auth=(remote_server.konnection_username,
+                                                  remote_server.konnection_password))
                     except Node.DoesNotExist:
-                        return Response({'data': 'Node not found!'},
-                                        status=status.HTTP_400_BAD_REQUEST)
-
-                    req = requests.post(url,
-                                        json=post_data,
-                                        auth=(remote_server.konnection_username,
-                                              remote_server.konnection_password))
+                        pass
 
                 for friend in friend_list:
                     try:
