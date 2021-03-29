@@ -56,7 +56,7 @@ class FollowingView(generics.RetrieveAPIView):
     authenticate_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
-    def retrieve(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         admin_approval_safeguard(self)
         request_author_id = self.kwargs['id']
         request_foreign_author_id = self.kwargs['foreignId']
