@@ -50,7 +50,8 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
     # POST: send a Post, Like or Follow to Inbox
     def post(self, request, *args, **kwargs):
         request_author_id = self.kwargs['author_id']
-        inbox_type = request.data.get('type').lower()
+        inbox_type = request.data.get('type')
+        if inbox_type is not None: inbox_type = inbox_type.lower() 
         host_name = request.get_host()
 
         if inbox_type == 'post':
