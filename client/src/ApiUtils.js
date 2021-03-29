@@ -272,6 +272,7 @@ const getAuthorsTeam8 = () =>
   });
 
 export const getAllAuthors = async (token) => {
+  console.log("hello");
   try {
     const responses = await axios.all([
       getAuthorsKonnections(token),
