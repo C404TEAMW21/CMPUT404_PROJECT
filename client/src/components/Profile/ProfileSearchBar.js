@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Search, Button, Message } from "semantic-ui-react";
 import { getAllAuthors } from "../../ApiUtils";
+import { useHistory } from "react-router-dom";
 import "./ProfilePage.scss";
 
 const ProfileSearchBar = (props) => {
+  let history = useHistory();
+
   const [value, setValue] = useState("");
   const [results, setResults] = useState([]);
-  const [rawResults, setRawResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
@@ -34,14 +36,13 @@ const ProfileSearchBar = (props) => {
         }
       });
 
-      console.log(raw);
-      setRawResults(raw);
-
       let formatted = [];
       raw.forEach((author) => {
         let item = {
           title: author.displayName,
           description: author.host,
+          author,
+          onClick: authorOnClick,
         };
 
         formatted.push(item);
@@ -56,12 +57,13 @@ const ProfileSearchBar = (props) => {
     setLoading(false);
   };
 
-  const handleResultSelection = (e, { result }) => {
-    const author = rawResults.filter((a) => {
-      return a.displayName == result.title;
-    });
+  const authorOnClick = (e, { author }) => {
+    const authorId = author.id.split("/").pop();
 
-    console.log(author);
+    history.push({
+      pathname: `/author/${authorId}`,
+      state: { author },
+    });
   };
 
   return (
@@ -72,7 +74,6 @@ const ProfileSearchBar = (props) => {
           fluid
           results={results}
           onSearchChange={handleSearchChange}
-          onResultSelect={handleResultSelection}
           value={value}
           open={open}
           icon={null}

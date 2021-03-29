@@ -5,7 +5,11 @@ import { useLocation } from "react-router-dom";
 import EditProfileModal from "./EditProfileModal";
 import { Context } from "../../Context";
 import "./ProfilePage.scss";
-import { checkIfFollowing, unFollowAuthor } from "../../ApiUtils";
+import {
+  checkIfFollowing,
+  localRemoteFollowing,
+  unFollowAuthor,
+} from "../../ApiUtils";
 
 const MyProfileData = (props) => {
   const context = useContext(Context);
@@ -13,6 +17,7 @@ const MyProfileData = (props) => {
 
   const [name, updateName] = useState("Loading...");
   const [github, updateGithub] = useState("N/A");
+  const [host, updateHost] = useState("N/A");
   const [showEditBtn, updateShowEditBtn] = useState(false);
   const [showFriendRequestBtn, updateShowFriendRequestBtn] = useState(false);
   const [showUnFollowBtn, updateShowUnFollowBtn] = useState(false);
@@ -26,6 +31,7 @@ const MyProfileData = (props) => {
     nameToRender(authorId);
     selectBtnToShow(authorId);
     githubToRender(authorId);
+    hostToRender(authorId);
   }, [location, props.author]);
 
   const selectBtnToShow = async (authorId) => {
@@ -40,17 +46,28 @@ const MyProfileData = (props) => {
       return;
     }
 
-    const response = await checkIfFollowing(
+    // const response = await checkIfFollowing(
+    //   context.cookie,
+    //   props.author,
+    //   context.user
+    // );
+
+    if (props.author && props.author.id === undefined) return;
+
+    const response = await localRemoteFollowing(
       context.cookie,
-      authorId,
-      context.user.id
+      context.user,
+      props.author
     );
-    if (response.status !== 200) {
+
+    if (response.status !== 200 && response.status !== 404) {
       props.updateError(true);
       return;
     }
 
-    if (response.data.items.length > 0) {
+    if (response.status === 404) {
+      updateShowFriendRequestBtn(true);
+    } else if (response.data.items.length > 0) {
       const following = response.data.items[0].status === true;
       updateShowFriendRequestBtn(!following);
       updateShowUnFollowBtn(following);
@@ -96,8 +113,8 @@ const MyProfileData = (props) => {
     const authorId = window.location.pathname.split("/").pop();
     const response = await unFollowAuthor(
       context.cookie,
-      authorId,
-      context.user.id
+      props.author,
+      context.user
     );
 
     if (response.status !== 200) {
@@ -123,6 +140,20 @@ const MyProfileData = (props) => {
       }
 
       updateGithub(result);
+    }
+  };
+
+  const hostToRender = (authorId) => {
+    let result = "N/A";
+
+    if (context.user) {
+      if (authorId !== context.user.id) {
+        result = props.author.host ? props.author.host : "N/A";
+      } else {
+        result = context.user.host ? context.user.host : "N/A";
+      }
+
+      updateHost(result);
     }
   };
 
@@ -158,6 +189,12 @@ const MyProfileData = (props) => {
             GitHub:
           </Header>
           <span>{github}</span>
+        </div>
+        <div className="display-name-heading">
+          <Header as="h4" floated="left">
+            Host:
+          </Header>
+          <span>{host}</span>
         </div>
       </div>
     </div>

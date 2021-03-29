@@ -38,8 +38,11 @@ const FollowerList = (props) => {
       {followers.map((author) => (
         <FriendFollowerComponent
           parent={FOLLOWER_LIST}
-          username={author.username}
+          displayName={
+            author.displayName == "" ? author.username : author.displayName
+          }
           authorId={author.id}
+          host={author.host}
         />
       ))}
     </div>

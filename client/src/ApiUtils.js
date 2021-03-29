@@ -34,7 +34,46 @@ export const getCurrentUserObject = async (token) => {
 export const checkIfFollowing = async (token, A, B) => {
   try {
     const response = await axios.get(
-      `${SERVER_HOST}/api/author/${A}/followers/${B}/`,
+      `${SERVER_HOST}/api/author/${A.id}/followers/${B.id}/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      },
+      {
+        type: "follow",
+        summary: "AuthorB wants to follow AuthorA",
+        actor: {
+          ...B,
+        },
+        object: {
+          ...A,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const localRemoteFollowing = async (token, localAuthor, otherAuthor) => {
+  console.log(localAuthor);
+  console.log(otherAuthor);
+  try {
+    const response = await axios.post(
+      `${SERVER_HOST}/api/author/${localAuthor.id}/following/${otherAuthor.id}/`,
+      {
+        type: "follow",
+        summary: "AuthorA wants to follow AuthorB",
+        actor: {
+          ...localAuthor,
+        },
+        object: {
+          ...otherAuthor,
+        },
+      },
       {
         headers: {
           "Content-Type": "application/json",
@@ -42,6 +81,25 @@ export const checkIfFollowing = async (token, A, B) => {
         },
       }
     );
+
+    // const response = await axios({
+    //   method: "get",
+    //   url: `${SERVER_HOST}/api/author/${localAuthor.id}/following/${otherAuthor.id}/`,
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Token ${token}`,
+    //   },
+    //   data: {
+    //     type: "follow",
+    //     summary: "AuthorA wants to follow AuthorB",
+    //     actor: {
+    //       ...localAuthor,
+    //     },
+    //     object: {
+    //       ...otherAuthor,
+    //     },
+    //   },
+    // });
     return response;
   } catch (error) {
     return error.response;
@@ -95,11 +153,14 @@ export const getAllFollowers = async (token, id) => {
 export const unFollowAuthor = async (token, A, B) => {
   try {
     const response = await axios.delete(
-      `${SERVER_HOST}/api/author/${A}/followers/${B}/`,
+      `${SERVER_HOST}/api/author/${A.id}/followers/${B.id}/`,
       {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
+        },
+        data: {
+          host: A.host,
         },
       }
     );
@@ -184,7 +245,7 @@ const getAuthorsKonnections = (token) =>
   });
 
 const getAuthorsTeam6 = () =>
-  axios.get(`${TEAM6_HOST}/api/authors`, {
+  axios.get(`${TEAM6_HOST}/authors`, {
     auth: {
       username: process.env.REACT_APP_TEAM6_BAUTH_USERNAME,
       password: process.env.REACT_APP_TEAM6_BAUTH_PASSWORD,
