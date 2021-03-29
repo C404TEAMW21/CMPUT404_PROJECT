@@ -199,7 +199,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                 raise ValidationError({"error": ["Author not found"]})
 
             author = models.Followers.objects.get(author=author_obj)
-            author.remoteFollowers[actor_id] = actor_data
+            author.remoteFollowers[request_foreign_author_id] = actor_data
             author.save()
 
             inboxData = request.data
