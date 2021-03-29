@@ -166,7 +166,7 @@ class CreatePostView(generics.ListCreateAPIView):
 
             for friend in local_friends:
                 try:
-                    Inbox.objects.get(author=follower.id).send_to_inbox(post_data)
+                    Inbox.objects.get(author=friend.id).send_to_inbox(post_data)
                 except:
                     pass
             for friend in remote_friends:
