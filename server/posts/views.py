@@ -151,6 +151,8 @@ class CreatePostView(generics.ListCreateAPIView):
                 else:
                     host_name = follower['host'] + '/'
                     url = f"{follower['host']}/api/author/{follower['id']}/inbox/"
+                if "team6" in host_name:
+                    url = f"{host_name}author/{follower['id']}/inbox"
                 try:
                     remote_server = Node.objects.get(remote_server_url=host_name)
                     req = requests.post(url,
@@ -176,6 +178,8 @@ class CreatePostView(generics.ListCreateAPIView):
                 else:
                     host_name = friend['host'] + '/'
                     url = f"{friend['host']}/api/author/{friend['id']}/inbox/"
+                if "team6" in host_name:
+                    url = f"{host_name}author/{friend['id']}/inbox"
                 try:
                     remote_server = Node.objects.get(remote_server_url=host_name)
                     req = requests.post(url,
@@ -261,6 +265,8 @@ class SharePostView(generics.CreateAPIView):
                     else:
                         host_name = friend['host'] + '/'
                         url = f"{friend['host']}/api/author/{friend['id']}/inbox/"
+                    if "team6" in host_name:
+                        url = f"{host_name}author/{friend['id']}/inbox"
 
                     try:
                         remote_server = Node.objects.get(remote_server_url=host_name)
@@ -293,7 +299,8 @@ class SharePostView(generics.CreateAPIView):
                         else:
                             host_name = friend['host'] + '/'
                             url = f"{friend['host']}/api/author/{friend['id']}/inbox/"
-
+                        if "team6" in host_name:
+                            url = f"{host_name}author/{friend['id']}/inbox"
                         try:
                             remote_server = Node.objects.get(remote_server_url=host_name)
                         except Node.DoesNotExist:
