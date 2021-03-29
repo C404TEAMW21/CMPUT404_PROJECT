@@ -1,4 +1,5 @@
 import requests, json
+from urllib.parse import urlparse
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404
@@ -7,7 +8,8 @@ from django.http import Http404
 from django.core.paginator import Paginator
 from rest_framework.response import Response
 
-from main.models import Author, Followers
+from main.models import Author, Followers, Following
+from nodes.models import Node
 from .models import Post
 from .serializers import PostSerializer
 from inbox.models import Inbox
@@ -193,8 +195,12 @@ class SharePostView(generics.CreateAPIView):
         try:
             a_post = Post.objects.get(pk=post_id, unlisted=False)
             post_data = PostSerializer(a_post).data
-        except Post.DoesNotExist as e:
-            sharer_items = Inbox.objects.get(author=sharer_id).items
+        except Post.DoesNotExist:
+            try:
+                sharer_items = Inbox.objects.get(author=sharer_id).items
+            except Inbox.DoesNotExist:
+                return Response({'error': 'Inbox not found!'},
+                                status=status.HTTP_404_NOT_FOUND)
             for item in sharer_items:
                 if str(post_id) == item['id']:
                     post_data = item
@@ -205,26 +211,30 @@ class SharePostView(generics.CreateAPIView):
         share_to = request.data.get('share_to')
         if share_to:
             if share_to == 'all':
-                # friend_list = Followers.get_all_local_followers(self, sharer_id)
-                # print(friend_list)
-                # TODO change to friends
-                remote_friend_list = Followers.get_all_remote_followers(self, sharer_id)
-                # print(remote_friend_list)
-                try:
-                    friend_list = Followers.objects.get(author=sharer_id) \
-                        .friends()
-                except Followers.DoesNotExist:
+                friend_list = Following.get_all_local_friends(self, sharer_id)
+                remote_friend_list = Following.get_all_remote_friends(self, sharer_id)
+                if len(friend_list) == 0 and len(remote_friend_list) == 0:
                     return Response({'data': f'No friends to share to'},
                                     status=status.HTTP_200_OK)
 
-                for friend in remote_friend_list:
-                    if friend['host'][-1] == '/':
+                for friend in remote_friend_list.values():
+                    host_name = friend['host']
+                    if host_name[-1] == '/':
                         url = f"{friend['host']}api/author/{friend['id']}/inbox/"
                     else:
+                        host_name = friend['host'] + '/'
                         url = f"{friend['host']}/api/author/{friend['id']}/inbox/"
 
-                    # TODO change username: password based on server
-                    req = requests.post(url, json=post_data, auth=('test003', 'test003'))
+                    try:
+                        remote_server = Node.objects.get(remote_server_url=host_name)
+                    except Node.DoesNotExist:
+                        return Response({'data': 'Node not found!'},
+                                        status=status.HTTP_400_BAD_REQUEST)
+
+                    req = requests.post(url,
+                                        json=post_data,
+                                        auth=(remote_server.konnection_username,
+                                              remote_server.konnection_password))
 
                 for friend in friend_list:
                     try:
@@ -237,20 +247,35 @@ class SharePostView(generics.CreateAPIView):
             else:
                 try:
                     Inbox.objects.get(author=share_to).send_to_inbox(post_data)
-                except Inbox.DoesNotExist as e:
-                    remote_friend_list = Followers.get_all_remote_followers(self, sharer_id)
-                    # for friend in remote_friend_list:
+                except Inbox.DoesNotExist:
+                    remote_friend_list = Following.get_all_remote_friends(self, sharer_id)
+                    friend = remote_friend_list.get(share_to)
 
-                        if friend['host'][-1] == '/':
+                    if friend:
+                        host_name = friend['host']
+                        if host_name[-1] == '/':
                             url = f"{friend['host']}api/author/{friend['id']}/inbox/"
                         else:
+                            host_name = friend['host'] + '/'
                             url = f"{friend['host']}/api/author/{friend['id']}/inbox/"
-                    url = "https://cyver.herokuapp.com/api/author/c3e8800e-926b-4275-9026-89c99950bbda/inbox/"
-                    req = requests.post(url, json=post_data, auth=('ianserver', 'thisisforian'))
-                    # return Response({'error': 'Author not found!'},
-                    #                 status=status.HTTP_404_NOT_FOUND)
-                    return Response(req.status_code)
-                return Response({'data': f'Shared Post {post_id} with {share_to}'},
+
+                        try:
+                            remote_server = Node.objects.get(remote_server_url=host_name)
+                        except Node.DoesNotExist:
+                            return Response({'data': 'Node not found!'},
+                                            status=status.HTTP_400_BAD_REQUEST)
+
+                        req = requests.post(url,
+                                            json=post_data,
+                                            auth=(remote_server.konnection_username,
+                                                  remote_server.konnection_password))
+                        return Response({'data': f'Shared Post {post_id} with Author '
+                                                 f'{share_to} on {host_name}.'},
+                                        status=req.status_code)
+                    else:
+                        return Response({'error': 'Friend not found!'},
+                                        status=status.HTTP_404_NOT_FOUND)
+                return Response({'data': f'Shared Post {post_id} with Author {share_to}.'},
                                 status=status.HTTP_200_OK)
         else:
             return Response({'error':'share_to is empty!'},
