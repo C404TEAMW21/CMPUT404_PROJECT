@@ -126,6 +126,7 @@ class TestCreatePostEndpoint(TestCase):
             },
             'object': {
                 'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'bbbbb',
             }
         }
         follower_url = reverse(
