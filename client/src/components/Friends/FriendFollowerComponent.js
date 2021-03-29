@@ -59,9 +59,9 @@ const FriendFollowerComponent = (props) => {
     return (
       <div className="friendfollower-container">
         <Header as="a" size="large" href={profileLink} className="userlink">
-          {props.username}
+          {props.displayName}
         </Header>
-
+        <p>{props.host}</p>
         {showRemoveBtn && <Button onClick={handleDelete}>Remove</Button>}
         {showAcceptBtn && (
           <Button className="accept-request-btn" onClick={handleAccept}>
