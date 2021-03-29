@@ -232,11 +232,11 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
         # us following remote author
         elif object_host != utils.HOST and actor_host == utils.HOST:
             # For Team 6
-            if object_host == "team6-project-socialdistrib.herokuapp.com":
+            if object_host == "https://team6-project-socialdistrib.herokuapp.com/":
                 correct_url = formaturl(object_host)
                 parsed_uri = urlparse(correct_url)
                 object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-
+                print(object_host)
                 try:
                     node = Node.objects.get(remote_server_url=object_host)
                 
@@ -335,7 +335,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             # Local remove remote following
             try:
                 # For Team 6
-                if host == "team6-project-socialdistrib.herokuapp.com":
+                if host == "https://team6-project-socialdistrib.herokuapp.com/":
                     correct_url = formaturl(host)
                     parsed_uri = urlparse(correct_url)
                     object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
