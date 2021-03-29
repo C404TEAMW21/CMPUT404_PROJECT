@@ -13,7 +13,12 @@ from nodes.models import Node
 import requests 
 from urllib.parse import urlparse
 import json
+import re
 
+def formaturl(url):
+    if not re.match('(?:http|ftp|https)://', url):
+        return 'https://{}'.format(url)
+    return url
 
 def admin_approval_safeguard(self):
     if not self.request.user.adminApproval:
@@ -226,7 +231,34 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             inboxData['object'] = AuthorProfileSerializer(author_follower).data
         # us following remote author
         elif object_host != utils.HOST and actor_host == utils.HOST:
-            # TODO: Connect with other team
+            # For Team 6
+            if object_host == "https://team6-project-socialdistrib.herokuapp.com/":
+                correct_url = formaturl(object_host)
+                parsed_uri = urlparse(correct_url)
+                object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+                print(object_host)
+                try:
+                    node = Node.objects.get(remote_server_url=object_host)
+                
+                    response = requests.put(f"{object_host}author/{request_author_id}/followers/{request_foreign_author_id}", json=request.data, auth=(node.konnection_username, node.konnection_password))
+                 
+                    if response.status_code != 201:
+                        # Their problem
+                        return Response({'error': ['Contact team 6 for the error']}, status=response.status_code)
+                    else:
+                        author = models.Following.objects.get(author=request_foreign_author_id)
+                        object_data["id"] = request_author_id
+                     
+                        author.remote_following[request_author_id] = object_data
+
+                        author.save()
+   
+                        return Response({'message': ['Successful']}, status=response.status_code)
+                except Exception:
+                    # Our problem
+                    return Response({'error': ["Bad request"]}, status=status.HTTP_400_BAD_REQUEST)
+                
+
             parsed_uri = urlparse(object_host)
             object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
             
@@ -241,7 +273,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                     author = models.Following.objects.get(author=request_foreign_author_id)
                     author.remote_following[object_id] = object_data
                     author.save()
-                    print(object_data)
+
                     return Response({'message': ['Successful']}, status=response.status_code)
             except Exception:
                 # Our problem
@@ -277,6 +309,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             return Response({
                 'error': ['Please provide required fields']}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Local remove local following
         if host == utils.HOST: 
             try: 
                 author_obj = models.Author.objects.get(id=request_author_id)
@@ -298,10 +331,37 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                     return Response({
                         'error': ['Bad request- user not found']}, status=status.HTTP_400_BAD_REQUEST)
         else:
+            
+            # Local remove remote following
             try:
+                # For Team 6
+                if host == "https://team6-project-socialdistrib.herokuapp.com/":
+                    correct_url = formaturl(host)
+                    parsed_uri = urlparse(correct_url)
+                    object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+
+                    try:
+                        node = Node.objects.get(remote_server_url=object_host)
+                    
+                        response = requests.delete(f"{object_host}author/{request_author_id}/followers/{request_foreign_author_id}", auth=(node.konnection_username, node.konnection_password))
+                    
+                        if response.status_code != 200:
+                            # Their problem
+                            return Response({'error': ['Contact team 6 for the error']}, status=response.status_code)
+                        else:
+                            foreign_author_obj = models.Author.objects.get(id=request_foreign_author_id)
+                            foreign_author_following = models.Following.objects.get(author=foreign_author_obj)
+                            foreign_author_following.remote_following.pop(request_author_id)
+                            foreign_author_following.save()
+    
+                            return Response({'message': ['Successful']}, status=response.status_code)
+                    except Exception:
+                        # Our problem
+                        return Response({'error': ["Bad request"]}, status=status.HTTP_400_BAD_REQUEST)
+
                 parsed_uri = urlparse(host)
                 object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-                  
+                
    
                 node = Node.objects.get(remote_server_url=object_host)
                 response = requests.delete(f"{object_host}api/author/{request_author_id}/followers/{request_foreign_author_id}/", auth=(node.konnection_username, node.konnection_password))
@@ -310,6 +370,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                     # Their problem
                     return Response({'error': ['unfollowing unsuccessful - others sever issue']}, status=response.status_code)
                 else:
+                    # Remote remove following of local
                     foreign_author_obj = models.Author.objects.get(id=request_foreign_author_id)
                     foreign_author_following = models.Following.objects.get(author=foreign_author_obj)
                     foreign_author_following.remote_following.pop(request_author_id)
