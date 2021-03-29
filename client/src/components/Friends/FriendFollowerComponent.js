@@ -45,7 +45,7 @@ const FriendFollowerComponent = (props) => {
 
   const handleDelete = () => {
     if (props.parent === FRIEND_LIST) {
-      props.handleDeleteFriend(props.index, props.authorId);
+      props.handleDeleteFriend(props.index, props.author);
     }
   };
 

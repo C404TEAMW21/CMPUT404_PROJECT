@@ -29,18 +29,14 @@ const FriendsList = (props) => {
     const response = await getAllFriends(context.cookie, id);
 
     if (response.status === 200) {
-      updateFriends(response.data.friends ? response.data.friends : []);
+      updateFriends(response.data.items ? response.data.items : []);
     } else {
       props.updateError(true);
     }
   };
 
-  const handleDeleteFriend = async (indexToDelete, authorId) => {
-    const response = await unFollowAuthor(
-      context.cookie,
-      authorId,
-      context.user.id
-    );
+  const handleDeleteFriend = async (indexToDelete, author) => {
+    const response = await unFollowAuthor(context.cookie, author, context.user);
 
     if (response.status !== 200) {
       props.updateError(true);
@@ -55,8 +51,10 @@ const FriendsList = (props) => {
       {friends.map((author, index) => (
         <FriendFollowerComponent
           parent={FRIEND_LIST}
-          username={author.username}
-          authorId={author.id}
+          displayName={
+            author.displayName === "" ? author.username : author.displayName
+          }
+          author={author}
           handleDeleteFriend={handleDeleteFriend}
           index={index}
         />

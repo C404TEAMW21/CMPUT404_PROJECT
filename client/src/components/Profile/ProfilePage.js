@@ -78,7 +78,7 @@ const MyProfilePage = () => {
       context.user
     );
 
-    if (response.status !== 200) {
+    if (response.status !== 201 && response.status !== 200) {
       updateError(true);
       return false;
     }

@@ -5,7 +5,11 @@ import { useLocation } from "react-router-dom";
 import EditProfileModal from "./EditProfileModal";
 import { Context } from "../../Context";
 import "./ProfilePage.scss";
-import { checkIfFollowing, unFollowAuthor } from "../../ApiUtils";
+import {
+  checkIfFollowing,
+  localRemoteFollowing,
+  unFollowAuthor,
+} from "../../ApiUtils";
 
 const MyProfileData = (props) => {
   const context = useContext(Context);
@@ -42,11 +46,20 @@ const MyProfileData = (props) => {
       return;
     }
 
-    const response = await checkIfFollowing(
+    // const response = await checkIfFollowing(
+    //   context.cookie,
+    //   props.author,
+    //   context.user
+    // );
+
+    if (props.author && props.author.id === undefined) return;
+
+    const response = await localRemoteFollowing(
       context.cookie,
-      props.author,
-      context.user
+      context.user,
+      props.author
     );
+
     if (response.status !== 200 && response.status !== 404) {
       props.updateError(true);
       return;
@@ -55,7 +68,7 @@ const MyProfileData = (props) => {
     if (response.status === 404) {
       updateShowFriendRequestBtn(true);
     } else if (response.data.items.length > 0) {
-      const following = response.data.items[0].follower === context.user.id;
+      const following = response.data.items[0].status === true;
       updateShowFriendRequestBtn(!following);
       updateShowUnFollowBtn(following);
     }
@@ -100,8 +113,8 @@ const MyProfileData = (props) => {
     const authorId = window.location.pathname.split("/").pop();
     const response = await unFollowAuthor(
       context.cookie,
-      authorId,
-      context.user.id
+      props.author,
+      context.user
     );
 
     if (response.status !== 200) {

@@ -5,6 +5,7 @@ import { Context } from "../../Context";
 import {
   getAllFollowers,
   checkIfFollowing,
+  localRemoteFollowing,
   sendFriendFollowRequest,
 } from "../../ApiUtils";
 import FriendFollowerComponent from "./FriendFollowerComponent";
@@ -26,10 +27,16 @@ const FriendRequestList = (props) => {
     if (response.status === 200) {
       const result = [];
       for (let item of response.data.items) {
-        const response = await checkIfFollowing(
+        // const response = await checkIfFollowing(
+        //   context.cookie,
+        //   item,
+        //   context.user
+        // );
+
+        const response = await localRemoteFollowing(
           context.cookie,
-          item,
-          context.user
+          context.user,
+          item
         );
 
         if (response.status !== 200) {
@@ -40,7 +47,7 @@ const FriendRequestList = (props) => {
         if (
           response.data.items &&
           response.data.items.length > 0 &&
-          response.data.items[0].follower === context.user.id
+          response.data.items[0].status === false
         )
           result.push(item);
       }
@@ -58,7 +65,7 @@ const FriendRequestList = (props) => {
       context.user
     );
 
-    if (response.status !== 200) {
+    if (response.status !== 201 && response.status !== 200) {
       props.updateError(true);
       return;
     }
@@ -74,7 +81,9 @@ const FriendRequestList = (props) => {
         <FriendFollowerComponent
           parent={FRIEND_REQUEST_LIST}
           author={author}
-          username={author.username}
+          displayName={
+            author.displayName === "" ? author.username : author.displayName
+          }
           authorId={author.id}
           index={index}
           handleAccept={handleAccept}
