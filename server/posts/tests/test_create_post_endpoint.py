@@ -126,6 +126,7 @@ class TestCreatePostEndpoint(TestCase):
             },
             'object': {
                 'host': 'https://konnection-server.herokuapp.com/',
+                'id': 'bbbbb',
             }
         }
         follower_url = reverse(
@@ -578,50 +579,57 @@ class TestSharePostEndpoint(TestCase):
         self.assertEqual(len(inbox.items), 1)
     
     # TODO: Kean
-    # def test_share_post_to_multiple_authors(self):
-    #     """Testing share a Post to multiple friends' Inbox"""
+    def test_share_post_to_multiple_authors(self):
+        """Testing share a Post to multiple friends' Inbox"""
         
-    #     payload = {
-    #         'from': self.author.id,
-    #         'share_to': 'all'
-    #     }
+        payload = {
+            'from': self.author.id,
+            'share_to': 'all'
+        }
 
 
-    #     # author is friend with author2 and author3
-    #     self.client3.force_authenticate(user=self.author3)
-    #     authorC = mainModels.Followers.objects.get(author=self.author3)
-    #     authorC.followers.add(self.author)
+        # author is friend with author2 and author3
+        self.client3.force_authenticate(user=self.author3)
+        authorC_followers = mainModels.Followers.objects.get(author=self.author3)
+        authorC_following = mainModels.Following.objects.get(author=self.author3)
+        authorC_followers.followers.add(self.author)
+        authorC_following.following.add(self.author)
 
-    #     self.client2.force_authenticate(user=self.author2)
-    #     authorB = mainModels.Followers.objects.get(author=self.author2)
-    #     authorB.followers.add(self.author)
+        self.client2.force_authenticate(user=self.author2)
+        authorB_followers = mainModels.Followers.objects.get(author=self.author2)
+        authorB_following = mainModels.Following.objects.get(author=self.author2)
+        authorB_followers.followers.add(self.author)
+        authorB_following.following.add(self.author)
         
-    #     self.client.force_authenticate(user=self.author)
-    #     authorA = mainModels.Followers.objects.get(author=self.author)
-    #     authorA.followers.add(self.author2)
-    #     authorA.followers.add(self.author3)
+        self.client.force_authenticate(user=self.author)
+        authorA_followers = mainModels.Followers.objects.get(author=self.author)
+        authorA_following = mainModels.Following.objects.get(author=self.author)
+        authorA_followers.followers.add(self.author2)
+        authorA_followers.followers.add(self.author3)
+        authorA_following.following.add(self.author2)
+        authorA_following.following.add(self.author3)
 
-    #     res = self.client.get(f'/service/author/{self.id}/friends/')
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(res.data['friends']), 2)
+        res = self.client.get(f'/api/author/{self.id}/friends/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['items']), 2)
 
-    #     res = self.client2.get(f'/service/author/{self.id2}/friends/')
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(res.data['friends']), 1)
+        res = self.client2.get(f'/api/author/{self.id2}/friends/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['items']), 1)
 
-    #     res = self.client3.get(f'/service/author/{self.id2}/friends/')
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(len(res.data['friends']), 1)
+        res = self.client3.get(f'/api/author/{self.id2}/friends/')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data['items']), 1)
 
-    #     inbox = Inbox.objects.get(author=self.author2)
-    #     self.assertEqual(len(inbox.items), 0)
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 0)
 
 
-    #     res = self.client.post(self.share_url, payload)
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+        res = self.client.post(self.share_url, payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    #     inbox = Inbox.objects.get(author=self.author2)
-    #     self.assertEqual(len(inbox.items), 1)
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 1)
 
-    #     inbox = Inbox.objects.get(author=self.author3)
-    #     self.assertEqual(len(inbox.items), 1)
+        inbox = Inbox.objects.get(author=self.author3)
+        self.assertEqual(len(inbox.items), 1)
