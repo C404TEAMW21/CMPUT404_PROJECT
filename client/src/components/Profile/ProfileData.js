@@ -44,8 +44,8 @@ const MyProfileData = (props) => {
 
     const response = await checkIfFollowing(
       context.cookie,
-      authorId,
-      context.user.id
+      props.author,
+      context.user
     );
     if (response.status !== 200 && response.status !== 404) {
       props.updateError(true);

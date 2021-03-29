@@ -34,11 +34,21 @@ export const getCurrentUserObject = async (token) => {
 export const checkIfFollowing = async (token, A, B) => {
   try {
     const response = await axios.get(
-      `${SERVER_HOST}/api/author/${A}/followers/${B}/`,
+      `${SERVER_HOST}/api/author/${A.id}/followers/${B.id}/`,
       {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
+        },
+      },
+      {
+        type: "Follow",
+        summary: "AuthorB wants to follow AuthorA",
+        actor: {
+          ...B,
+        },
+        object: {
+          ...A,
         },
       }
     );

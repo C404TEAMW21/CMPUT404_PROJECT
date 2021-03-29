@@ -28,8 +28,8 @@ const FriendRequestList = (props) => {
       for (let item of response.data.items) {
         const response = await checkIfFollowing(
           context.cookie,
-          item.id,
-          context.user.id
+          item,
+          context.user
         );
 
         if (response.status !== 200) {
@@ -40,7 +40,7 @@ const FriendRequestList = (props) => {
         if (
           response.data.items &&
           response.data.items.length > 0 &&
-          response.data.items[0].status !== true
+          response.data.items[0].follower === context.user.id
         )
           result.push(item);
       }
