@@ -73,7 +73,7 @@ class TestAddFollowersEndpointWithRemoteServer(TestCase):
         self.client = APIClient()
 
     @httpretty.activate
-    def test_local_to_follow_remote_author(self):
+    def test_local_author_to_follow_remote_author(self):
         "Test adding local author to follow remote auhtor and the object is append to following"
         local_author = create_author(
             username='abc002',
@@ -105,7 +105,7 @@ class TestAddFollowersEndpointWithRemoteServer(TestCase):
         self.assertEqual(len(author_following), 1)
 
     @httpretty.activate
-    def test_local_to_follow_remote_author_unccessful(self):
+    def test_local_author_to_follow_remote_author_unccessful(self):
         "Test adding local author to follow remote auhtor unsuccessfully"
         local_author = create_author(
             username='abc002',
@@ -137,7 +137,7 @@ class TestAddFollowersEndpointWithRemoteServer(TestCase):
         self.assertEqual(len(author_following), 0)
 
     @httpretty.activate
-    def test_invalid_local_to_follow_remote_author(self):
+    def test_invalid_local_author_to_follow_remote_author(self):
         "Test adding invalid local author to follow remote auhtor"
         local_author = create_author(
             username='abc002',
@@ -172,7 +172,7 @@ class TestDeleteFollowersEndpointWithRemoteServer(TestCase):
         self.client = APIClient()
 
     @httpretty.activate
-    def test_local_to_unfollow_remote_author(self):
+    def test_local_author_to_unfollow_remote_author(self):
         "Test local author to unfollow remote auhtor and the remote auhtor object is remove from following"
         local_author = create_author(
             username='abc002',
@@ -208,7 +208,7 @@ class TestDeleteFollowersEndpointWithRemoteServer(TestCase):
         self.assertEqual(len(author_following), 0)
 
     @httpretty.activate
-    def test_local_to_unfollow_remote_author_unccessful(self):
+    def test_local_author_to_unfollow_remote_author_unccessful(self):
         "Test local author to unfollow remote auhtor unsuccessfully"
         local_author = create_author(
             username='abc002',
@@ -245,7 +245,7 @@ class TestDeleteFollowersEndpointWithRemoteServer(TestCase):
 
 
     @httpretty.activate
-    def test_invalid_local_to_unfollow_remote_author(self):
+    def test_invalid_local_author_to_unfollow_remote_author(self):
         "Test invalid local author to unfollow remote auhtor"
         local_author = create_author(
             username='abc002',
