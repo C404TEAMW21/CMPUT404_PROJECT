@@ -243,6 +243,10 @@ Django Restframework Status Code
 * From [Django REST framework Docs](https://www.django-rest-framework.org/api-guide/status-codes/)
 * Accessed Mar 23 2021
 
+Python Intersection of Two Dictionary
+* From [StackOverflow](https://stackoverflow.com/questions/18554012/intersecting-two-dictionaries)
+* Accessed Mar 24 2021 
+
 Filter Dictionary
 * From [StackOverflow](https://stackoverflow.com/questions/3420122/filter-dict-to-contain-only-certain-keys)
 * Accessed Mar 25 2021 
