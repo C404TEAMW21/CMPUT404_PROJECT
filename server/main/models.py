@@ -47,6 +47,11 @@ class Author(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'username'
 
+    def save(self, *args, **kwargs):
+        if not self.displayName:
+            self.displayName = self.username
+        super(Author, self).save(*args, **kwargs)
+
     def get_id_url(self):
         return f'{utils.FRONTEND_HOST}/author/{str(self.id)}'
 
