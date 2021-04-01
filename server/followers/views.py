@@ -25,6 +25,7 @@ def admin_approval_safeguard(self):
         raise AuthenticationFailed(
             detail={"error": ["User has not been approved by admin"]})
 
+TEAM6_HOST = "https://team6-project-socialdistrib.herokuapp.com/"
 # <slug:id>/followers/
 class FollowersView(generics.RetrieveAPIView):
     serializer_class = FollowersSerializer
@@ -234,7 +235,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
         # us following remote author
         elif object_host != utils.HOST and actor_host == utils.HOST:
             # For Team 6
-            if object_host == "https://team6-project-socialdistrib.herokuapp.com/":
+            if object_host == TEAM6_HOST:
                 correct_url = formaturl(object_host)
                 parsed_uri = urlparse(correct_url)
                 object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
@@ -337,7 +338,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             # Local remove remote following
             try:
                 # For Team 6
-                if host == "https://team6-project-socialdistrib.herokuapp.com/":
+                if host == TEAM6_HOST:
                     correct_url = formaturl(host)
                     parsed_uri = urlparse(correct_url)
                     object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
