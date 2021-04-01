@@ -1,6 +1,16 @@
 import axios from "axios";
 import { SERVER_HOST, TEAM2_HOST, TEAM6_HOST, TEAM8_HOST } from "./Constants";
 
+const parseAuthorIdURl = (author) => {
+  const authorIdList = author.id.split("/");
+
+  if (authorIdList.length > 1) {
+    author.id = authorIdList[authorIdList.length - 1];
+  }
+
+  return author;
+};
+
 export const getUserObject = async (token, id) => {
   try {
     const response = await axios.get(`${SERVER_HOST}/api/author/${id}/`, {
@@ -107,6 +117,8 @@ export const localRemoteFollowing = async (token, localAuthor, otherAuthor) => {
 };
 
 export const sendFriendFollowRequest = async (token, authorA, authorB) => {
+  parseAuthorIdURl(authorA);
+
   try {
     const response = await axios.put(
       `${SERVER_HOST}/api/author/${authorA.id}/followers/${authorB.id}/`,
