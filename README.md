@@ -207,8 +207,8 @@ Deploying Django to Heroku: Connecting Heroku Postgres
 * Accessed Mar 3 2021
 
 How to Structure the Django Settings for Different Environments
-* From [Max Goodridge](https://www.youtube.com/channel/UCAx4nmhI7S1RcPiaG-Uw0tg)
 * From [Youtube](https://www.youtube.com/watch?v=zPVLRvpzOOU)
+* From [Max Goodridge](https://www.youtube.com/channel/UCAx4nmhI7S1RcPiaG-Uw0tg)
 * Accessed Mar 3 2021
 
 Heroku - Django app
@@ -216,8 +216,8 @@ Heroku - Django app
 * Accessed Mar 3 2021
 
 How to Deploy Your React App to Heroku
-* From [Daniel Stoica](https://medium.com/@dldanielstoica)
 * From [Better Programming](https://betterprogramming.pub/how-to-deploy-your-react-app-to-heroku-aedc28b218ae)
+* From [Daniel Stoica](https://medium.com/@dldanielstoica)
 * Accessed Mar 4 2021
 
 How to Deploy Your React App to Heroku
@@ -230,4 +230,25 @@ Deploy to Heroku
 * From [GitHub Action Doc-heroku-deploy](https://github.com/marketplace/actions/deploy-to-heroku)
 * Accessed Mar 4 2021
 
+Python Requests Library 
+* From [Requests doc](https://pypi.org/project/requests/)
+* Accessed Mar 21 2021 
+
+Mock HTTP Testing
+* From [Real Python](https://realpython.com/python-requests/)
+* From [Alex Ronquillo](https://realpython.com/team/aronquillo/)
+* Accessed Mar 22 2021 
+
+Django Restframework Status Code
+* From [Django REST framework Docs](https://www.django-rest-framework.org/api-guide/status-codes/)
+* Accessed Mar 23 2021
+
+Filter Dictionary
+* From [StackOverflow](https://stackoverflow.com/questions/3420122/filter-dict-to-contain-only-certain-keys)
+* Accessed Mar 25 2021 
+
+Mock HTTP Testing
+* From [twilio Blog](https://www.twilio.com/blog/2018/01/mock-httpretty-python-django.html)
+* From [ERSEL AKER](https://www.twilio.com/blog/2018/01/mock-httpretty-python-django.html)
+* Accessed Mar 31 2021 
 
