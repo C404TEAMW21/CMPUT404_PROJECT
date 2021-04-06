@@ -5,13 +5,13 @@ from django.shortcuts import render
 from .serializers import CommentSerializer
 from .models import Comment
 from posts.models import Post
-from main.models import Author, Followers
+from main.models import Author, Followers, Following
 from inbox.models import Inbox
 from rest_framework import generics, status
 from rest_framework.response import Response
 from main import utils
 
-
+# <uuid:author_id>/posts/<uuid:post_id>/comments
 class CreateCommentView(generics.ListCreateAPIView):
     http_method_names = ['get', 'post']
     serializer_class = CommentSerializer
@@ -28,12 +28,32 @@ class CreateCommentView(generics.ListCreateAPIView):
             #   OR it is a public post, then return all comments
             if (request_user == post_owner or post.visibility == Post.PUBLIC):
                 queryset = Comment.objects.filter(post=post_id).order_by('published')
+
             # if it is a friend post, check if requesting user is a friend
             #   and return only comments between friend and author
             else:
-                author1 = Author.objects.get(id=request_user)
-                author2 = Author.objects.get(id=post_owner)
-                if author1 and author2 and Followers.is_friends(self, author1, author2):
+                are_friends = False
+                # remote user getting comments
+                if self.request.user.type == 'node':
+                    comments = Comment.objects.filter(
+                        post=post_id, 
+                    ).order_by('published')    
+
+                    for comment in comments:
+                        if (comment.author['id'] == str(post_owner) or 
+                                comment.author['host'] == self.request.user.url):
+                            queryset.append(comment)
+                
+                # local user getting comments
+                else:
+                    author1 = Author.objects.get(id=request_user)
+                    author2 = Author.objects.get(id=post_owner)
+
+                    local_friends = Following.get_all_local_friends(self, post_owner)
+                    if author1 in local_friends:
+                        are_friends = True
+        
+                if are_friends:
                     comments = Comment.objects.filter(
                         post=post_id, 
                     ).order_by('published')    
