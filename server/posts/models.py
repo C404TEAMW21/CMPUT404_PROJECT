@@ -62,6 +62,13 @@ class Post(models.Model):
     # unlisted is used for images so they won't show up in timelines
     unlisted = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        if not self.source:
+            self.source = self.get_id_url()
+        if not self.origin:
+            self.origin = self.get_id_url()
+        super(Post, self).save(*args, **kwargs)
+
     # TODO; page pagination
     def get_comments_page_url(self):
         return f'{utils.FRONTEND_HOST}/author/{str(self.author.id)}/posts/{str(self.id)}/comments'

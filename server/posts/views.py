@@ -28,11 +28,20 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
         request_author_id = self.kwargs['author_id']
         request_post_id = self.kwargs['pk']
 
-        # TODO: allow friends to view the post too
         if (self.request.user.id == request_author_id):
             a_post = get_object_or_404(Post, pk=request_post_id)
         else:
-            a_post = get_object_or_404(Post, pk=request_post_id, visibility=Post.PUBLIC)
+            a_post = get_object_or_404(Post, pk=request_post_id)
+
+            # if Friend Post, check if logged in user is a friend before giving Post
+            if (a_post.visibility == Post.FRIENDS):
+                local_friends = Following.get_all_local_friends(self, request_author_id)
+                local_friend_ids = [str(friend.id) for friend in local_friends]
+                remote_friends = Following.get_all_remote_friends(self, request_author_id).values()
+                remote_friend_ids = [friend.get('id') for friend in remote_friends]
+                request_id = str(self.request.user.id)
+                if request_id not in local_friend_ids and request_id not in remote_friend_ids:
+                    raise Http404
         return a_post
 
     # GET the post with the right author_id and post_id
@@ -95,17 +104,28 @@ class CreatePostView(generics.ListCreateAPIView):
     def get_queryset(self):
         request_author_id = self.kwargs['author_id']
 
-        # TODO: allow friends to view the post too
         try:
             if (self.request.user.id == request_author_id):
                 queryset = Post.objects.filter(
-                    author=Author.objects.get(id=self.request.user.id)
+                    author=Author.objects.get(id=self.request.user.id),
+                    unlisted=False
                 ).order_by('-published')
             else:
                 queryset = Post.objects.filter(
                     author=Author.objects.get(id=request_author_id),
-                    visibility='PUBLIC'
+                    unlisted=False
                 ).order_by('-published')
+                
+                # if logged user is not a friend of AUTHOR_ID, return only public posts
+                local_friends = Following.get_all_local_friends(self, request_author_id)
+                local_friend_ids = [str(friend.id) for friend in local_friends]
+                remote_friends = Following.get_all_remote_friends(self, request_author_id).values()
+                remote_friend_ids = [friend.get('id') for friend in remote_friends]
+
+                request_id = str(self.request.user.id)
+                if request_id not in local_friend_ids and request_id not in remote_friend_ids:
+                    queryset = queryset.filter(visibility=Post.PUBLIC)                
+
         except get_user_model().DoesNotExist:
             raise Http404
 
