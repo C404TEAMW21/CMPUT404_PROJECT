@@ -239,7 +239,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                 correct_url = formaturl(object_host)
                 parsed_uri = urlparse(correct_url)
                 object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-                print(object_host)
+
                 try:
                     node = Node.objects.get(remote_server_url=object_host)
                 

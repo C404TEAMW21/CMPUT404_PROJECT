@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinLengthValidator
 from django.contrib.auth import get_user_model
 from urllib.parse import urlparse
+from main.models import Author
 import re
 
 # Server that we share information with
@@ -36,13 +37,14 @@ class Node(models.Model):
                 server_user.save()
             except user_model.DoesNotExist:
                 # create server_user
-                user_model.objects.create_author(
-                    self.remote_server_username,
-                    self.remote_server_password,
+                author = Author(
+                    username=self.remote_server_username,
                     url=self.remote_server_url,
                     adminApproval=self.adminApproval,
                     type=self.type
                 )
+                author.set_password(self.remote_server_password)
+                author.save()
         else:
             # change adminApproval in server_user to False if it exists already
             try:
