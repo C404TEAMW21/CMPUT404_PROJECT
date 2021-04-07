@@ -15,7 +15,7 @@ const LikedByAuthor = (props) => {
 
   const getLikedByAuthor = async () => {
     try {
-      const response = await likedByAuthor(context.cookie, context.user.id);
+      const response = await likedByAuthor(context.cookie, context.user);
       updateLikes(response.data.items);
     } catch (err) {
       props.updateError(err);

@@ -17,6 +17,7 @@ import { Context } from "../../Context";
 import { SERVER_HOST, MARKDOWN_TYPE, PLAINTEXT_TYPE } from "../../Constants";
 import DeletePostModal from "./DeletePostModal";
 import { getLikesForPost, sendLike } from "../../ApiUtils";
+import LikesModal from "../Likes/LikesModal";
 
 const defaultProps = {
   title: "Test Title",
@@ -36,6 +37,7 @@ const PostComponent = (props) => {
   const [shareLoading, setShareLoading] = useState(false);
   const [error, setError] = useState(false);
   const [numberLikes, setNumberLikes] = useState(0);
+  const [openLikesModal, setOpenLikesModal] = React.useState(false);
 
   const passedValues = { ...defaultProps, ...props };
   const {
@@ -138,7 +140,7 @@ const PostComponent = (props) => {
     postId = postId.slice(-2)[0];
 
     try {
-      const response = await getLikesForPost(context.cookie, author.id, postId);
+      const response = await getLikesForPost(context.cookie, author, postId);
       setNumberLikes(response.data.length);
     } catch (err) {
       setError(true);
@@ -162,6 +164,10 @@ const PostComponent = (props) => {
     }
   };
 
+  const handleLikesModal = () => {
+    setOpenLikesModal(!openLikesModal);
+  };
+
   return (
     <div className="custom-card">
       {error && (
@@ -178,6 +184,12 @@ const PostComponent = (props) => {
         open={deletePost}
         setOpen={deletePostClick}
         handleDeletePost={props.handleDeletePost}
+      />
+      <LikesModal
+        open={openLikesModal}
+        setOpen={handleLikesModal}
+        postId={id.split("/").slice(-2)[0]}
+        author={author}
       />
       <Card fluid raised centered>
         <Card.Content>
@@ -250,12 +262,18 @@ const PostComponent = (props) => {
           <Card.Description>{renderContent()}</Card.Description>
         </Card.Content>
         <Card.Content extra>
-          <Button as="div" labelPosition="right" onClick={sendLikeToInbox}>
-            <Button color="red">
+          <Button as="div" labelPosition="right">
+            <Button color="red" onClick={sendLikeToInbox}>
               <Icon name="heart" />
               Like
             </Button>
-            <Label as="a" basic color="red" pointing="left">
+            <Label
+              as="a"
+              basic
+              color="red"
+              pointing="left"
+              onClick={handleLikesModal}
+            >
               {numberLikes}
             </Label>
           </Button>

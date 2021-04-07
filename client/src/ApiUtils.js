@@ -289,7 +289,6 @@ const getAuthorsTeam8 = () =>
   });
 
 export const getAllAuthors = async (token) => {
-  console.log("hello");
   try {
     const responses = await axios.all([
       getAuthorsKonnections(token),
@@ -304,10 +303,15 @@ export const getAllAuthors = async (token) => {
   }
 };
 
-export const getLikesForPost = async (token, authorId, postId) => {
+export const getLikesForPost = async (token, author, postId) => {
+  let id = author.id;
+  if (author.id.includes("team6")) {
+    id = author.id.split("/").pop();
+  }
+
   try {
     const response = await axios.get(
-      `${SERVER_HOST}/api/author/${authorId}/posts/${postId}/likes`,
+      `${SERVER_HOST}/api/author/${id}/posts/${postId}/likes`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -322,13 +326,18 @@ export const getLikesForPost = async (token, authorId, postId) => {
 };
 
 export const sendLike = async (token, us, otherAuthor, postId) => {
+  let id = otherAuthor.id;
+  if (otherAuthor.id.includes("team6")) {
+    id = otherAuthor.id.split("/").pop();
+  }
+
   try {
     const response = await axios.post(
-      `${SERVER_HOST}/api/author/${otherAuthor.id}/inbox/`,
+      `${SERVER_HOST}/api/author/${id}/inbox/`,
       {
         type: "like",
         author: us,
-        object: `${otherAuthor.host}api/author/${otherAuthor.id}/posts/${postId}`,
+        object: `${otherAuthor.host}api/author/${id}/posts/${postId}`,
       },
       {
         headers: {
@@ -343,10 +352,34 @@ export const sendLike = async (token, us, otherAuthor, postId) => {
   }
 };
 
-export const likedByAuthor = async (token, authorId) => {
+export const likedByAuthor = async (token, author) => {
+  let id = author.id;
+  if (author.id.includes("team6")) {
+    id = author.id.split("/").pop();
+  }
+
+  try {
+    const response = await axios.get(`${SERVER_HOST}/api/author/${id}/liked`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const listLikesForPost = async (token, author, postId) => {
+  let id = author.id;
+  if (author.id.includes("team6")) {
+    id = author.id.split("/").pop();
+  }
+
   try {
     const response = await axios.get(
-      `${SERVER_HOST}/api/author/${authorId}/liked`,
+      `${SERVER_HOST}/api/author/${id}/posts/${postId}/likes`,
       {
         headers: {
           "Content-Type": "application/json",
