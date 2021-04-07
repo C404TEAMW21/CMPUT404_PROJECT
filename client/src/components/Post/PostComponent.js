@@ -36,6 +36,7 @@ const PostComponent = (props) => {
     author,
     published,
     visibility,
+    commentCount,
   } = passedValues;
 
   const renderContent = () => {
@@ -212,7 +213,7 @@ const PostComponent = (props) => {
               Comment
             </Button>
             <Label as="a" basic color="blue" pointing="left">
-              0
+              {commentCount}
             </Label>
           </Button>
         </Card.Content>
