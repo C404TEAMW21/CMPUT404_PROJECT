@@ -16,7 +16,7 @@ import "./PostComponent.scss";
 import { Context } from "../../Context";
 import { SERVER_HOST, MARKDOWN_TYPE, PLAINTEXT_TYPE } from "../../Constants";
 import DeletePostModal from "./DeletePostModal";
-import { getLikesForPost } from "../../ApiUtils";
+import { getLikesForPost, sendLike } from "../../ApiUtils";
 
 const defaultProps = {
   title: "Test Title",
@@ -144,6 +144,23 @@ const PostComponent = (props) => {
     }
   };
 
+  const sendLikeToInbox = async () => {
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    try {
+      const response = await sendLike(
+        context.cookie,
+        context.user,
+        author,
+        postId
+      );
+      getNumberOfLikes();
+    } catch (err) {
+      setError(true);
+    }
+  };
+
   return (
     <div className="custom-card">
       {error && (
@@ -232,7 +249,7 @@ const PostComponent = (props) => {
           <Card.Description>{renderContent()}</Card.Description>
         </Card.Content>
         <Card.Content extra>
-          <Button as="div" labelPosition="right">
+          <Button as="div" labelPosition="right" onClick={sendLikeToInbox}>
             <Button color="red">
               <Icon name="heart" />
               Like

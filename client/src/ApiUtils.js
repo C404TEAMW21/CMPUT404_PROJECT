@@ -315,3 +315,25 @@ export const getLikesForPost = async (token, authorId, postId) => {
     return error.response;
   }
 };
+
+export const sendLike = async (token, us, otherAuthor, postId) => {
+  try {
+    const response = await axios.post(
+      `${SERVER_HOST}/api/author/${otherAuthor.id}/inbox/`,
+      {
+        type: "like",
+        author: us,
+        object: `${otherAuthor.host}api/author/${otherAuthor.id}/posts/${postId}`,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
