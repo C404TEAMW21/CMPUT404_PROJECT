@@ -10,9 +10,10 @@ import FriendList from "../Friends/FriendList";
 import FollowerList from "../Friends/FollowerList";
 import FollowingList from "../Friends/FollowingList";
 import ProfileSearchBar from "./ProfileSearchBar";
+import LikedByAuthor from "../Likes/LikedByAuthor";
 import { getUserObject, sendFriendFollowRequest } from "../../ApiUtils";
 
-const recentPosts = "Recent Posts";
+const likedByYou = "Liked By You";
 const friends = "Friends";
 const followers = "Followers";
 const following = "Following";
@@ -29,7 +30,7 @@ const MyProfilePage = () => {
   const context = useContext(Context);
   const location = useLocation();
 
-  const [activeItem, updateActiveItem] = useState(recentPosts);
+  const [activeItem, updateActiveItem] = useState(likedByYou);
   const [error, updateError] = useState(false);
   const [currentSection, updateSection] = useState(placeholder);
   const [currentAuthor, updateCurrentAuthor] = useState({});
@@ -41,6 +42,10 @@ const MyProfilePage = () => {
       getOtherAuthorObject(authorId);
     }
   }, [location]);
+
+  useEffect(() => {
+    updateSection(<LikedByAuthor updateError={updateError} />);
+  }, []);
 
   const handleItemClick = (e, { name, section }) => {
     updateActiveItem(name);
@@ -111,10 +116,10 @@ const MyProfilePage = () => {
           <div className="profile-posts">
             <Menu attached="top" tabular>
               <Menu.Item
-                name={recentPosts}
-                active={activeItem === recentPosts}
+                name={likedByYou}
+                active={activeItem === likedByYou}
                 onClick={handleItemClick}
-                section={placeholder}
+                section={<LikedByAuthor updateError={updateError} />}
               />
               <Menu.Item
                 name={friends}

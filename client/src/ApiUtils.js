@@ -337,3 +337,20 @@ export const sendLike = async (token, us, otherAuthor, postId) => {
     return error.response;
   }
 };
+
+export const likedByAuthor = async (token, authorId) => {
+  try {
+    const response = await axios.get(
+      `${SERVER_HOST}/api/author/${authorId}/liked`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
