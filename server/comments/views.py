@@ -5,11 +5,67 @@ from django.shortcuts import render
 from .serializers import CommentSerializer
 from .models import Comment
 from posts.models import Post
+from nodes.models import Node
 from main.models import Author, Followers, Following
 from inbox.models import Inbox
 from rest_framework import generics, status
 from rest_framework.response import Response
 from main import utils
+from urllib.parse import urlparse
+import requests
+
+# For creating Remote Comments
+# <uuid:author_id>/posts/<uuid:post_id>/create_remote_comments
+class CreateRemoteCommentView(generics.ListCreateAPIView):
+    http_method_names = ['post']
+    serializer_class = CommentSerializer
+
+    def post(self, request, *args, **kwargs):
+        post_id = self.kwargs['post_id']
+        post_owner = self.kwargs['author_id']
+
+        comments_url = request.data.get('comment_url')
+        parsed_uri = urlparse(comments_url)
+        object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+
+        request.data['author']['id'] = f'{utils.HOST}/author/{str(self.request.user.id)}'
+        try:
+            remote_server = Node.objects.get(remote_server_url=object_host)
+        except Node.DoesNotExist:
+            return Response({'error':'Could not find specified remote server'}, status=status.HTTP_404_NOT_FOUND)
+
+        r = requests.post(
+                comments_url,
+                json=request.data,
+                auth=(remote_server.konnection_username, remote_server.konnection_password))
+
+        return Response(r.json(), status=r.status_code)
+
+# For getting Remote Comments
+# <uuid:author_id>/posts/<uuid:post_id>/get_remote_comments
+class GetRemoteCommentView(generics.ListCreateAPIView):
+    http_method_names = ['post']
+    serializer_class = CommentSerializer
+
+    def post(self, request, *args, **kwargs):
+        post_id = self.kwargs['post_id']
+        post_owner = self.kwargs['author_id']
+
+        comments_url = request.data.get('comment_url')
+        parsed_uri = urlparse(comments_url)
+        object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+
+        try:
+            remote_server = Node.objects.get(remote_server_url=object_host)
+        except Node.DoesNotExist:
+            return Response({'error':'Could not find specified remote server'}, status=status.HTTP_404_NOT_FOUND)
+
+        r = requests.get(
+                comments_url,
+                auth=(remote_server.konnection_username, remote_server.konnection_password))
+
+        return Response(r.json(), status=r.status_code)
+
 
 # <uuid:author_id>/posts/<uuid:post_id>/comments
 class CreateCommentView(generics.ListCreateAPIView):
