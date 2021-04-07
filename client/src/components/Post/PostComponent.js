@@ -138,7 +138,7 @@ const PostComponent = (props) => {
 
     try {
       const response = await getLikesForPost(context.cookie, author.id, postId);
-      setNumberLikes(response.length);
+      setNumberLikes(response.data.length);
     } catch (err) {
       setError(true);
     }
