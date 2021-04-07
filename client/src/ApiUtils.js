@@ -298,3 +298,20 @@ export const getAllAuthors = async (token) => {
     return error.response;
   }
 };
+
+export const getLikesForPost = async (token, authorId, postId) => {
+  try {
+    const response = await axios.get(
+      `${SERVER_HOST}/api/author/${authorId}/posts/${postId}/likes`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};

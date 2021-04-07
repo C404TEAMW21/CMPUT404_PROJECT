@@ -1,13 +1,22 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
-import { Card, Icon, Image, Button, Label, Dropdown } from "semantic-ui-react";
+import {
+  Card,
+  Icon,
+  Image,
+  Button,
+  Label,
+  Dropdown,
+  Message,
+} from "semantic-ui-react";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import "./PostComponent.scss";
 import { Context } from "../../Context";
 import { SERVER_HOST, MARKDOWN_TYPE, PLAINTEXT_TYPE } from "../../Constants";
 import DeletePostModal from "./DeletePostModal";
+import { getLikesForPost } from "../../ApiUtils";
 
 const defaultProps = {
   title: "Test Title",
@@ -25,6 +34,8 @@ const PostComponent = (props) => {
   let history = useHistory();
   const [deletePost, setDeletePost] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [numberLikes, setNumberLikes] = useState(0);
 
   const passedValues = { ...defaultProps, ...props };
   const {
@@ -37,6 +48,10 @@ const PostComponent = (props) => {
     published,
     visibility,
   } = passedValues;
+
+  useEffect(() => {
+    getNumberOfLikes();
+  }, []);
 
   const renderContent = () => {
     if (!contentType) {
@@ -117,8 +132,28 @@ const PostComponent = (props) => {
     history.push(`/editpost/${postId}`);
   };
 
+  const getNumberOfLikes = async () => {
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    try {
+      const response = await getLikesForPost(context.cookie, author.id, postId);
+      setNumberLikes(response.length);
+    } catch (err) {
+      setError(true);
+    }
+  };
+
   return (
     <div className="custom-card">
+      {error && (
+        <Message
+          error
+          size="large"
+          header="Error"
+          content="Something happened on our end. Please try again later."
+        />
+      )}
       <DeletePostModal
         id={id}
         index={props.index}
@@ -203,7 +238,7 @@ const PostComponent = (props) => {
               Like
             </Button>
             <Label as="a" basic color="red" pointing="left">
-              0
+              {numberLikes}
             </Label>
           </Button>
           <Button as="div" labelPosition="left">
