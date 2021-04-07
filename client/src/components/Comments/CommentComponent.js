@@ -21,6 +21,11 @@ const CommentComponent = ({
         <Comment.Text>
           <ReactMarkdown plugins={[gfm]} children={content} />
         </Comment.Text>
+        <Comment.Actions>
+          <Comment.Action>
+            <Icon name="thumbs up" size="large" />
+          </Comment.Action>
+        </Comment.Actions>
       </Comment.Content>
     </Comment>
   );
