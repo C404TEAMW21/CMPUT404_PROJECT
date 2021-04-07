@@ -186,6 +186,11 @@ Base64 Images
 - From [Jordan Enev](https://stackoverflow.com/questions/42395034/how-to-display-binary-data-as-image-in-react)
 - Accessed Feb 28 2021
 
+Sort By Date
+
+- [flaviocopes](https://flaviocopes.com/how-to-sort-array-by-date-javascript/)
+- Accessed March 1 2021
+
 Getting URL Path
 
 - From [StackOverflow](https://stackoverflow.com/a/40725409)
@@ -208,3 +213,13 @@ Pass props via react router
 
 - From [StackOverflow](https://stackoverflow.com/a/60256650)
 - From [akhouri](https://stackoverflow.com/users/2875250/akhouri)
+- Accessed March 23 2021
+
+Basic Auth & Response Parsing
+
+- From [StackOverflow](https://stackoverflow.com/questions/44072750/how-to-send-basic-auth-with-axios)
+- From [medium](https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d)
+- From [W3 Schools](https://www.w3schools.com/jsref/jsref_concat_array.asp)
+- From [W3 Schools](https://www.w3schools.com/jsref/jsref_includes.asp)
+- From [W3 Schools](https://www.w3schools.com/jsref/jsref_tolowercase.asp)
+- Accessed March 26 2021

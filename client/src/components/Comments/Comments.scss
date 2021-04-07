@@ -1,0 +1,23 @@
+.comments-section {
+  border-radius: 20px;
+  padding: 1.5em;
+  z-index: -1;
+}
+
+.comments-container {
+  display: flex;
+}
+
+.ui.minimal.comments {
+  width: 100%;
+  max-width: none !important;
+
+  .comment {
+    margin-top: 1em;
+  }
+}
+
+.ui.form.add-comment {
+  width: 100%;
+  margin-top: 3em;
+}

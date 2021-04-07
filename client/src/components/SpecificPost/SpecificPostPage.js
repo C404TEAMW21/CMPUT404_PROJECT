@@ -5,7 +5,9 @@ import { Dimmer, Loader, Message } from "semantic-ui-react";
 import { getSpecificAuthorPost, deletePost } from "../../ApiUtils";
 import { Context } from "../../Context";
 import PostComponent from "../Post/PostComponent";
+import PostComments from "../Comments/PostComments";
 import { ROUTE_MY_FEED } from "../../Constants";
+import CommentComponent from "../Comments/CommentComponent";
 
 const SpecificPostPage = () => {
   const context = useContext(Context);
@@ -14,6 +16,7 @@ const SpecificPostPage = () => {
   const [loading, updateLoading] = useState(true);
   const [error, updateError] = useState(false);
   const [postInfo, updatePostInfo] = useState([]);
+  const [commentsCount, setCommentsCount] = useState("");
 
   useEffect(() => {
     callGetPost();
@@ -27,6 +30,7 @@ const SpecificPostPage = () => {
 
     if (response.status === 200) {
       updatePostInfo([response.data]);
+      setCommentsCount(response.data.count);
     } else {
       updateError(true);
     }
@@ -77,10 +81,12 @@ const SpecificPostPage = () => {
               )}
               visibility={post.visibility}
               handleDeletePost={handleDeletePost}
+              commentCount={post.count}
             />
           </div>
         );
       })}
+      <PostComments count={commentsCount} />
     </div>
   );
 };
