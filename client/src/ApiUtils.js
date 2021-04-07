@@ -71,9 +71,14 @@ export const checkIfFollowing = async (token, A, B) => {
 export const localRemoteFollowing = async (token, localAuthor, otherAuthor) => {
   console.log(localAuthor);
   console.log(otherAuthor);
+  let id = otherAuthor.id;
+  if (otherAuthor.id.includes("team6")) {
+    id = otherAuthor.id.split("/").pop();
+  }
+
   try {
     const response = await axios.post(
-      `${SERVER_HOST}/api/author/${localAuthor.id}/following/${otherAuthor.id}/`,
+      `${SERVER_HOST}/api/author/${localAuthor.id}/following/${id}/`,
       {
         type: "follow",
         summary: "AuthorA wants to follow AuthorB",
