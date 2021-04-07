@@ -16,6 +16,7 @@ const SpecificPostPage = () => {
   const [loading, updateLoading] = useState(true);
   const [error, updateError] = useState(false);
   const [postInfo, updatePostInfo] = useState([]);
+  const [commentsCount, setCommentsCount] = useState("");
 
   useEffect(() => {
     callGetPost();
@@ -29,6 +30,7 @@ const SpecificPostPage = () => {
 
     if (response.status === 200) {
       updatePostInfo([response.data]);
+      setCommentsCount(response.data.count);
     } else {
       updateError(true);
     }
@@ -79,11 +81,12 @@ const SpecificPostPage = () => {
               )}
               visibility={post.visibility}
               handleDeletePost={handleDeletePost}
+              commentCount={post.count}
             />
           </div>
         );
       })}
-      <PostComments />
+      <PostComments count={commentsCount} />
     </div>
   );
 };
