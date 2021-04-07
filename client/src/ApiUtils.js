@@ -97,24 +97,6 @@ export const localRemoteFollowing = async (token, localAuthor, otherAuthor) => {
       }
     );
 
-    // const response = await axios({
-    //   method: "get",
-    //   url: `${SERVER_HOST}/api/author/${localAuthor.id}/following/${otherAuthor.id}/`,
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Token ${token}`,
-    //   },
-    //   data: {
-    //     type: "follow",
-    //     summary: "AuthorA wants to follow AuthorB",
-    //     actor: {
-    //       ...localAuthor,
-    //     },
-    //     object: {
-    //       ...otherAuthor,
-    //     },
-    //   },
-    // });
     return response;
   } catch (error) {
     return error.response;

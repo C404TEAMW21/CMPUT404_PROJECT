@@ -56,7 +56,7 @@ const MyFeedPage = () => {
         return item.type === "like";
       });
 
-      updateLikes(inboxLikes);
+      updateLikes(inboxLikes.reverse());
       updateInboxPosts(posts);
     } catch (error) {
       updateError(true);
