@@ -75,16 +75,17 @@ class AllLocalAuthorsView(generics.ListAPIView):
         
         return get_user_model().objects.filter(type='author', adminApproval=True)
 
-class AllAuthorsView(generics.ListAPIView):
+class AllAuthorsView(generics.RetrieveAPIView):
     """Get all authors including remote authors in the system"""
     serializer_class = AuthorProfileSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get_queryset(self):
+    def get_object(self):
         if not self.request.user.adminApproval:
             raise AuthenticationFailed(
                 detail={"error": ["User has not been approved by admin"]})
+        errors = {}
         all_authors = []
         local = list(get_user_model().objects.filter(type='author', adminApproval=True))
         all_authors.extend(local)
@@ -94,12 +95,23 @@ class AllAuthorsView(generics.ListAPIView):
                 url = urljoin(remote_server.remote_server_url, "authors")
             else:
                 url = urljoin(remote_server.remote_server_url, "api/authors/")
-
-            req = requests.get(url,
-                               auth=(remote_server.konnection_username,
-                                     remote_server.konnection_password))
+            try:
+                req = requests.get(url,
+                                   auth=(remote_server.konnection_username,
+                                         remote_server.konnection_password))
+            except Exception as e:
+                errors[url] = str(e)
+                continue
             if req.status_code == 200:
-                remote_authors = req.json()
-                all_authors.extend(remote_authors)
+                all_authors.extend(req.json())
+            else:
+                errors[url] = req.json()
+        return errors, all_authors
 
-        return all_authors
+    def retrieve(self, request, *args, **kwargs):
+        errors, all_authors = self.get_object()
+        serializer = self.get_serializer(all_authors, many=True)
+        return Response({
+            'errors': errors,
+            'authors': serializer.data,
+        })
