@@ -63,8 +63,13 @@ class ListPostLikesView(generics.ListCreateAPIView):
                 likes_url,
                 auth=(remote_server.konnection_username, remote_server.konnection_password)
             )
+
+        # If the output is a list
+        res = r.json()
+        if isinstance(res, list):
+            res = {'type': 'likes', 'items': res}
         
-        return Response(r.json(), status=r.status_code)
+        return Response(res, status=r.status_code)
 
 # api/author/{author_id}/post/{post_id}/comments/{comment_id}/likes
 class ListCommentLikesView(generics.ListCreateAPIView):
@@ -122,7 +127,12 @@ class ListCommentLikesView(generics.ListCreateAPIView):
                 auth=(remote_server.konnection_username, remote_server.konnection_password)
             )
         
-        return Response(r.json(), status=r.status_code)
+        # If the output is a list
+        res = r.json()
+        if isinstance(res, list):
+            res = {'type': 'likes', 'items': res}
+        
+        return Response(res, status=r.status_code)
 
 # api/author/{author_id}/liked
 class ListLikedView(generics.RetrieveAPIView):
@@ -174,4 +184,9 @@ class ListLikedView(generics.RetrieveAPIView):
                 auth=(remote_server.konnection_username, remote_server.konnection_password)
             )
         
-        return Response(r.json(), status=r.status_code)
+        # If the output is a list
+        res = r.json()
+        if isinstance(res, list):
+            res = {'type': 'likes', 'items': res}
+        
+        return Response(res, status=r.status_code)
