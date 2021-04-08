@@ -11,7 +11,7 @@ from main import utils
 CREATE_USER_URL = reverse('author:create')
 AUTH_USER_URL = reverse('author:auth')
 ME_URL = reverse('author:me')
-ALL_AUTHOR_URL = reverse('author:all')
+ALL_AUTHOR_URL = reverse('author:all_local')
 
 def create_author(**params):
     """Helper function to create author"""
