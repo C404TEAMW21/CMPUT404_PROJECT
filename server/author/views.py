@@ -4,11 +4,14 @@ from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
+from urllib.parse import urljoin
+import requests
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
 from author.serializers import AuthorSerializer, AuthAuthorSerializer, AuthorProfileSerializer
+from nodes.models import Node
 
 class CreateAuthorView(generics.CreateAPIView):
     """Create a new author in the system"""
@@ -82,5 +85,20 @@ class AllAuthorsView(generics.ListAPIView):
         if not self.request.user.adminApproval:
             raise AuthenticationFailed(
                 detail={"error": ["User has not been approved by admin"]})
-        
-        return get_user_model().objects.filter(type='author', adminApproval=True)
+        all_authors = []
+        local = list(get_user_model().objects.filter(type='author', adminApproval=True))
+        all_authors.extend(local)
+
+        for remote_server in Node.objects.all():
+            if "team6" in remote_server.remote_server_url:
+                url = urljoin(remote_server.remote_server_url, "authors")
+            else:
+                url = urljoin(remote_server.remote_server_url, "api/authors/")
+
+            req = requests.get(url,
+                               auth=(remote_server.konnection_username,
+                                     remote_server.konnection_password))
+            remote_authors = req.json()
+            all_authors.extend(remote_authors)
+
+        return all_authors
