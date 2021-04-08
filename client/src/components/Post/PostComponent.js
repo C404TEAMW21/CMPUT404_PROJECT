@@ -16,7 +16,7 @@ import "./PostComponent.scss";
 import { Context } from "../../Context";
 import { SERVER_HOST, MARKDOWN_TYPE, PLAINTEXT_TYPE } from "../../Constants";
 import DeletePostModal from "./DeletePostModal";
-import { getLikesForPost, sendLike } from "../../ApiUtils";
+import { listLikesForPost, sendLike } from "../../ApiUtils";
 import LikesModal from "../Likes/LikesModal";
 
 const defaultProps = {
@@ -139,29 +139,32 @@ const PostComponent = (props) => {
     let postId = id.split("/");
     postId = postId.slice(-2)[0];
 
-    try {
-      const response = await getLikesForPost(context.cookie, author, postId);
-      setNumberLikes(response.data.length);
-    } catch (err) {
+    const response = await listLikesForPost(context.cookie, author, postId);
+    if (response.status !== 200) {
       setError(true);
+      return;
     }
+
+    setNumberLikes(response.data.items.length);
   };
 
   const sendLikeToInbox = async () => {
     let postId = id.split("/");
     postId = postId.slice(-2)[0];
 
-    try {
-      const response = await sendLike(
-        context.cookie,
-        context.user,
-        author,
-        postId
-      );
-      getNumberOfLikes();
-    } catch (err) {
+    const response = await sendLike(
+      context.cookie,
+      context.user,
+      author,
+      postId
+    );
+
+    if (response.status !== 200) {
       setError(true);
+      return;
     }
+
+    getNumberOfLikes();
   };
 
   const handleLikesModal = () => {

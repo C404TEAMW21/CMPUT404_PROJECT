@@ -285,32 +285,15 @@ export const getAllAuthors = async (token) => {
   }
 };
 
-export const getLikesForPost = async (token, author, postId) => {
-  let id = author.id;
-  if (author.id.includes("team6")) {
-    id = author.id.split("/").pop();
-  }
-
-  try {
-    const response = await axios.get(
-      `${SERVER_HOST}/api/author/${id}/posts/${postId}/likes`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-      }
-    );
-    return response;
-  } catch (error) {
-    return error.response;
-  }
-};
-
 export const sendLike = async (token, us, otherAuthor, postId) => {
   let id = otherAuthor.id;
   if (otherAuthor.id.includes("team6")) {
     id = otherAuthor.id.split("/").pop();
+  }
+
+  let object = `${otherAuthor.host}api/author/${id}/posts/${postId}`;
+  if (otherAuthor.host.includes("team6")) {
+    object = `${otherAuthor.host}author/${id}/posts/${postId}`;
   }
 
   try {
@@ -319,7 +302,7 @@ export const sendLike = async (token, us, otherAuthor, postId) => {
       {
         type: "like",
         author: us,
-        object: `${otherAuthor.host}api/author/${id}/posts/${postId}`,
+        object,
       },
       {
         headers: {
@@ -340,16 +323,39 @@ export const likedByAuthor = async (token, author) => {
     id = author.id.split("/").pop();
   }
 
-  try {
-    const response = await axios.get(`${SERVER_HOST}/api/author/${id}/liked`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Token ${token}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error.response;
+  if (author.host.includes("konnection")) {
+    try {
+      const response = await axios.get(
+        `${SERVER_HOST}/api/author/${id}/liked/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      return error.response;
+    }
+  } else {
+    try {
+      const response = await axios.post(
+        `${SERVER_HOST}/api/author/${id}/liked/`,
+        {
+          host_url: author.host,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      return error.response;
+    }
   }
 };
 
@@ -359,18 +365,38 @@ export const listLikesForPost = async (token, author, postId) => {
     id = author.id.split("/").pop();
   }
 
-  try {
-    const response = await axios.get(
-      `${SERVER_HOST}/api/author/${id}/posts/${postId}/likes`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
+  if (author.host.includes("konnection")) {
+    try {
+      const response = await axios.get(
+        `${SERVER_HOST}/api/author/${id}/posts/${postId}/likes/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      return error.response;
+    }
+  } else {
+    try {
+      const response = await axios.post(
+        `${SERVER_HOST}/api/author/${id}/posts/${postId}/likes/`,
+        {
+          post_url: author.host,
         },
-      }
-    );
-    return response;
-  } catch (error) {
-    return error.response;
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      return error.response;
+    }
   }
 };

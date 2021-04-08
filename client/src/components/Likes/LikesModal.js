@@ -14,16 +14,18 @@ const LikesModal = (props) => {
   }, [props.open]);
 
   const displayLikesForPost = async () => {
-    try {
-      const response = await listLikesForPost(
-        context.cookie,
-        props.author,
-        props.postId
-      );
-      setLikes(response.data);
-    } catch (err) {
+    const response = await listLikesForPost(
+      context.cookie,
+      props.author,
+      props.postId
+    );
+
+    if (response.status !== 200) {
       setError(true);
+      return;
     }
+
+    setLikes(response.data.items);
   };
 
   return (
