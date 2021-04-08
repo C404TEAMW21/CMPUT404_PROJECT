@@ -68,10 +68,10 @@ class TestLikeEndpoint(TestCase):
         self.client.force_authenticate(user=self.author_1)
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(len(res.data), 2)
-        self.assertEqual(res.data[0]['type'], 'like')
-        self.assertEqual(res.data[0]['author'], self.create_different_authors(author_id1))
-        self.assertEqual(res.data[0]['object'], self.post)
+        self.assertEqual(len(res.data.get('items')), 2)
+        self.assertEqual(res.data.get('type'), 'likes')
+        self.assertEqual(res.data['items'][0]['author'], self.create_different_authors(author_id1))
+        self.assertEqual(res.data['items'][0]['object'], self.post)
 
     def test_get_comment_likes(self):
         """Test get comment likes endpoint"""
@@ -103,10 +103,10 @@ class TestLikeEndpoint(TestCase):
         self.client.force_authenticate(user=self.author_1)
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(len(res.data), 2)
-        self.assertEqual(res.data[0]['type'], 'like')
-        self.assertEqual(res.data[0]['author'], self.create_different_authors(author_id1))
-        self.assertEqual(res.data[0]['object'], self.comment)
+        self.assertEqual(len(res.data.get('items')), 2)
+        self.assertEqual(res.data.get('type'), 'likes')
+        self.assertEqual(res.data['items'][0]['author'], self.create_different_authors(author_id1))
+        self.assertEqual(res.data['items'][0]['object'], self.comment)
     
     def test_get_author_liked(self):
         """Test can get all things an author liked"""

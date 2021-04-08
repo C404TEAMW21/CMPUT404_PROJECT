@@ -21,14 +21,12 @@ class CreateRemoteCommentView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
 
     def post(self, request, *args, **kwargs):
-        post_id = self.kwargs['post_id']
-        post_owner = self.kwargs['author_id']
-
         comments_url = request.data.get('comment_url')
         parsed_uri = urlparse(comments_url)
         object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
 
-        request.data['author']['id'] = f'{utils.HOST}/author/{str(self.request.user.id)}'
+        if 'team6' in object_host:
+            request.data['author']['id'] = f'{utils.HOST}/author/{str(self.request.user.id)}'
         try:
             remote_server = Node.objects.get(remote_server_url=object_host)
         except Node.DoesNotExist:
@@ -48,9 +46,6 @@ class GetRemoteCommentView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
 
     def post(self, request, *args, **kwargs):
-        post_id = self.kwargs['post_id']
-        post_owner = self.kwargs['author_id']
-
         comments_url = request.data.get('comment_url')
         parsed_uri = urlparse(comments_url)
         object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)

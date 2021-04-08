@@ -54,8 +54,8 @@ For more infromation about deployment, refer to [Deployment Strategy](https://gi
 
 - **Backend host URL (Server)**: [https://konnection-server.herokuapp.com/](https://konnection-server.herokuapp.com/)
 
-Repo Contributors / Licensing
-=============================
+Repo Contributors
+=================
 
 Team Members:
 
