@@ -119,7 +119,7 @@ class ListCommentLikesView(generics.ListCreateAPIView):
 
         r = requests.get(
                 likes_url,
-                auth=('team12hailan', 'konnections')
+                auth=(remote_server.konnection_username, remote_server.konnection_password)
             )
         
         return Response(r.json(), status=r.status_code)
