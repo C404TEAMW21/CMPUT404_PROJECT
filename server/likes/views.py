@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 
 from rest_framework.response import Response
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 
 from .serializers import LikeSerializer
 from .models import Like
@@ -36,13 +36,13 @@ class ListPostLikesView(generics.ListCreateAPIView):
         for item in items:
             data.append(LikeSerializer(item).data)
 
-        return Response(data)
+        return Response({'type': 'likes', 'items': data})
     
     # for getting likes for remote_post (requires 'post_url' in the body)
     def post(self, request, *args, **kwargs):
         post_url = request.data.get('post_url')
         if post_url == None:
-            return Response({'error': 'missing post_url in the body'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Getting remote likes requires post_url in the body'}, status=status.HTTP_400_BAD_REQUEST)
 
         parsed_uri = urlparse(post_url)
         object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
@@ -92,13 +92,13 @@ class ListCommentLikesView(generics.ListCreateAPIView):
         for item in items:
             data.append(LikeSerializer(item).data)
 
-        return Response(data)
+        return Response({'type': 'likes', 'items': data})
     
     # for getting likes for remote_comment (requires 'comment_url' in the body)
     def post(self, request, *args, **kwargs):
         comment_url = request.data.get('comment_url')
         if comment_url == None:
-            return Response({'error': 'missing comment_url in the body'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Getting remote likes requires comment_url in the body'}, status=status.HTTP_400_BAD_REQUEST)
 
         parsed_uri = urlparse(comment_url)
         object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
@@ -137,19 +137,23 @@ class ListLikedView(generics.RetrieveAPIView):
         return queryset
     
     def get(self, request, *args, **kwargs):
-        liked_items = self.get_queryset()
-        items = LikeSerializer(liked_items, many=True).data
-        response = {
-            'type': 'liked',
-            'items': items
-        }
-        return Response(response)
+        page_size = request.query_params.get('size') or 20
+        page = request.query_params.get('page') or 1
+        posts = self.get_queryset() 
+        paginator = Paginator(posts, page_size)
+        
+        data = []
+        items = paginator.page(page)
+        for item in items:
+            data.append(LikeSerializer(item).data)
+
+        return Response({'type': 'liked', 'items': data})
     
     # for getting liked for a remote author (requires 'host_url' in the body)
     def post(self, request, *args, **kwargs):
         host_url = request.data.get('host_url')
         if host_url == None:
-            return Response({'error': 'remote liked missing host_url in the body'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Getting remote liked requires host_url in the body'}, status=status.HTTP_400_BAD_REQUEST)
 
         parsed_uri = urlparse(host_url)
         object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
