@@ -6,11 +6,13 @@ from rest_framework import generics, permissions
 
 from .serializers import LikeSerializer
 from .models import Like
-
+from nodes.models import Node
+from urllib.parse import urlparse
+import requests
 
 # api/author/{author_id}/post/{post_id}/likes
 class ListPostLikesView(generics.ListCreateAPIView):
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
     serializer_class = LikeSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -35,10 +37,38 @@ class ListPostLikesView(generics.ListCreateAPIView):
             data.append(LikeSerializer(item).data)
 
         return Response(data)
+    
+    # for getting likes for remote_post (requires 'post_url' in the body)
+    def post(self, request, *args, **kwargs):
+        post_url = request.data.get('post_url')
+        if post_url == None:
+            return Response({'error': 'missing post_url in the body'}, status=status.HTTP_400_BAD_REQUEST)
+
+        parsed_uri = urlparse(post_url)
+        object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+
+        post_owner = self.kwargs['author_id']
+        post_id = self.kwargs['post_id']
+        if 'team6' in object_host:
+            likes_url = f"{object_host}author/{post_owner}/post/{post_id}/likes"
+        else:
+            likes_url = f"{object_host}api/author/{post_owner}/posts/{post_id}/likes"
+        
+        try:
+            remote_server = Node.objects.get(remote_server_url=object_host)
+        except Node.DoesNotExist:
+            return Response({'error':'Could not find specified remote server'}, status=status.HTTP_404_NOT_FOUND)
+
+        r = requests.get(
+                likes_url,
+                auth=(remote_server.konnection_username, remote_server.konnection_password)
+            )
+        
+        return Response(r.json(), status=r.status_code)
 
 # api/author/{author_id}/post/{post_id}/comments/{comment_id}/likes
 class ListCommentLikesView(generics.ListCreateAPIView):
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
     serializer_class = LikeSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -63,10 +93,40 @@ class ListCommentLikesView(generics.ListCreateAPIView):
             data.append(LikeSerializer(item).data)
 
         return Response(data)
+    
+    # for getting likes for remote_comment (requires 'comment_url' in the body)
+    def post(self, request, *args, **kwargs):
+        comment_url = request.data.get('comment_url')
+        if comment_url == None:
+            return Response({'error': 'missing comment_url in the body'}, status=status.HTTP_400_BAD_REQUEST)
+
+        parsed_uri = urlparse(comment_url)
+        object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+
+        post_owner = self.kwargs['author_id']
+        post_id = self.kwargs['post_id']
+        comment_id = self.kwargs['comment_id']
+
+        if 'team6' in object_host:
+            likes_url = f"{object_host}author/{post_owner}/post/{post_id}/comments/{comment_id}/likes"
+        else:
+            likes_url = f"{object_host}api/author/{post_owner}/posts/{post_id}/comments/{comment_id}/likes"
+        
+        try:
+            remote_server = Node.objects.get(remote_server_url=object_host)
+        except Node.DoesNotExist:
+            return Response({'error':'Could not find specified remote server'}, status=status.HTTP_404_NOT_FOUND)
+
+        r = requests.get(
+                likes_url,
+                auth=('team12hailan', 'konnections')
+            )
+        
+        return Response(r.json(), status=r.status_code)
 
 # api/author/{author_id}/liked
 class ListLikedView(generics.RetrieveAPIView):
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
     serializer_class = LikeSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -84,3 +144,30 @@ class ListLikedView(generics.RetrieveAPIView):
             'items': items
         }
         return Response(response)
+    
+    # for getting liked for a remote author (requires 'host_url' in the body)
+    def post(self, request, *args, **kwargs):
+        host_url = request.data.get('host_url')
+        if host_url == None:
+            return Response({'error': 'remote liked missing host_url in the body'}, status=status.HTTP_400_BAD_REQUEST)
+
+        parsed_uri = urlparse(host_url)
+        object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+
+        post_owner = self.kwargs['author_id']
+        if 'team6' in object_host:
+            liked_url = f"{object_host}author/{post_owner}/liked"
+        else:
+            liked_url = f"{object_host}api/author/{post_owner}/liked"
+        
+        try:
+            remote_server = Node.objects.get(remote_server_url=object_host)
+        except Node.DoesNotExist:
+            return Response({'error':'Could not find specified remote server'}, status=status.HTTP_404_NOT_FOUND)
+
+        r = requests.get(
+                liked_url,
+                auth=(remote_server.konnection_username, remote_server.konnection_password)
+            )
+        
+        return Response(r.json(), status=r.status_code)
