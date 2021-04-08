@@ -98,7 +98,8 @@ class AllAuthorsView(generics.ListAPIView):
             req = requests.get(url,
                                auth=(remote_server.konnection_username,
                                      remote_server.konnection_password))
-            remote_authors = req.json()
-            all_authors.extend(remote_authors)
+            if req.status_code == 200:
+                remote_authors = req.json()
+                all_authors.extend(remote_authors)
 
         return all_authors
