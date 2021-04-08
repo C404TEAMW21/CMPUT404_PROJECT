@@ -25,7 +25,8 @@ class CreateRemoteCommentView(generics.ListCreateAPIView):
         parsed_uri = urlparse(comments_url)
         object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
 
-        request.data['author']['id'] = f'{utils.HOST}/author/{str(self.request.user.id)}'
+        if 'team6' in object_host:
+            request.data['author']['id'] = f'{utils.HOST}/author/{str(self.request.user.id)}'
         try:
             remote_server = Node.objects.get(remote_server_url=object_host)
         except Node.DoesNotExist:
