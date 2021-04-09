@@ -27,8 +27,13 @@ const ProfileSearchBar = (props) => {
       return;
     }
 
+    if (response.data.errors && Object.keys(response.data.errors).length > 0) {
+      setError(true);
+      return;
+    }
+
     let raw = [];
-    let filteredAuthors = response.data.filter((author) => {
+    let filteredAuthors = response.data.authors.filter((author) => {
       return author.displayName.toLowerCase().includes(value.trim());
     });
 

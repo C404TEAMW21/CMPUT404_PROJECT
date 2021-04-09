@@ -235,7 +235,7 @@ export const deletePost = async (token, userId, postId) => {
 
 export const getAllAuthors = async (token) => {
   try {
-    const response = await axios.get(`${SERVER_HOST}/api/authors/`, {
+    const response = await axios.get(`${SERVER_HOST}/api/all-authors/`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Token ${token}`,
