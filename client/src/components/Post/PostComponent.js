@@ -1,13 +1,23 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
-import { Card, Icon, Image, Button, Label, Dropdown } from "semantic-ui-react";
+import {
+  Card,
+  Icon,
+  Image,
+  Button,
+  Label,
+  Dropdown,
+  Message,
+} from "semantic-ui-react";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import "./PostComponent.scss";
 import { Context } from "../../Context";
 import { SERVER_HOST, MARKDOWN_TYPE, PLAINTEXT_TYPE } from "../../Constants";
 import DeletePostModal from "./DeletePostModal";
+import { listLikesForPost, sendLike } from "../../ApiUtils";
+import LikesModal from "../Likes/LikesModal";
 
 const defaultProps = {
   title: "Test Title",
@@ -25,6 +35,9 @@ const PostComponent = (props) => {
   let history = useHistory();
   const [deletePost, setDeletePost] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [numberLikes, setNumberLikes] = useState(0);
+  const [openLikesModal, setOpenLikesModal] = React.useState(false);
 
   const passedValues = { ...defaultProps, ...props };
   const {
@@ -38,6 +51,10 @@ const PostComponent = (props) => {
     visibility,
     commentCount,
   } = passedValues;
+
+  useEffect(() => {
+    getNumberOfLikes();
+  }, []);
 
   const renderContent = () => {
     if (!contentType) {
@@ -118,14 +135,64 @@ const PostComponent = (props) => {
     history.push(`/editpost/${postId}`);
   };
 
+  const getNumberOfLikes = async () => {
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    const response = await listLikesForPost(context.cookie, author, postId);
+    if (response.status !== 200) {
+      setError(true);
+      return;
+    }
+
+    setNumberLikes(response.data.items.length);
+  };
+
+  const sendLikeToInbox = async () => {
+    let postId = id.split("/");
+    postId = postId.slice(-2)[0];
+
+    const response = await sendLike(
+      context.cookie,
+      context.user,
+      author,
+      postId
+    );
+
+    if (response.status !== 200) {
+      setError(true);
+      return;
+    }
+
+    getNumberOfLikes();
+  };
+
+  const handleLikesModal = () => {
+    setOpenLikesModal(!openLikesModal);
+  };
+
   return (
     <div className="custom-card">
+      {error && (
+        <Message
+          error
+          size="large"
+          header="Error"
+          content="Something happened on our end. Please try again later."
+        />
+      )}
       <DeletePostModal
         id={id}
         index={props.index}
         open={deletePost}
         setOpen={deletePostClick}
         handleDeletePost={props.handleDeletePost}
+      />
+      <LikesModal
+        open={openLikesModal}
+        setOpen={handleLikesModal}
+        postId={id.split("/").slice(-2)[0]}
+        author={author}
       />
       <Card fluid raised centered>
         <Card.Content>
@@ -199,12 +266,18 @@ const PostComponent = (props) => {
         </Card.Content>
         <Card.Content extra>
           <Button as="div" labelPosition="right">
-            <Button color="red">
+            <Button color="red" onClick={sendLikeToInbox}>
               <Icon name="heart" />
               Like
             </Button>
-            <Label as="a" basic color="red" pointing="left">
-              0
+            <Label
+              as="a"
+              basic
+              color="red"
+              pointing="left"
+              onClick={handleLikesModal}
+            >
+              {numberLikes}
             </Label>
           </Button>
           <Button as="div" labelPosition="left">
