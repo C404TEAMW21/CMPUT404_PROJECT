@@ -18,6 +18,7 @@ from .serializers import InboxSerializer
 from urllib.parse import urlparse
 import requests
 import json
+import uuid
 
 
 # api/author/{AUTHOR_ID}/inbox/
@@ -28,7 +29,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
 
 
     def get_inbox(self):
-        request_author_id = self.kwargs['author_id']
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
 
         if self.request.user.id != request_author_id:
             raise PermissionDenied(
