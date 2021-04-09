@@ -279,6 +279,47 @@ export const sendLike = async (token, us, otherAuthor, postId) => {
   }
 };
 
+export const getComments = async (token, author, postId) => {
+  try {
+    const response = await axios.get(
+      `${SERVER_HOST}/api/author/${author.id}/posts/${postId}/comments/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const createComment = async (token, author, postId, comment) => {
+  try {
+    const response = await axios.post(
+      `${SERVER_HOST}/api/author/${author.id}/posts/${postId}/comments/`,
+      {
+        comment,
+        contentType: "text/markdown",
+        author,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
 export const likedByAuthor = async (token, author) => {
   let id = author.id;
   if (author.id.includes("team6")) {

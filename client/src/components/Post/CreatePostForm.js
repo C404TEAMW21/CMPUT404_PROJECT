@@ -53,8 +53,6 @@ const CreatePost = (props) => {
 
     const postInfo = {
       title,
-      source: "", // TODO: not sure what source is
-      origin: "", // TODO: not sure what origin is
       description,
       contentType,
       content,

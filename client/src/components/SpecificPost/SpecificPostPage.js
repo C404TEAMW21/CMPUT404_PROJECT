@@ -16,7 +16,7 @@ const SpecificPostPage = () => {
   const [loading, updateLoading] = useState(true);
   const [error, updateError] = useState(false);
   const [postInfo, updatePostInfo] = useState([]);
-  const [commentsCount, setCommentsCount] = useState("");
+  const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
     callGetPost();
@@ -30,7 +30,7 @@ const SpecificPostPage = () => {
 
     if (response.status === 200) {
       updatePostInfo([response.data]);
-      setCommentsCount(response.data.count);
+      setCommentCount(response.data.count);
     } else {
       updateError(true);
     }
@@ -49,6 +49,10 @@ const SpecificPostPage = () => {
     } else {
       history.push(ROUTE_MY_FEED);
     }
+  };
+
+  const updateCommentCount = () => {
+    setCommentCount(commentCount + 1);
   };
 
   return (
@@ -81,12 +85,17 @@ const SpecificPostPage = () => {
               )}
               visibility={post.visibility}
               handleDeletePost={handleDeletePost}
-              commentCount={post.count}
+              commentCount={commentCount}
             />
           </div>
         );
       })}
-      <PostComments count={commentsCount} />
+      <PostComments
+        post={postInfo}
+        token={context.cookie}
+        currentAuthor={context.user}
+        updateCommentCount={updateCommentCount}
+      />
     </div>
   );
 };
