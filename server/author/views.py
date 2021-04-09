@@ -4,11 +4,14 @@ from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
+from urllib.parse import urljoin
+import requests
 
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
 from author.serializers import AuthorSerializer, AuthAuthorSerializer, AuthorProfileSerializer
+from nodes.models import Node
 
 class CreateAuthorView(generics.CreateAPIView):
     """Create a new author in the system"""
@@ -59,8 +62,8 @@ class MyProfileView(generics.RetrieveAPIView):
             
         return self.request.user
 
-class AllAuthorsView(generics.ListAPIView):
-    """Get all authors in the system"""
+class AllLocalAuthorsView(generics.ListAPIView):
+    """Get all local authors in the system"""
     serializer_class = AuthorProfileSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
     permission_classes = (permissions.IsAuthenticated,)
@@ -71,3 +74,44 @@ class AllAuthorsView(generics.ListAPIView):
                 detail={"error": ["User has not been approved by admin"]})
         
         return get_user_model().objects.filter(type='author', adminApproval=True)
+
+class AllAuthorsView(generics.RetrieveAPIView):
+    """Get all authors including remote authors in the system"""
+    serializer_class = AuthorProfileSerializer
+    authenticate_classes = (authentication.TokenAuthentication,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        if not self.request.user.adminApproval:
+            raise AuthenticationFailed(
+                detail={"error": ["User has not been approved by admin"]})
+        errors = {}
+        all_authors = []
+        local = list(get_user_model().objects.filter(type='author', adminApproval=True))
+        all_authors.extend(local)
+
+        for remote_server in Node.objects.all():
+            if "team6" in remote_server.remote_server_url:
+                url = urljoin(remote_server.remote_server_url, "authors")
+            else:
+                url = urljoin(remote_server.remote_server_url, "api/authors/")
+            try:
+                req = requests.get(url,
+                                   auth=(remote_server.konnection_username,
+                                         remote_server.konnection_password))
+            except Exception as e:
+                errors[url] = str(e)
+                continue
+            if req.status_code == 200:
+                all_authors.extend(req.json())
+            else:
+                errors[url] = req.json()
+        return errors, all_authors
+
+    def retrieve(self, request, *args, **kwargs):
+        errors, all_authors = self.get_object()
+        serializer = self.get_serializer(all_authors, many=True)
+        return Response({
+            'errors': errors,
+            'authors': serializer.data,
+        })
