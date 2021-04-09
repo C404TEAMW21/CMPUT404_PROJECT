@@ -204,14 +204,6 @@ class TestCreateCommentEndpoint(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         comment_obj = Comment.objects.get(id=comment['id'].split('/')[-1])
         self.assertEqual(comment_obj.post, self.post)
-
-    def test_create_comment_endpoint_returns_403(self):
-        """Test create a comment returns 403 if commenter is not friend for friend post"""
-        post = Post.objects.filter(visibility=Post.PUBLIC).update(visibility=Post.FRIENDS)
-
-        self.client.force_authenticate(user=self.author2)
-        res = self.client.post(self.comment_url, self.payload(self.author2), format='json')
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
  
     def test_create_comment_endpoint_for_friends(self):
         """Test create and getting comments as a friend or the post author"""
