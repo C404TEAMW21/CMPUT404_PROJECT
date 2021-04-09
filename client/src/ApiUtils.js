@@ -69,8 +69,6 @@ export const checkIfFollowing = async (token, A, B) => {
 };
 
 export const localRemoteFollowing = async (token, localAuthor, otherAuthor) => {
-  console.log(localAuthor);
-  console.log(otherAuthor);
   let id = otherAuthor.id;
   if (otherAuthor.id.includes("team6")) {
     id = otherAuthor.id.split("/").pop();
