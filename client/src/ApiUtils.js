@@ -1,5 +1,5 @@
 import axios from "axios";
-import { SERVER_HOST, TEAM2_HOST, TEAM6_HOST, TEAM8_HOST } from "./Constants";
+import { SERVER_HOST } from "./Constants";
 
 const parseAuthorIdURl = (author) => {
   const authorIdList = author.id.split("/");
@@ -235,51 +235,15 @@ export const deletePost = async (token, userId, postId) => {
   }
 };
 
-const getAuthorsKonnections = (token) =>
-  axios.get(`${SERVER_HOST}/api/authors/`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Token ${token}`,
-    },
-  });
-
-const getAuthorsTeam6 = () =>
-  axios.get(`${TEAM6_HOST}/authors`, {
-    auth: {
-      username: process.env.REACT_APP_TEAM6_BAUTH_USERNAME,
-      password: process.env.REACT_APP_TEAM6_BAUTH_PASSWORD,
-    },
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-// justin's team
-const getAuthorsTeam2 = () =>
-  axios.get(`${TEAM2_HOST}/api/authors/`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-// anas' team
-const getAuthorsTeam8 = () =>
-  axios.get(`${TEAM8_HOST}/api/authors/`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
 export const getAllAuthors = async (token) => {
   try {
-    const responses = await axios.all([
-      getAuthorsKonnections(token),
-      getAuthorsTeam6(),
-      getAuthorsTeam2(),
-      getAuthorsTeam8(),
-    ]);
-
-    return responses;
+    const response = await axios.get(`${SERVER_HOST}/api/authors/`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Token ${token}`,
+      },
+    });
+    return response;
   } catch (error) {
     return error.response;
   }
