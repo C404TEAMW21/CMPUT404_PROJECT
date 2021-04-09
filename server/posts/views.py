@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, uuid
 from urllib.parse import urlparse
 
 from django.contrib.auth import get_user_model
@@ -27,12 +27,22 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
         pk = self.kwargs.get('')
         request_author_id = self.kwargs['author_id']
         request_post_id = self.kwargs['pk']
+        sharer_id = self.request.user.id
+        request_author_id = uuid.UUID(request_author_id)
+        try:
+            a_post = Post.objects.get(pk=uuid.UUID(request_post_id))
+        except Post.DoesNotExist:
+            try:
+                sharer_items = Inbox.objects.get(author=sharer_id).items
+            except Inbox.DoesNotExist:
+                return Response({'error': 'Inbox not found!'},
+                                status=status.HTTP_404_NOT_FOUND)
+            for item in sharer_items:
+                if request_post_id == item['id']:
+                    return item
+            raise Http404
 
-        if (self.request.user.id == request_author_id):
-            a_post = get_object_or_404(Post, pk=request_post_id)
-        else:
-            a_post = get_object_or_404(Post, pk=request_post_id)
-
+        if (self.request.user.id != request_author_id):
             # if Friend Post, check if logged in user is a friend before giving Post
             if (a_post.visibility == Post.FRIENDS):
                 local_friends = Following.get_all_local_friends(self, request_author_id)
@@ -42,12 +52,12 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
                 request_id = str(self.request.user.id)
                 if request_id not in local_friend_ids and request_id not in remote_friend_ids:
                     raise Http404
-        return a_post
+        return PostSerializer(a_post).data
 
     # GET the post with the right author_id and post_id
     def retrieve(self, request, *args, **kwargs):
-        a_post = self.get_post()
-        return Response(PostSerializer(a_post).data)
+        post_data = self.get_post()
+        return Response(post_data)
     
     # DELETE - Only the author of the post can perform the deletion
     def delete(self, request, *args, **kwargs):
