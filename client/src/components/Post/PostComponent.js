@@ -43,6 +43,8 @@ const PostComponent = (props) => {
   const {
     id,
     title,
+    source,
+    origin,
     description,
     content,
     contentType,
@@ -121,7 +123,10 @@ const PostComponent = (props) => {
       return ``;
     }
 
-    return `/author/${author.id}/posts/${postId}`;
+    let authorId = author.id;
+    if (authorId.includes("team6")) authorId = authorId.split("/").pop();
+
+    return `/author/${authorId}/posts/${postId}`;
   };
 
   const handleSpecificPost = () => {

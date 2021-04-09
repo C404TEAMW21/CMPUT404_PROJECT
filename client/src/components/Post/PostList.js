@@ -7,6 +7,8 @@ const PostList = ({ posts, handleDeletePost }) => {
   const postList = posts.map((post, index) => {
     const {
       id,
+      source,
+      origin,
       description,
       title,
       contentType,
@@ -26,6 +28,8 @@ const PostList = ({ posts, handleDeletePost }) => {
         key={id}
         index={index}
         id={id}
+        source={source}
+        origin={origin}
         title={title}
         description={description}
         content={content}
