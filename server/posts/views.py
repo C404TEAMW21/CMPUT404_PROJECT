@@ -25,10 +25,9 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
     # returns 404 otherwise
     def get_post(self):
         pk = self.kwargs.get('')
-        request_author_id = self.kwargs['author_id']
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
         request_post_id = self.kwargs['pk']
         sharer_id = self.request.user.id
-        request_author_id = uuid.UUID(request_author_id)
         try:
             a_post = Post.objects.get(pk=uuid.UUID(request_post_id))
         except Post.DoesNotExist:
@@ -52,16 +51,20 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
                 request_id = str(self.request.user.id)
                 if request_id not in local_friend_ids and request_id not in remote_friend_ids:
                     raise Http404
-        return PostSerializer(a_post).data
+        return a_post
 
     # GET the post with the right author_id and post_id
     def retrieve(self, request, *args, **kwargs):
-        post_data = self.get_post()
-        return Response(post_data)
+        a_post = self.get_post()
+        if isinstance(a_post, dict):
+            return Response(a_post)
+        else:
+            return Response(PostSerializer(a_post).data)        
     
     # DELETE - Only the author of the post can perform the deletion
     def delete(self, request, *args, **kwargs):
-        if (self.kwargs['author_id'] != self.request.user.id):
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
+        if (request_author_id != self.request.user.id):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         if self.get_post():
@@ -73,7 +76,8 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
 
     # POST - update existing post
     def post(self, request, *args, **kwargs):
-        if (self.kwargs['author_id'] != self.request.user.id):  
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
+        if (request_author_id != self.request.user.id):  
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         a_post = self.get_post()
@@ -86,10 +90,12 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
 
     # PUT - update existing or create a new post
     def update(self, request, *args, **kwargs):
-        if (self.kwargs['author_id'] != self.request.user.id):
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
+        post_id = uuid.UUID(self.kwargs['pk'])
+        if (request_author_id != self.request.user.id):
             return Response(status=status.HTTP_403_FORBIDDEN)
         
-        instance = Post.objects.filter(id=self.kwargs['pk']).first()
+        instance = Post.objects.filter(id=post_id).first()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
