@@ -83,14 +83,18 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                 except Node.DoesNotExist:
                     return Response({'error':'Could not find remote server user'}, status=status.HTTP_404_NOT_FOUND)
 
+                if 'team6' in object_host:
+                    request_url = f"{object_host}author/{request_author_id}/inbox"
+                else:
+                    request_url = f"{object_host}api/author/{request_author_id}/inbox/"
+
                 r = requests.post(
-                    f"{object_host}api/author/{request_author_id}/inbox/",
+                    request_url,
                     json=request.data,
                     auth=(remote_server.konnection_username, remote_server.konnection_password))
 
                 if r.status_code < 200 or r.status_code >= 300:
-                    return Response({'error':'Could not complete the request to the remote server'},
-                        status=r.status_code)
+                    return Response({'data': f"remote server says: {r.json()}"}, status=r.status_code)
             
             # Gather information for the Like object creation
             try:
@@ -106,7 +110,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                 )
             except IntegrityError:
                 return Response({'data':f'You have already sent a like to {object_type} {id_url} on {host_name}.'},
-                            status=status.HTTP_200_OK)
+                            status=status.HTTP_409_Conflict)
             
             return Response({'data':f'Sent like to {object_type} {id_url} on {host_name}.'},
                             status=status.HTTP_200_OK)
