@@ -97,24 +97,6 @@ export const localRemoteFollowing = async (token, localAuthor, otherAuthor) => {
       }
     );
 
-    // const response = await axios({
-    //   method: "get",
-    //   url: `${SERVER_HOST}/api/author/${localAuthor.id}/following/${otherAuthor.id}/`,
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Token ${token}`,
-    //   },
-    //   data: {
-    //     type: "follow",
-    //     summary: "AuthorA wants to follow AuthorB",
-    //     actor: {
-    //       ...localAuthor,
-    //     },
-    //     object: {
-    //       ...otherAuthor,
-    //     },
-    //   },
-    // });
     return response;
   } catch (error) {
     return error.response;
@@ -299,6 +281,47 @@ export const getAllAuthors = async (token) => {
     ]);
 
     return responses;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const getComments = async (token, author, postId) => {
+  try {
+    const response = await axios.get(
+      `${SERVER_HOST}/api/${author.id}/posts/${postId}/comments/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const createComment = async (token, author, postId, comment) => {
+  try {
+    const response = await axios.post(
+      `${SERVER_HOST}/api/${author.id}/posts/${postId}/comments/`,
+      {
+        comment,
+        contentType: "text/markdown",
+        author,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    return response;
   } catch (error) {
     return error.response;
   }

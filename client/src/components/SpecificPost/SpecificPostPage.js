@@ -16,7 +16,6 @@ const SpecificPostPage = () => {
   const [loading, updateLoading] = useState(true);
   const [error, updateError] = useState(false);
   const [postInfo, updatePostInfo] = useState([]);
-  const [commentsCount, setCommentsCount] = useState("");
 
   useEffect(() => {
     callGetPost();
@@ -30,7 +29,6 @@ const SpecificPostPage = () => {
 
     if (response.status === 200) {
       updatePostInfo([response.data]);
-      setCommentsCount(response.data.count);
     } else {
       updateError(true);
     }
@@ -86,7 +84,11 @@ const SpecificPostPage = () => {
           </div>
         );
       })}
-      <PostComments count={commentsCount} />
+      <PostComments
+        post={postInfo}
+        token={context.cookie}
+        currentAuthor={context.user}
+      />
     </div>
   );
 };

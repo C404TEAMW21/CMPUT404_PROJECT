@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Comment, Button, Form, Header, Message } from "semantic-ui-react";
 import CommentComponent from "./CommentComponent";
 import CommentList from "./CommentList";
+import { getComments, createComment } from "../../ApiUtils";
 import "./Comments.scss";
 
 const mockComments = [
@@ -39,20 +40,62 @@ const mockComments = [
   },
 ];
 
-const PostComments = () => {
+const PostComments = ({ post, token, currentAuthor }) => {
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const onCommentChange = (e, { value }) => {
     setValue(value);
   };
 
-  const addComment = () => {
-    console.log("clicked");
+  const addComment = async () => {
+    // let response;
+    // if (post.origin.includes("team6")) {
+    //   //call remote
+    // } else {
+    //   let postId = post.id.split("/");
+    //   postId = postId.slice(-2)[0];
+    //   response = await createComment(token, currentAuthor, postId, value);
+    //   console.log(response);
+    // }
+    // console.log(response);
+    // if (response && response.status === 200) {
+    //   await getPostComments();
+    // } else {
+    //   setError(true);
+    // }
   };
+
+  const getPostComments = async () => {
+    if (post[0] && post[0].origin.includes("team6")) {
+      //call remote
+    } else if (post[0]) {
+      let postId = post[0].id.split("/");
+      postId = postId.slice(-2)[0];
+
+      const response = await getComments(token, currentAuthor, postId);
+
+      console.log(response);
+
+      if (response && response.status === 200) {
+        setComments(response);
+      } else {
+        setError(true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    getPostComments();
+  }, [post]);
 
   return (
     <div className="comments-section">
+      <Header as="h2" dividing>
+        Comments
+      </Header>
       {error && (
         <Message
           error
@@ -61,21 +104,23 @@ const PostComments = () => {
           content="Something happened on our end. Please try again later."
         />
       )}
-      <Header as="h2" dividing>
-        Comments
-      </Header>
       <div className="comments-container">
         <Comment.Group className="comments" minimal>
-          <CommentList comments={mockComments} />
+          <CommentList comments={comments} />
 
           <Form className="add-comment">
-            <Form.TextArea value={value} onChange={onCommentChange} />
+            <Form.TextArea
+              value={value}
+              onChange={onCommentChange}
+              disabled={loading}
+            />
             <Button
               content="Add Comment"
               labelPosition="left"
               icon="comments"
               primary
               onClick={addComment}
+              loading={loading}
             />
           </Form>
         </Comment.Group>
