@@ -71,7 +71,7 @@ class Post(models.Model):
 
     # TODO; page pagination
     def get_comments_page_url(self):
-        return f'{utils.HOST}/author/{str(self.author.id)}/posts/{str(self.id)}/comments'
+        return f'{utils.HOST}author/{str(self.author.id)}/posts/{str(self.id)}/comments'
 
     def get_id_url(self):
         return f'{utils.FRONTEND_HOST}/author/{str(self.author.id)}/posts/{str(self.id)}/'

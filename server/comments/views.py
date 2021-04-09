@@ -21,9 +21,6 @@ class CreateRemoteCommentView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
 
     def post(self, request, *args, **kwargs):
-        post_id = self.kwargs['post_id']
-        post_owner = self.kwargs['author_id']
-
         comments_url = request.data.get('comment_url')
         parsed_uri = urlparse(comments_url)
         object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
@@ -49,9 +46,6 @@ class GetRemoteCommentView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
 
     def post(self, request, *args, **kwargs):
-        post_id = self.kwargs['post_id']
-        post_owner = self.kwargs['author_id']
-
         comments_url = request.data.get('comment_url')
         parsed_uri = urlparse(comments_url)
         object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
