@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Card, Message, Dimmer, Loader } from "semantic-ui-react";
+import LikeComponent from "../Likes/LikeComponent";
 import moment from "moment";
 import axios from "axios";
 import PostList from "../Post/PostList";
 import { SERVER_HOST } from "../../Constants";
 import { Context } from "../../Context";
+import "./MyFeed.scss";
 
 const MyFeedPage = () => {
   const context = useContext(Context);
@@ -13,6 +15,7 @@ const MyFeedPage = () => {
   const [authorPosts, updateAuthorPosts] = useState([]);
   const [inboxPosts, updateInboxPosts] = useState([]);
   const [githubActivity, updateGithubActivity] = useState([]);
+  const [likes, updateLikes] = useState([]);
   const [error, updateError] = useState(false);
   const [loading, updateLoading] = useState(true);
 
@@ -46,8 +49,14 @@ const MyFeedPage = () => {
         }
       );
       const posts = response.data.items.filter((item) => {
-        return item.type == "post";
+        return item.type === "post";
       });
+
+      const inboxLikes = response.data.items.filter((item) => {
+        return item.type === "like";
+      });
+
+      updateLikes(inboxLikes.reverse());
       updateInboxPosts(posts);
     } catch (error) {
       updateError(true);
@@ -186,9 +195,20 @@ const MyFeedPage = () => {
           content="Something happened on our end. Please try again later."
         />
       )}
-      <Card.Group centered itemsPerRow={1}>
-        <PostList posts={posts} handleDeletePost={handleDeletePost} />
-      </Card.Group>
+      <div className="cardGroupContainer">
+        <Card.Group centered itemsPerRow={1}>
+          <PostList posts={posts} handleDeletePost={handleDeletePost} />
+        </Card.Group>
+        <Card.Group centered itemsPerRow={1}>
+          {likes.map((individualLike, index) => {
+            return (
+              <div key={index}>
+                <LikeComponent contents={individualLike} />
+              </div>
+            );
+          })}
+        </Card.Group>
+      </div>
     </div>
   );
 };

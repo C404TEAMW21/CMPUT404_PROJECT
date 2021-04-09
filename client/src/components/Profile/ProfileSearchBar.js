@@ -18,42 +18,36 @@ const ProfileSearchBar = (props) => {
     setOpen(false);
     setError(false);
   };
+
   const handleOnSubmit = async () => {
     setLoading(true);
-    const responses = await getAllAuthors(props.token);
-
-    if (responses.constructor === Array) {
-      let raw = [];
-
-      responses.forEach((response) => {
-        let filteredAuthors;
-        if (response.status === 200) {
-          filteredAuthors = response.data.filter((author) => {
-            return author.displayName.toLowerCase().includes(value.trim());
-          });
-
-          raw = raw.concat(filteredAuthors);
-        }
-      });
-
-      let formatted = [];
-      raw.forEach((author) => {
-        let item = {
-          title: author.displayName,
-          description: author.host,
-          author,
-          onClick: authorOnClick,
-        };
-
-        formatted.push(item);
-      });
-
-      setOpen(true);
-      setResults(formatted);
-    } else {
+    const response = await getAllAuthors(props.token);
+    if (response.status !== 200) {
       setError(true);
+      return;
     }
 
+    let raw = [];
+    let filteredAuthors = response.data.filter((author) => {
+      return author.displayName.toLowerCase().includes(value.trim());
+    });
+
+    raw = raw.concat(filteredAuthors);
+
+    let formatted = [];
+    raw.forEach((author) => {
+      let item = {
+        title: author.displayName,
+        description: author.host,
+        author,
+        onClick: authorOnClick,
+      };
+
+      formatted.push(item);
+    });
+
+    setOpen(true);
+    setResults(formatted);
     setLoading(false);
   };
 

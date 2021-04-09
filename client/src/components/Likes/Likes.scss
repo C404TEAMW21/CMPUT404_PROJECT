@@ -1,4 +1,4 @@
-.custom-card {
+.custom-like-card {
   margin-top: 10px;
   margin-bottom: 10px;
 
@@ -26,11 +26,10 @@
     display: none;
   }
 
-  .ui.centered.fluid.raised.card {
-    max-width: 100%;
-    min-width: 720px;
+  .ui.centered.raised.card {
     box-shadow: 1px 4px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 20px;
+    min-width: 350px;
   }
 
   .ui.black.basic.icon.button {
@@ -39,6 +38,9 @@
   }
 }
 
+.ui.centered.one.cards {
+  padding-left: 5%;
+}
 .ui.centered.cards {
   flex-direction: column;
 }
