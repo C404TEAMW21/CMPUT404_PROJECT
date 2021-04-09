@@ -289,7 +289,7 @@ export const getAllAuthors = async (token) => {
 export const getComments = async (token, author, postId) => {
   try {
     const response = await axios.get(
-      `${SERVER_HOST}/api/${author.id}/posts/${postId}/comments/`,
+      `${SERVER_HOST}/api/author/${author.id}/posts/${postId}/comments/`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -307,7 +307,7 @@ export const getComments = async (token, author, postId) => {
 export const createComment = async (token, author, postId, comment) => {
   try {
     const response = await axios.post(
-      `${SERVER_HOST}/api/${author.id}/posts/${postId}/comments/`,
+      `${SERVER_HOST}/api/author/${author.id}/posts/${postId}/comments/`,
       {
         comment,
         contentType: "text/markdown",
