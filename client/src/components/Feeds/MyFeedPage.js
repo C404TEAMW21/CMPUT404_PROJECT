@@ -75,12 +75,9 @@ const MyFeedPage = () => {
   };
 
   const handleDeletePost = async (id, index) => {
-    let postId = id.split("/");
-    postId = postId.slice(-2)[0];
-
     try {
       const response = await axios.delete(
-        `${SERVER_HOST}/api/author/${context.user.id}/posts/${postId}/`,
+        `${SERVER_HOST}/api/author/${context.user.id}/posts/${id}/`,
         {
           headers: {
             "Content-Type": "application/json",
