@@ -159,8 +159,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                 status=status.HTTP_404_NOT_FOUND)
 
         try:
-            remote_follower = instance.values('remoteFollowers')[
-                0]['remoteFollowers']
+            remote_follower = instance.values('remoteFollowers')[0]['remoteFollowers']
             if not instance.filter(followers=request_foreign_author_id) and request_foreign_author_id not in remote_follower:
                 return Response({'message': ['They are not following one another']}, status=status.HTTP_404_NOT_FOUND)
         except:
@@ -339,8 +338,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
 
             instance = models.Followers.objects.filter(
                 author=request_author_id)
-            remote_follower = instance.values('remoteFollowers')[
-                0]['remoteFollowers']
+            remote_follower = instance.values('remoteFollowers')[0]['remoteFollowers']
             # Local unfollow local
             if instance.filter(followers=request_foreign_author_id):
                 author_obj = models.Author.objects.get(id=request_author_id)
