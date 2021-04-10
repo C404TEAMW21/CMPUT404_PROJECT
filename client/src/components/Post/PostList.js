@@ -16,7 +16,6 @@ const PostList = ({ posts, handleDeletePost }) => {
       author,
       published,
       visibility,
-      count,
     } = post;
 
     if (post.type === "github") {
@@ -37,7 +36,6 @@ const PostList = ({ posts, handleDeletePost }) => {
         author={author}
         published={moment(published).format("MMMM Do YYYY, h:mm:ss a")}
         visibility={visibility}
-        commentCount={count}
         handleDeletePost={handleDeletePost}
       />
     );
