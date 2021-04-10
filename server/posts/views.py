@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, uuid
 from urllib.parse import urlparse
 
 from django.contrib.auth import get_user_model
@@ -25,14 +25,23 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
     # returns 404 otherwise
     def get_post(self):
         pk = self.kwargs.get('')
-        request_author_id = self.kwargs['author_id']
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
         request_post_id = self.kwargs['pk']
+        sharer_id = self.request.user.id
+        try:
+            a_post = Post.objects.get(pk=uuid.UUID(request_post_id))
+        except Post.DoesNotExist:
+            try:
+                sharer_items = Inbox.objects.get(author=sharer_id).items
+            except Inbox.DoesNotExist:
+                return Response({'error': 'Inbox not found!'},
+                                status=status.HTTP_404_NOT_FOUND)
+            for item in sharer_items:
+                if request_post_id == item['id']:
+                    return item
+            raise Http404
 
-        if (self.request.user.id == request_author_id):
-            a_post = get_object_or_404(Post, pk=request_post_id)
-        else:
-            a_post = get_object_or_404(Post, pk=request_post_id)
-
+        if (self.request.user.id != request_author_id):
             # if Friend Post, check if logged in user is a friend before giving Post
             if (a_post.visibility == Post.FRIENDS):
                 local_friends = Following.get_all_local_friends(self, request_author_id)
@@ -47,11 +56,15 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
     # GET the post with the right author_id and post_id
     def retrieve(self, request, *args, **kwargs):
         a_post = self.get_post()
-        return Response(PostSerializer(a_post).data)
+        if isinstance(a_post, dict):
+            return Response(a_post)
+        else:
+            return Response(PostSerializer(a_post).data)        
     
     # DELETE - Only the author of the post can perform the deletion
     def delete(self, request, *args, **kwargs):
-        if (self.kwargs['author_id'] != self.request.user.id):
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
+        if (request_author_id != self.request.user.id):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         if self.get_post():
@@ -63,7 +76,8 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
 
     # POST - update existing post
     def post(self, request, *args, **kwargs):
-        if (self.kwargs['author_id'] != self.request.user.id):  
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
+        if (request_author_id != self.request.user.id):  
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         a_post = self.get_post()
@@ -76,10 +90,12 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
 
     # PUT - update existing or create a new post
     def update(self, request, *args, **kwargs):
-        if (self.kwargs['author_id'] != self.request.user.id):
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
+        post_id = uuid.UUID(self.kwargs['pk'])
+        if (request_author_id != self.request.user.id):
             return Response(status=status.HTTP_403_FORBIDDEN)
         
-        instance = Post.objects.filter(id=self.kwargs['pk']).first()
+        instance = Post.objects.filter(id=post_id).first()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
