@@ -77,8 +77,7 @@ const PostComponent = (props) => {
   const sharePostFriends = async () => {
     setShareLoading(true);
 
-    let postId = id.split("/");
-    postId = postId.slice(-2)[0];
+    let postId = id.split("/").pop();
 
     const body = {
       from: context.user.id,
@@ -108,8 +107,7 @@ const PostComponent = (props) => {
       return ``;
     }
 
-    let postId = id.split("/");
-    postId = postId.slice(-2)[0];
+    let postId = id.split("/").pop();
 
     const checkPath = window.location.pathname.split("/");
 
@@ -129,15 +127,13 @@ const PostComponent = (props) => {
   };
 
   const handleEditPost = () => {
-    let postId = id.split("/");
-    postId = postId.slice(-2)[0];
+    let postId = id.split("/").pop();
 
     history.push(`/editpost/${postId}`);
   };
 
   const getNumberOfLikes = async () => {
-    let postId = id.split("/");
-    postId = postId.slice(-2)[0];
+    let postId = id.split("/").pop();
 
     const response = await listLikesForPost(context.cookie, author, postId);
     if (response.status !== 200) {
@@ -149,8 +145,7 @@ const PostComponent = (props) => {
   };
 
   const sendLikeToInbox = async () => {
-    let postId = id.split("/");
-    postId = postId.slice(-2)[0];
+    let postId = id.split("/").pop();
 
     const response = await sendLike(
       context.cookie,
