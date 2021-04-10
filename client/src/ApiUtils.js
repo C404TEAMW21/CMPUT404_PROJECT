@@ -316,10 +316,10 @@ export const sendLike = async (token, us, otherAuthor, postId) => {
   }
 };
 
-export const getComments = async (token, author, postId) => {
+export const getComments = async (token, postAuthor, postId) => {
   try {
     const response = await axios.get(
-      `${SERVER_HOST}/api/author/${author.id}/posts/${postId}/comments/`,
+      `${SERVER_HOST}/api/author/${postAuthor.id}/posts/${postId}/comments/`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -334,12 +334,82 @@ export const getComments = async (token, author, postId) => {
   }
 };
 
-export const createComment = async (token, author, postId, comment) => {
+export const getRemoteComments = async (token, postAuthor, postId) => {
+  let id = postAuthor.id;
+  if (id.includes("team6")) {
+    id = id.split("/").pop();
+  }
+
+  const comment_url = postAuthor.host + `author/${id}/posts/${postId}/comments`;
+
   try {
     const response = await axios.post(
-      `${SERVER_HOST}/api/author/${author.id}/posts/${postId}/comments/`,
+      `${SERVER_HOST}/api/author/${id}/posts/${postId}/get_remote_comments/`,
+      {
+        comment_url,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const createComment = async (
+  token,
+  author,
+  postAuthor,
+  postId,
+  comment
+) => {
+  try {
+    const response = await axios.post(
+      `${SERVER_HOST}/api/author/${postAuthor.id}/posts/${postId}/comments/`,
       {
         comment,
+        contentType: "text/markdown",
+        author,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const createRemoteComment = async (
+  token,
+  author,
+  postAuthor,
+  postId,
+  comment
+) => {
+  let id = postAuthor.id;
+  if (id.includes("team6")) {
+    id = id.split("/").pop();
+  }
+  const comment_url = postAuthor.host + `author/${id}/posts/${postId}/comments`;
+
+  try {
+    const response = await axios.post(
+      `${SERVER_HOST}/api/author/${id}/posts/${postId}/comments/`,
+      {
+        comment,
+        comment_url,
         contentType: "text/markdown",
         author,
       },
