@@ -186,7 +186,7 @@ const PostComponent = (props) => {
       <LikesModal
         open={openLikesModal}
         setOpen={handleLikesModal}
-        postId={id.split("/").slice(-2)[0]}
+        postId={id.split("/").pop()}
         author={author}
       />
       <Card fluid raised centered>

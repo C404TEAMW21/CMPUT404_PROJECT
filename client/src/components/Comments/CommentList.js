@@ -1,16 +1,18 @@
 import React from "react";
 import moment from "moment";
-import PostComponent from "./CommentComponent";
+import CommentComponent from "./CommentComponent";
 
-const CommentList = ({ comments }) => {
+const CommentList = ({ comments, setError }) => {
   const commentList = comments.map((comment, index) => {
     return (
-      <PostComponent
+      <CommentComponent
         key={index}
         author={comment.author}
         content={comment.comment}
         contentType={comment.contentType}
         published={moment(comment.published).format("MMMM Do YYYY, h:mm:ss a")}
+        commentId={comment.id}
+        setError={setError}
       />
     );
   });

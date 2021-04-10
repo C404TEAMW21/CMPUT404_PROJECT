@@ -247,6 +247,33 @@ export const getAllAuthors = async (token) => {
   }
 };
 
+export const sendLikeOnComment = async (token, us, otherAuthor, object) => {
+  let id = otherAuthor.id;
+  if (otherAuthor.id.includes("team6")) {
+    id = otherAuthor.id.split("/").pop();
+  }
+
+  try {
+    const response = await axios.post(
+      `${SERVER_HOST}/api/author/${id}/inbox/`,
+      {
+        type: "like",
+        author: us,
+        object,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    return error.response;
+  }
+};
+
 export const sendLike = async (token, us, otherAuthor, postId) => {
   let id = otherAuthor.id;
   if (otherAuthor.id.includes("team6")) {
@@ -389,6 +416,42 @@ export const listLikesForPost = async (token, author, postId) => {
         `${SERVER_HOST}/api/author/${id}/posts/${postId}/likes/`,
         {
           post_url: author.host,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+      return response;
+    } catch (error) {
+      return error.response;
+    }
+  }
+};
+
+export const listLikesForComment = async (token, author, commentId) => {
+  const url = new URL(commentId);
+
+  if (author.host.includes("konnection")) {
+    try {
+      const response = await axios.get(`${SERVER_HOST}${url.pathname}/likes/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      return error.response;
+    }
+  } else {
+    try {
+      const response = await axios.post(
+        `${commentId}/likes/`,
+        {
+          comment_url: author.host,
         },
         {
           headers: {
