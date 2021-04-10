@@ -582,7 +582,7 @@ class TestDeleteFollowerEndpoint(TestCase):
         self.client.force_authenticate(user=authorB)
         res = self.client.delete('/api/author/77f1df52-4b43-11e9-910f-b8ca3a9b9f3e/followers/88f1df52-4b43-11e9-910f-b8ca3a9b9fbb/', data=delete_payload)
 
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
 
     def test_unfollow_with_invalid_foreign_id(self):
