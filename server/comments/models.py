@@ -41,4 +41,4 @@ class Comment(models.Model):
     )
 
     def get_id_url(self):
-        return f'{utils.FRONTEND_HOST}author/{str(self.post.author.id)}/posts/{str(self.post.id)}/comments/{self.id}'
+        return f'{utils.FRONTEND_HOST}/author/{str(self.post.author.id)}/posts/{str(self.post.id)}/comments/{self.id}'
