@@ -80,16 +80,14 @@ class CreateCommentView(generics.ListCreateAPIView):
             if (request_user == post_owner or post.visibility == Post.PUBLIC):
                 queryset = Comment.objects.filter(post=post_id).order_by('published')
 
-            # if it is a friend post, check if requesting user is a friend
-            #   and return only comments between friend and author
+            # if it is a friend post return only comments between logged-in author and post owner
             else:
-                are_friends = False
+                comments = Comment.objects.filter(
+                        post=post_id, 
+                    ).order_by('published')  
+
                 # remote user getting comments
                 if self.request.user.type == 'node':
-                    comments = Comment.objects.filter(
-                        post=post_id, 
-                    ).order_by('published')    
-
                     for comment in comments:
                         if (comment.author['id'] == str(post_owner) or 
                                 comment.author['host'] == self.request.user.url):
@@ -97,16 +95,6 @@ class CreateCommentView(generics.ListCreateAPIView):
                 
                 # local user getting comments
                 else:
-                    author = Author.objects.get(id=request_user)
-                    local_friends = Following.get_all_local_friends(self, post_owner)
-                    if author in local_friends:
-                        are_friends = True
-        
-                if are_friends:
-                    comments = Comment.objects.filter(
-                        post=post_id, 
-                    ).order_by('published')    
-
                     for comment in comments:
                         if (comment.author['id'] == str(request_user) or comment.author['id'] == str(post_owner)):
                             queryset.append(comment)
@@ -145,54 +133,24 @@ class CreateCommentView(generics.ListCreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # post + post author is on our own server
+        # Create the comment
         try:
             post = Post.objects.get(id=post_id)
-            # if requesting user is the post owner
-            #   OR it is a public post, then allow user to make a comment
-            #   OR it is a friend post, and request_user is a friend of post_owner
-            if (request_user == post_owner or post.visibility == Post.PUBLIC):
-                comment = self.create(request, *args, **kwargs)
-                return Response(comment.data, status=status.HTTP_201_CREATED)
-            else:
-                # remote user creating comments
-                if self.request.user.type == 'node':
-                    remote_friends = Following.get_all_remote_friends(self, post_owner).values()
-                    remote_friend_ids = [friend.get('id') for friend in remote_friends]
-                    if request_user in remote_friend_ids:
-                        comment = self.create(request, *args, **kwargs)
-                        return Response(comment.data, status=status.HTTP_201_CREATED)
-                    else:
-                        return Response(
-                            {'error': 'The specified author id is not a friend'},
-                            status=status.HTTP_403_FORBIDDEN
-                        )
-                # local user creating comments
+            if self.request.user.type == 'node' or request_user == str(self.request.user.id):
+                serializer = CommentSerializer(data=request.data)
+                if serializer.is_valid():
+                    comment = self.create(request, *args, **kwargs)
+                    return Response(comment.data, status=status.HTTP_201_CREATED)
                 else:
-                    if request_user != str(self.request.user.id):
-                        return Response(
-                            {'error': 'You cannot make a comment for another person'},
-                            status=status.HTTP_403_FORBIDDEN
-                        )
-
-                    local_friends = Following.get_all_local_friends(self, post_owner)
-                    author = Author.objects.get(id=request_user)
-                    if author in local_friends:
-                        comment = self.create(request, *args, **kwargs)
-                        return Response(comment.data, status=status.HTTP_201_CREATED)
-                    else:
-                        return Response(
-                            {'error': 'The specified author id is not a friend'},
-                            status=status.HTTP_403_FORBIDDEN
-                        )
+                    msg = 'Please check the validity of the request body'                 
+            else:
+                msg = 'You cannot make a comment for another user'
         except Post.DoesNotExist:
-            msg = 'post does not exist'
-        except Author.DoesNotExist:
-            msg = 'author does not exist'
+            msg = 'Post does not exist'
 
         return Response(
             {'error': msg},
-            status=status.HTTP_404_NOT_FOUND
+            status=status.HTTP_400_BAD_REQUEST
         )
 
     # Called during POST, before saving comment to the database
