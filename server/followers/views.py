@@ -4,29 +4,32 @@ from rest_framework.exceptions import ValidationError, AuthenticationFailed
 from rest_framework import generics, permissions, status
 
 from main import models, utils
-from .models import FriendRequest
 from inbox.models import Inbox
 from followers.serializers import FollowersSerializer, FollowersModificationSerializer
 from author.serializers import AuthorProfileSerializer
 
 from nodes.models import Node
-import requests 
+import requests
 from urllib.parse import urlparse
-import json
 import re
+
 
 def formaturl(url):
     if not re.match('(?:http|ftp|https)://', url):
         return 'https://{}'.format(url)
     return url
 
+
 def admin_approval_safeguard(self):
     if not self.request.user.adminApproval:
         raise AuthenticationFailed(
             detail={"error": ["User has not been approved by admin"]})
 
+
 TEAM6_HOST = "https://team6-project-socialdistrib.herokuapp.com/"
 # <slug:id>/followers/
+
+
 class FollowersView(generics.RetrieveAPIView):
     serializer_class = FollowersSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
@@ -57,6 +60,8 @@ class FollowersView(generics.RetrieveAPIView):
         })
 
 # <slug:id>/following/<slug:foreignId>/
+
+
 class FollowingView(generics.RetrieveAPIView):
     serializer_class = FollowersSerializer
     authenticate_classes = (authentication.TokenAuthentication,)
@@ -73,7 +78,7 @@ class FollowingView(generics.RetrieveAPIView):
             return Response(
                 {'error': ["Author not found"]},
                 status=status.HTTP_404_NOT_FOUND)
-        
+
          # Check required fields in the body
         try:
             actor_host = request.data['actor']['host']
@@ -81,7 +86,7 @@ class FollowingView(generics.RetrieveAPIView):
         except:
             return Response({
                 'error': ['Please provide required fields']}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             # Remote following
             if actor_host == utils.HOST and object_host != utils.HOST:
@@ -98,14 +103,16 @@ class FollowingView(generics.RetrieveAPIView):
             # Local following
             elif actor_host == utils.HOST and object_host == utils.HOST:
                 try:
-                    author = models.Author.objects.get(id=request_foreign_author_id)
+                    author = models.Author.objects.get(
+                        id=request_foreign_author_id)
                 except:
                     Response(
                         {'error': ["Following Author doesn't exist"]},
                         status=status.HTTP_400_BAD_REQUEST)
 
                 local_following = author_following.following.all()
-                local_following_json = AuthorProfileSerializer(local_following, many=True).data
+                local_following_json = AuthorProfileSerializer(
+                    local_following, many=True).data
                 for i in local_following_json:
                     if(i.get('id') == request_foreign_author_id):
                         return Response({
@@ -131,6 +138,8 @@ class FollowingView(generics.RetrieveAPIView):
                 status=status.HTTP_400_BAD_REQUEST)
 
 # /<slug:id>/followers/<slug:foreignId>/
+
+
 class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Followers.objects.all()
     serializer_class = FollowersModificationSerializer
@@ -215,13 +224,15 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             try:
                 foreign_author_obj = models.Author.objects.get(
                     id=request_foreign_author_id)
-                foreign_author_following = models.Following.objects.get(author=foreign_author_obj)
+                foreign_author_following = models.Following.objects.get(
+                    author=foreign_author_obj)
                 author_obj = models.Author.objects.get(id=request_author_id)
-                author_follower = models.Followers.objects.get(author=author_obj)
+                author_follower = models.Followers.objects.get(
+                    author=author_obj)
             except:
                 return Response(
                     {'error': ["Author not found"]},
-                        status=status.HTTP_404_NOT_FOUND)
+                    status=status.HTTP_404_NOT_FOUND)
 
             author_follower.followers.add(foreign_author_obj)
             author_follower.save()
@@ -230,7 +241,8 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
 
             inboxData['type'] = 'follow'
             inboxData['summary'] = f"{foreign_author_obj.username} wants to follow {author_obj.username}"
-            inboxData['actor'] = AuthorProfileSerializer(foreign_author_obj).data
+            inboxData['actor'] = AuthorProfileSerializer(
+                foreign_author_obj).data
             inboxData['object'] = AuthorProfileSerializer(author_follower).data
         # us following remote author
         elif object_host != utils.HOST and actor_host == utils.HOST:
@@ -238,50 +250,66 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
             if object_host == TEAM6_HOST:
                 correct_url = formaturl(object_host)
                 parsed_uri = urlparse(correct_url)
-                object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+                object_host = '{uri.scheme}://{uri.netloc}/'.format(
+                    uri=parsed_uri)
 
                 try:
                     node = Node.objects.get(remote_server_url=object_host)
-                
-                    response = requests.put(f"{object_host}author/{request_author_id}/followers/{request_foreign_author_id}", json=request.data, auth=(node.konnection_username, node.konnection_password))
-                 
+
+                    response = requests.put(f"{object_host}author/{request_author_id}/followers/{request_foreign_author_id}",
+                                            json=request.data, auth=(node.konnection_username, node.konnection_password))
+
                     if response.status_code != 201:
                         # Their problem
                         return Response({'error': ['Contact team 6 for the error']}, status=response.status_code)
                     else:
-                        author = models.Following.objects.get(author=request_foreign_author_id)
+                        author = models.Following.objects.get(
+                            author=request_foreign_author_id)
                         object_data["id"] = request_author_id
-                     
-                        author.remote_following[request_author_id] = object_data
 
+                        author.remote_following[request_author_id] = object_data
                         author.save()
-   
-                        return Response({'message': ['Successful']}, status=response.status_code)
+
+                        return Response({
+                            'type': 'follow',
+                            'items': [{
+                                'status': True,
+                                'author':  request_author_id,
+                                'follower': request_foreign_author_id,
+                            }]
+                        }, status=status.HTTP_201_CREATED)
                 except Exception:
                     # Our problem
                     return Response({'error': ["Bad request"]}, status=status.HTTP_400_BAD_REQUEST)
-                
 
             parsed_uri = urlparse(object_host)
             object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-            
+
             try:
                 node = Node.objects.get(remote_server_url=object_host)
-                response = requests.put(f"{object_host}api/author/{request_author_id}/followers/{request_foreign_author_id}/", json=request.data, auth=(node.konnection_username, node.konnection_password))
+                response = requests.put(f"{object_host}api/author/{request_author_id}/followers/{request_foreign_author_id}/",
+                                        json=request.data, auth=(node.konnection_username, node.konnection_password))
 
                 if response.status_code != 201:
                     # Their problem
                     return Response({'error': ['Following unsuccessful']}, status=response.status_code)
                 else:
-                    author = models.Following.objects.get(author=request_foreign_author_id)
+                    author = models.Following.objects.get(
+                        author=request_foreign_author_id)
                     author.remote_following[object_id] = object_data
                     author.save()
 
-                    return Response({'message': ['Successful']}, status=response.status_code)
+                    return Response({
+                        'type': 'follow',
+                        'items': [{
+                            'status': True,
+                            'author':  request_author_id,
+                            'follower': request_foreign_author_id,
+                        }]
+                    }, status=status.HTTP_201_CREATED)
             except Exception:
                 # Our problem
                 return Response({'error': ["Bad request"]}, status=status.HTTP_400_BAD_REQUEST)
-           
 
         else:
             return Response({
@@ -305,82 +333,92 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
         request_foreign_author_id = self.kwargs['foreignId']
         admin_approval_safeguard(self)
 
-        # Check required fields in the body
+        # know targe is local
         try:
-            host = request.data['host']
-        except:
-            return Response({
-                'error': ['Please provide required fields']}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Local remove local following
-        if host == utils.HOST: 
-            try: 
+            instance = models.Followers.objects.filter(
+                author=request_author_id)
+            remote_follower = instance.values('remoteFollowers')[0]['remoteFollowers']
+            # Local unfollow local
+            if instance.filter(followers=request_foreign_author_id):
                 author_obj = models.Author.objects.get(id=request_author_id)
-                author_followers = models.Followers.objects.get(author=author_obj)
-                foreign_author_obj = models.Author.objects.get(id=request_foreign_author_id)
-                foreign_author_following = models.Following.objects.get(author=foreign_author_obj)
+                author_followers = models.Followers.objects.get(
+                    author=author_obj)
+                foreign_author_obj = models.Author.objects.get(
+                    id=request_foreign_author_id)
+                foreign_author_following = models.Following.objects.get(
+                    author=foreign_author_obj)
 
                 author_followers.followers.remove(foreign_author_obj)
                 author_followers.save()
                 foreign_author_following.following.remove(author_obj)
                 foreign_author_following.save()
-            except:
-                try:
-                    author_obj = models.Author.objects.get(id=request_author_id)
-                    author = models.Followers.objects.get(author=author_obj)
-                    author.remoteFollowers.pop(request_foreign_author_id)
-                    author.save()
-                except:
-                    return Response({
-                        'error': ['Bad request- user not found']}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            
-            # Local remove remote following
+            # Remote unfollow local
+            elif request_foreign_author_id in remote_follower:
+                author_obj = models.Author.objects.get(id=request_author_id)
+                author = models.Followers.objects.get(author=author_obj)
+                author.remoteFollowers.pop(request_foreign_author_id)
+                author.save()
+            else:
+                return Response({'message': [f'{request_foreign_author_id} is not following {request_author_id}']}, status=status.HTTP_400_BAD_REQUEST)
+        except:
             try:
-                # For Team 6
-                if host == TEAM6_HOST:
-                    correct_url = formaturl(host)
-                    parsed_uri = urlparse(correct_url)
-                    object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+                foreign_author_obj = models.Author.objects.get(
+                    id=request_foreign_author_id)
+                foreign_author_following = models.Following.objects.get(
+                    author=foreign_author_obj)
 
-                    try:
-                        node = Node.objects.get(remote_server_url=object_host)
-                    
-                        response = requests.delete(f"{object_host}author/{request_author_id}/followers/{request_foreign_author_id}", auth=(node.konnection_username, node.konnection_password))
-                    
-                        if response.status_code != 200:
-                            # Their problem
-                            return Response({'error': ['Contact team 6 for the error']}, status=response.status_code)
-                        else:
-                            foreign_author_obj = models.Author.objects.get(id=request_foreign_author_id)
-                            foreign_author_following = models.Following.objects.get(author=foreign_author_obj)
-                            foreign_author_following.remote_following.pop(request_author_id)
-                            foreign_author_following.save()
-    
-                            return Response({'message': ['Successful']}, status=response.status_code)
-                    except Exception:
-                        # Our problem
-                        return Response({'error': ["Bad request"]}, status=status.HTTP_400_BAD_REQUEST)
+                if request_author_id in foreign_author_following.remote_following:
+                    host = foreign_author_following.remote_following[request_author_id]["host"]
+                    if host == TEAM6_HOST:
+                        correct_url = formaturl(host)
+                        parsed_uri = urlparse(correct_url)
+                        object_host = '{uri.scheme}://{uri.netloc}/'.format(
+                            uri=parsed_uri)
 
-                parsed_uri = urlparse(host)
-                object_host = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-                
-   
-                node = Node.objects.get(remote_server_url=object_host)
-                response = requests.delete(f"{object_host}api/author/{request_author_id}/followers/{request_foreign_author_id}/", auth=(node.konnection_username, node.konnection_password))
+                        try:
+                            node = Node.objects.get(
+                                remote_server_url=object_host)
 
-                if response.status_code != 204:
-                    # Their problem
-                    return Response({'error': ['unfollowing unsuccessful - others sever issue']}, status=response.status_code)
+                            response = requests.delete(f"{object_host}author/{request_author_id}/followers/{request_foreign_author_id}", auth=(
+                                node.konnection_username, node.konnection_password))
+
+                            if response.status_code != 200:
+                                # Their problem
+                                return Response({'error': ['Contact team 6 for the error']}, status=response.status_code)
+                            else:
+                                foreign_author_following.remote_following.pop(
+                                    request_author_id)
+                                foreign_author_following.save()
+                        except:
+                            # Problem occore with request
+                            return Response({'error': ["Error while contacting team 6 server"]}, status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        parsed_uri = urlparse(host)
+                        object_host = '{uri.scheme}://{uri.netloc}/'.format(
+                            uri=parsed_uri)
+
+                        try:
+                            node = Node.objects.get(
+                                remote_server_url=object_host)
+                            response = requests.delete(f"{object_host}api/author/{request_author_id}/followers/{request_foreign_author_id}/", auth=(
+                                node.konnection_username, node.konnection_password))
+
+                            if response.status_code < 200 or response.status_code > 299:
+                                # Their problem
+                                return Response({'error': ['unfollowing unsuccessful - others sever issue']}, status=response.status_code)
+                            else:
+                                # Remote remove following of local
+                                foreign_author_following.remote_following.pop(
+                                    request_author_id)
+                                foreign_author_following.save()
+                        except:
+                            # Problem occore with request
+                            return Response({'error': [f"Error while contacting {object_host}"]}, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    # Remote remove following of local
-                    foreign_author_obj = models.Author.objects.get(id=request_foreign_author_id)
-                    foreign_author_following = models.Following.objects.get(author=foreign_author_obj)
-                    foreign_author_following.remote_following.pop(request_author_id)
-                    foreign_author_following.save()
+                    return Response({'message': [f'{request_foreign_author_id} is not following {request_author_id}']}, status=status.HTTP_400_BAD_REQUEST)
             except:
-                return Response({'error': ["Bad request"]}, status=status.HTTP_400_BAD_REQUEST)
-            
+                return Response({'error': ["Double check if the IDs provided are correct"]}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
             'type': 'unfollow',
@@ -389,7 +427,7 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
                 'author':  request_author_id,
                 'follower': request_foreign_author_id,
             }]
-        })
+        }, status=status.HTTP_200_OK)
 
 
 class FollowersFriendView(generics.RetrieveAPIView):
@@ -407,10 +445,13 @@ class FollowersFriendView(generics.RetrieveAPIView):
                 {'error': ["Author not found"]},
                 status=status.HTTP_404_NOT_FOUND)
 
-        local_friends = models.Following.get_all_local_friends(self, request_author_id)
-        remote_friends_list = list(models.Following.get_all_remote_friends(self, request_author_id).values())
-        local_friends_list = AuthorProfileSerializer(local_friends, many=True).data  
-        
+        local_friends = models.Following.get_all_local_friends(
+            self, request_author_id)
+        remote_friends_list = list(models.Following.get_all_remote_friends(
+            self, request_author_id).values())
+        local_friends_list = AuthorProfileSerializer(
+            local_friends, many=True).data
+
         for item in local_friends_list:
             remote_friends_list.append(item)
 
