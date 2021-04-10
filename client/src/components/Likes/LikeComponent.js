@@ -1,15 +1,34 @@
 import React from "react";
 import { Card } from "semantic-ui-react";
+import { useHistory } from "react-router-dom";
 import "./Likes.scss";
 
 const LikeComponent = (props) => {
+  let history = useHistory();
+
+  const renderLabel = () => {
+    if (props.contents && props.contents.object) {
+      if (props.contents.object.includes("comment")) {
+        return `Like on Comment by ${props.contents.author.displayName}`;
+      } else {
+        return `Like on Post by ${props.contents.author.displayName}`;
+      }
+    }
+  };
+
+  const goToPost = () => {
+    const url = new URL(props.contents.object);
+    const path = url.pathname.split("/").slice(2, 6).join("/");
+    history.push(`/${path}`);
+  };
+
   return (
     <div className="custom-like-card">
       <Card raised centered>
         <Card.Content>
-          <Card.Header>Like by {props.contents.author.displayName}</Card.Header>
+          <Card.Header>{renderLabel()}</Card.Header>
           <Card.Description>
-            <a href={props.contents.object}>Link To Liked Object</a>
+            <a onClick={goToPost}>Link To Liked Object</a>
           </Card.Description>
         </Card.Content>
       </Card>
