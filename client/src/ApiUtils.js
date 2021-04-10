@@ -398,7 +398,6 @@ export const createRemoteComment = async (
   postId,
   comment
 ) => {
-  console.log("remove this");
   let id = postAuthor.id;
   if (id.includes("team6")) {
     id = id.split("/").pop();

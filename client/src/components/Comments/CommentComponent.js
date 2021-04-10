@@ -17,6 +17,7 @@ const CommentComponent = ({
 }) => {
   const context = useContext(Context);
 
+  const [loading, setLoading] = useState(false);
   const [numberLikes, setNumberLikes] = useState(0);
   const [openLikesModal, setOpenLikesModal] = useState(false);
 
@@ -39,6 +40,8 @@ const CommentComponent = ({
   };
 
   const sendLikeToInbox = async () => {
+    setLoading(true);
+
     const response = await sendLikeOnComment(
       context.cookie,
       context.user,
@@ -47,9 +50,11 @@ const CommentComponent = ({
     );
     if (response.status !== 200) {
       setError(true);
+      setLoading(false);
       return;
     }
     getNumberOfLikes();
+    setLoading(false);
   };
 
   const handleLikesModal = () => {
@@ -76,7 +81,7 @@ const CommentComponent = ({
           <Comment.Actions>
             <Comment.Action>
               <Button as="div" labelPosition="right">
-                <Button color="red" onClick={sendLikeToInbox}>
+                <Button color="red" onClick={sendLikeToInbox} loading={loading}>
                   <Icon name="heart" />
                   Like
                 </Button>
