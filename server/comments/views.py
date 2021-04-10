@@ -75,10 +75,9 @@ class CreateCommentView(generics.ListCreateAPIView):
 
         try:
             post = Post.objects.get(id=post_id)
-            print(post.author.id)
-            print(post_owner)
             if post.author.id != post_owner:
-                return Http404("Cannot find specified post with the specified author ID")
+                raise Http404("Cannot find specified post with the specified author ID")
+
             comments = Comment.objects.filter(post=post_id).order_by('published')
 
             # if requesting user is the post owner
