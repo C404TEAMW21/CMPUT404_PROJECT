@@ -148,9 +148,19 @@ export const getAllFollowers = async (token, id) => {
 };
 
 export const unFollowAuthor = async (token, A, B) => {
+  let aId = A.id;
+  if (A.id.includes("team6")) {
+    aId = A.id.split("/").pop();
+  }
+
+  let bId = B.id;
+  if (B.id.includes("team6")) {
+    bId = B.id.split("/").pop();
+  }
+
   try {
     const response = await axios.delete(
-      `${SERVER_HOST}/api/author/${A.id}/followers/${B.id}/`,
+      `${SERVER_HOST}/api/author/${aId}/followers/${bId}/`,
       {
         headers: {
           "Content-Type": "application/json",

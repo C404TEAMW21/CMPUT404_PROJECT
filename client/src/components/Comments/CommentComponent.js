@@ -18,7 +18,7 @@ const CommentComponent = ({
   const context = useContext(Context);
 
   const [numberLikes, setNumberLikes] = useState(0);
-  const [openLikesModal, setOpenLikesModal] = React.useState(false);
+  const [openLikesModal, setOpenLikesModal] = useState(false);
 
   useEffect(() => {
     getNumberOfLikes();
