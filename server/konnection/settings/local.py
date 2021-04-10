@@ -47,5 +47,5 @@ else:
 
 # For tests
 # https://stackoverflow.com/a/35224204
-# TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-# NOSE_ARGS = ['--with-spec', '--spec-color']
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+NOSE_ARGS = ['--with-spec', '--spec-color']
