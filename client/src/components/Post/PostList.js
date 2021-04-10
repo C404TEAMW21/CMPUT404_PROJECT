@@ -7,6 +7,8 @@ const PostList = ({ posts, handleDeletePost }) => {
   const postList = posts.map((post, index) => {
     const {
       id,
+      source,
+      origin,
       description,
       title,
       contentType,
@@ -14,7 +16,6 @@ const PostList = ({ posts, handleDeletePost }) => {
       author,
       published,
       visibility,
-      count,
     } = post;
 
     if (post.type === "github") {
@@ -26,6 +27,8 @@ const PostList = ({ posts, handleDeletePost }) => {
         key={id}
         index={index}
         id={id}
+        source={source}
+        origin={origin}
         title={title}
         description={description}
         content={content}
@@ -33,7 +36,6 @@ const PostList = ({ posts, handleDeletePost }) => {
         author={author}
         published={moment(published).format("MMMM Do YYYY, h:mm:ss a")}
         visibility={visibility}
-        commentCount={count}
         handleDeletePost={handleDeletePost}
       />
     );

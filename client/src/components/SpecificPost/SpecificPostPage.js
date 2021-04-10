@@ -30,7 +30,6 @@ const SpecificPostPage = () => {
 
     if (response.status === 200) {
       updatePostInfo([response.data]);
-      setCommentCount(response.data.count);
     } else {
       updateError(true);
     }
@@ -51,8 +50,8 @@ const SpecificPostPage = () => {
     }
   };
 
-  const updateCommentCount = () => {
-    setCommentCount(commentCount + 1);
+  const updateCommentCount = (count) => {
+    setCommentCount(count);
   };
 
   return (

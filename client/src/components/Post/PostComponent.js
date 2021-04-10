@@ -16,7 +16,12 @@ import "./PostComponent.scss";
 import { Context } from "../../Context";
 import { SERVER_HOST, MARKDOWN_TYPE, PLAINTEXT_TYPE } from "../../Constants";
 import DeletePostModal from "./DeletePostModal";
-import { listLikesForPost, sendLike } from "../../ApiUtils";
+import {
+  listLikesForPost,
+  sendLike,
+  getComments,
+  getRemoteComments,
+} from "../../ApiUtils";
 import LikesModal from "../Likes/LikesModal";
 
 const defaultProps = {
@@ -37,23 +42,26 @@ const PostComponent = (props) => {
   const [shareLoading, setShareLoading] = useState(false);
   const [error, setError] = useState(false);
   const [numberLikes, setNumberLikes] = useState(0);
+  const [numberComments, setNumberComments] = useState(0);
   const [openLikesModal, setOpenLikesModal] = React.useState(false);
 
   const passedValues = { ...defaultProps, ...props };
   const {
     id,
     title,
+    source,
+    origin,
     description,
     content,
     contentType,
     author,
     published,
     visibility,
-    commentCount,
   } = passedValues;
 
   useEffect(() => {
     getNumberOfLikes();
+    getNumberOfComments();
   }, []);
 
   const renderContent = () => {
@@ -119,7 +127,10 @@ const PostComponent = (props) => {
       return ``;
     }
 
-    return `/author/${author.id}/posts/${postId}`;
+    let authorId = author.id;
+    if (authorId.includes("team6")) authorId = authorId.split("/").pop();
+
+    return `/author/${authorId}/posts/${postId}`;
   };
 
   const handleSpecificPost = () => {
@@ -142,6 +153,19 @@ const PostComponent = (props) => {
     }
 
     setNumberLikes(response.data.items.length);
+  };
+
+  const getNumberOfComments = async () => {
+    let postId = id.split("/").pop();
+
+    let response;
+    if (author.host.includes("team6"))
+      response = await getRemoteComments(context.cookie, author, postId);
+    else response = await getComments(context.cookie, author, postId);
+
+    if (response && response.status === 200)
+      setNumberComments(response.data.length);
+    else setError(true);
   };
 
   const sendLikeToInbox = async () => {
@@ -186,7 +210,7 @@ const PostComponent = (props) => {
       <LikesModal
         open={openLikesModal}
         setOpen={handleLikesModal}
-        postId={id.split("/").slice(-2)[0]}
+        postId={id.split("/").pop()}
         author={author}
       />
       <Card fluid raised centered>
@@ -281,7 +305,7 @@ const PostComponent = (props) => {
               Comment
             </Button>
             <Label as="a" basic color="blue" pointing="left">
-              {commentCount}
+              {numberComments}
             </Label>
           </Button>
         </Card.Content>
