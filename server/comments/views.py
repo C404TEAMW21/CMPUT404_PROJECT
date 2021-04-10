@@ -75,17 +75,19 @@ class CreateCommentView(generics.ListCreateAPIView):
 
         try:
             post = Post.objects.get(id=post_id)
+            print(post.author.id)
+            print(post_owner)
+            if post.author.id != post_owner:
+                return Http404("Cannot find specified post with the specified author ID")
+            comments = Comment.objects.filter(post=post_id).order_by('published')
+
             # if requesting user is the post owner
             #   OR it is a public post, then return all comments
             if (request_user == post_owner or post.visibility == Post.PUBLIC):
-                queryset = Comment.objects.filter(post=post_id).order_by('published')
+                queryset = comments
 
             # if it is a friend post return only comments between logged-in author and post owner
             else:
-                comments = Comment.objects.filter(
-                        post=post_id, 
-                    ).order_by('published')  
-
                 # remote user getting comments
                 if self.request.user.type == 'node':
                     for comment in comments:
