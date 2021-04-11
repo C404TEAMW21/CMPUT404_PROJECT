@@ -43,7 +43,8 @@ const PostComponent = (props) => {
   const [error, setError] = useState(false);
   const [numberLikes, setNumberLikes] = useState(0);
   const [numberComments, setNumberComments] = useState(0);
-  const [openLikesModal, setOpenLikesModal] = React.useState(false);
+  const [openLikesModal, setOpenLikesModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const passedValues = { ...defaultProps, ...props };
   const {
@@ -173,6 +174,7 @@ const PostComponent = (props) => {
   };
 
   const sendLikeToInbox = async () => {
+    setLoading(true);
     let postId = id.split("/").pop();
 
     const response = await sendLike(
@@ -184,10 +186,12 @@ const PostComponent = (props) => {
 
     if (response.status !== 200) {
       setError(true);
+      setLoading(false);
       return;
     }
 
     getNumberOfLikes();
+    setLoading(false);
   };
 
   const handleLikesModal = () => {
@@ -214,7 +218,7 @@ const PostComponent = (props) => {
       <LikesModal
         open={openLikesModal}
         setOpen={handleLikesModal}
-        postId={id.split("/").slice(-2)[0]}
+        postId={id.split("/").pop()}
         author={author}
       />
       <Card fluid raised centered>
@@ -289,7 +293,7 @@ const PostComponent = (props) => {
         </Card.Content>
         <Card.Content extra>
           <Button as="div" labelPosition="right">
-            <Button color="red" onClick={sendLikeToInbox}>
+            <Button color="red" onClick={sendLikeToInbox} loading={loading}>
               <Icon name="heart" />
               Like
             </Button>
