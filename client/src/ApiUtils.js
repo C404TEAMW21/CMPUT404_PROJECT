@@ -519,11 +519,9 @@ export const listLikesForPost = async (token, author, postId) => {
 export const listLikesForComment = async (token, author, commentId, post) => {
   const url = new URL(commentId);
 
-  const link = `${SERVER_HOST}/api${url.pathname}/likes/`;
-
   if (post.length > 0 && post[0].author.host.includes("konnection")) {
     try {
-      const response = await axios.get(link, {
+      const response = await axios.get(`${SERVER_HOST}${url.pathname}/likes/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
@@ -537,7 +535,7 @@ export const listLikesForComment = async (token, author, commentId, post) => {
   } else {
     try {
       const response = await axios.post(
-        link,
+        `${SERVER_HOST}/api${url.pathname}/likes/`,
         {
           comment_url: commentId,
         },
