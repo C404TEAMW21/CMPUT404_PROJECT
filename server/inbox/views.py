@@ -18,6 +18,7 @@ from .serializers import InboxSerializer
 from urllib.parse import urlparse
 import requests
 import json
+import uuid
 
 
 # api/author/{AUTHOR_ID}/inbox/
@@ -28,7 +29,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
 
 
     def get_inbox(self):
-        request_author_id = self.kwargs['author_id']
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
 
         if self.request.user.id != request_author_id:
             raise PermissionDenied(
@@ -49,7 +50,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
 
     # POST: send a Post, Like or Follow to Inbox
     def post(self, request, *args, **kwargs):
-        request_author_id = self.kwargs['author_id']
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
         inbox_type = request.data.get('type')
         if inbox_type is not None: inbox_type = inbox_type.lower() 
         host_name = request.get_host()
@@ -83,12 +84,22 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                 except Node.DoesNotExist:
                     return Response({'error':'Could not find remote server user'}, status=status.HTTP_404_NOT_FOUND)
 
-                r = requests.post(
-                    f"{object_host}api/author/{request_author_id}/inbox/",
-                    json=request.data,
-                    auth=(remote_server.konnection_username, remote_server.konnection_password))
+                if 'team6' in object_host:
+                    request_author_id = request_author_id.hex
+                    request_url = f"{object_host}author/{request_author_id}/inbox"
+                else:
+                    request_url = f"{object_host}api/author/{request_author_id}/inbox/"
 
-                if r.status_code < 200 or r.status_code >= 300:
+                r = requests.post(
+                    request_url,
+                    json=request.data,
+                    auth=(remote_server.konnection_username, remote_server.konnection_password)
+                )
+
+                if r.status_code == 409:
+                    return Response({'data':'You have already sent a like to the remote server for this object'},
+                        status=r.status_code)
+                elif r.status_code < 200 or r.status_code >= 300:
                     return Response({'error':'Could not complete the request to the remote server'},
                         status=r.status_code)
             
