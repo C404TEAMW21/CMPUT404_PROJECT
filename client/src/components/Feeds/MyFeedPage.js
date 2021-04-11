@@ -5,6 +5,7 @@ import moment from "moment";
 import axios from "axios";
 import PostList from "../Post/PostList";
 import { SERVER_HOST } from "../../Constants";
+import { getComments } from "../../ApiUtils";
 import { Context } from "../../Context";
 import "./MyFeed.scss";
 
@@ -194,7 +195,11 @@ const MyFeedPage = () => {
       )}
       <div className="cardGroupContainer">
         <Card.Group centered itemsPerRow={1}>
-          <PostList posts={posts} handleDeletePost={handleDeletePost} />
+          <PostList
+            posts={posts}
+            handleDeletePost={handleDeletePost}
+            commentCount={getComments}
+          />
         </Card.Group>
         <Card.Group centered itemsPerRow={1}>
           {likes.map((individualLike, index) => {
