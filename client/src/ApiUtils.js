@@ -337,6 +337,7 @@ export const getComments = async (token, postAuthor, postId) => {
     let id = postAuthor.id;
     if (id.includes("team6")) {
       id = id.split("/").pop();
+      postId = postId.split("/").pop();
     }
 
     const comment_url =
@@ -395,6 +396,7 @@ export const createComment = async (
     let id = postAuthor.id;
     if (id.includes("team6")) {
       id = id.split("/").pop();
+      postId = postId.split("/").pop();
     }
 
     const comment_url =
