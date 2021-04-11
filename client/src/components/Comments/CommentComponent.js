@@ -47,7 +47,7 @@ const CommentComponent = ({
     const response = await sendLikeOnComment(
       context.cookie,
       context.user,
-      author,
+      post[0].author,
       commentId
     );
     if (response.status !== 200) {

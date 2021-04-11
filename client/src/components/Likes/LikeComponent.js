@@ -17,8 +17,17 @@ const LikeComponent = (props) => {
   };
 
   const goToPost = () => {
-    const url = new URL(props.contents.object);
-    const path = url.pathname.split("/").slice(2, 6).join("/");
+    let url;
+    let path;
+    if (props.contents.object.includes("team6")) {
+      url = new URL(props.contents.object);
+      path = url.pathname.split("/").slice(1, 5).join("/");
+      history.push(`/${path}`);
+    } else {
+      url = new URL(props.contents.object);
+      path = url.pathname.split("/").slice(2, 6).join("/");
+    }
+
     history.push(`/${path}`);
   };
 
