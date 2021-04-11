@@ -513,7 +513,16 @@ export const listLikesForPost = async (token, author, postId) => {
 export const listLikesForComment = async (token, author, commentId) => {
   const url = new URL(commentId);
 
-  if (author.host.includes("konnection")) {
+  const authorPost = await getSpecificAuthorPost(
+    token,
+    "/" + url.pathname.split("/").slice(2, 6).join("/")
+  );
+
+  if (authorPost.status !== 200) {
+    return authorPost;
+  }
+
+  if (authorPost.data.author.host.includes("konnection")) {
     try {
       const response = await axios.get(`${SERVER_HOST}${url.pathname}/likes/`, {
         headers: {
