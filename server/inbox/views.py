@@ -97,7 +97,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                 )
 
                 if r.status_code == 409:
-                    return Response({'data':'Already sent the like to the remote server'},
+                    return Response({'data':'You have already sent a like to the remote server for this object'},
                         status=r.status_code)
                 elif r.status_code < 200 or r.status_code >= 300:
                     return Response({'error':'Could not complete the request to the remote server'},
