@@ -54,7 +54,7 @@ const PostComments = ({ post, token, currentAuthor, updateCommentCount }) => {
       const response = await getComments(token, postAuthor, postId);
 
       if (response && response.status === 200) {
-        setComments(response.data);
+        setComments(response.data.reverse());
 
         if (response.data.length === 0) setNoComments(true);
         updateCommentCount(response.data.length);
