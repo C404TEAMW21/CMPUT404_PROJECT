@@ -117,8 +117,8 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                 )
             except IntegrityError:
                 return Response({'data':f'You have already sent a like to {object_type} {id_url} on {host_name}.'},
-                            status=status.HTTP_200_OK)
-            
+                            status=status.HTTP_409_Conflict)
+
             return Response({'data':f'Sent like to {object_type} {id_url} on {host_name}.'},
                             status=status.HTTP_200_OK)
         else:
