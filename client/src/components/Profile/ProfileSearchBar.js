@@ -24,11 +24,7 @@ const ProfileSearchBar = (props) => {
     const response = await getAllAuthors(props.token);
     if (response.status !== 200) {
       setError(true);
-      return;
-    }
-
-    if (response.data.errors && Object.keys(response.data.errors).length > 0) {
-      setError(true);
+      setLoading(false);
       return;
     }
 
