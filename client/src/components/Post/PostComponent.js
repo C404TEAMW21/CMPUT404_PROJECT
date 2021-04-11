@@ -58,12 +58,16 @@ const PostComponent = (props) => {
     author,
     published,
     visibility,
+    commentCount,
   } = passedValues;
 
   useEffect(() => {
     getNumberOfLikes();
-    getNumberOfComments();
   }, []);
+
+  useEffect(() => {
+    getNumberOfComments();
+  }, [commentCount]);
 
   const renderContent = () => {
     if (!contentType) {
@@ -157,16 +161,16 @@ const PostComponent = (props) => {
   };
 
   const getNumberOfComments = async () => {
-    let postId = id.split("/").pop();
+    if (typeof commentCount === "number") {
+      setNumberComments(commentCount);
+    } else {
+      let postId = id.split("/").pop();
+      const response = await commentCount(context.cookie, author, postId);
 
-    let response;
-    if (author.host.includes("team6"))
-      response = await getRemoteComments(context.cookie, author, postId);
-    else response = await getComments(context.cookie, author, postId);
-
-    if (response && response.status === 200)
-      setNumberComments(response.data.length);
-    else setError(true);
+      if (response && response.status === 200)
+        setNumberComments(response.data.length);
+      else setError(true);
+    }
   };
 
   const sendLikeToInbox = async () => {

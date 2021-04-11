@@ -63,7 +63,11 @@ const PublicFeedPage = () => {
         />
       )}
       <Card.Group centered itemsPerRow={1}>
-        <PostList posts={posts} handleDeletePost={handleDeletePost} />
+        <PostList
+          posts={posts}
+          handleDeletePost={handleDeletePost}
+          commentCount={false}
+        />
       </Card.Group>
     </div>
   );

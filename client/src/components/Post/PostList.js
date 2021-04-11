@@ -3,7 +3,7 @@ import moment from "moment";
 import PostComponent from "./PostComponent";
 import GithubComponent from "../Github/GithubComponent";
 
-const PostList = ({ posts, handleDeletePost }) => {
+const PostList = ({ posts, handleDeletePost, commentCount }) => {
   const postList = posts.map((post, index) => {
     const {
       id,
@@ -16,11 +16,14 @@ const PostList = ({ posts, handleDeletePost }) => {
       author,
       published,
       visibility,
+      count,
     } = post;
 
     if (post.type === "github") {
       return <GithubComponent content={post} />;
     }
+
+    if (commentCount === false) commentCount = count;
 
     return (
       <PostComponent
@@ -37,6 +40,7 @@ const PostList = ({ posts, handleDeletePost }) => {
         published={moment(published).format("MMMM Do YYYY, h:mm:ss a")}
         visibility={visibility}
         handleDeletePost={handleDeletePost}
+        commentCount={commentCount}
       />
     );
   });
