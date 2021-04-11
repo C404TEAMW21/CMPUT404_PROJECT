@@ -23,8 +23,6 @@ const PostList = ({ posts, handleDeletePost, commentCount }) => {
       return <GithubComponent content={post} />;
     }
 
-    if (commentCount === false) commentCount = count;
-
     return (
       <PostComponent
         key={id}
@@ -40,7 +38,7 @@ const PostList = ({ posts, handleDeletePost, commentCount }) => {
         published={moment(published).format("MMMM Do YYYY, h:mm:ss a")}
         visibility={visibility}
         handleDeletePost={handleDeletePost}
-        commentCount={commentCount}
+        commentCount={commentCount === false ? count : commentCount}
       />
     );
   });
