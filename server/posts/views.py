@@ -281,7 +281,11 @@ class SharePostView(generics.CreateAPIView):
                 return Response({'error': 'Inbox not found!'},
                                 status=status.HTTP_404_NOT_FOUND)
             for item in sharer_items:
-                if str(post_id) == item['id']:
+                try:
+                    item_id = item['id']
+                except KeyError:
+                    continue
+                if post_id in item_id:
                     post_data = item
         if post_data == None:
             return Response({'error': 'Post not found!'},
