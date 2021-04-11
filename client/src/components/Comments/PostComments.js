@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Comment, Button, Form, Header, Message } from "semantic-ui-react";
+import {
+  Comment,
+  Button,
+  Form,
+  Header,
+  Message,
+  Loader,
+} from "semantic-ui-react";
 import CommentList from "./CommentList";
 import {
   getComments,
@@ -14,14 +21,15 @@ const PostComments = ({ post, token, currentAuthor, updateCommentCount }) => {
   const [error, setError] = useState(false);
   const [comments, setComments] = useState([]);
   const [noComments, setNoComments] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [onSubmitLoading, setOnSubmitLoading] = useState(false);
 
   const onCommentChange = (e, { value }) => {
     setValue(value);
   };
 
   const addComment = async () => {
-    setLoading(true);
+    setOnSubmitLoading(true);
     if (post[0]) {
       let postId = post[0].id;
       let postAuthor = post[0].author;
@@ -43,7 +51,7 @@ const PostComments = ({ post, token, currentAuthor, updateCommentCount }) => {
     }
 
     setValue("");
-    setLoading(false);
+    setOnSubmitLoading(false);
   };
 
   const getPostComments = async () => {
@@ -62,6 +70,7 @@ const PostComments = ({ post, token, currentAuthor, updateCommentCount }) => {
         setError(true);
       }
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -81,6 +90,9 @@ const PostComments = ({ post, token, currentAuthor, updateCommentCount }) => {
           content="Something happened on our end. Please try again later."
         />
       )}
+      <Loader active={loading} inline="centered">
+        Loading Comments...
+      </Loader>
       {noComments && <p className="no-comments">No comments</p>}
       <div className="comments-container">
         <Comment.Group className="comments" minimal>
@@ -89,7 +101,7 @@ const PostComments = ({ post, token, currentAuthor, updateCommentCount }) => {
             <Form.TextArea
               value={value}
               onChange={onCommentChange}
-              disabled={loading}
+              disabled={onSubmitLoading}
             />
             <Button
               content="Add Comment"
@@ -97,7 +109,7 @@ const PostComments = ({ post, token, currentAuthor, updateCommentCount }) => {
               icon="comments"
               primary
               onClick={addComment}
-              loading={loading}
+              loading={onSubmitLoading}
             />
           </Form>
         </Comment.Group>
