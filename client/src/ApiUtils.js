@@ -259,7 +259,10 @@ export const getAllAuthors = async (token) => {
 
 export const sendLikeOnComment = async (token, us, otherAuthor, object) => {
   let id = otherAuthor.id;
-  if (otherAuthor.id.includes("team6")) {
+  if (
+    otherAuthor.id.includes("team6") ||
+    otherAuthor.id.includes("konnection")
+  ) {
     id = otherAuthor.id.split("/").pop();
   }
 
@@ -286,7 +289,10 @@ export const sendLikeOnComment = async (token, us, otherAuthor, object) => {
 
 export const sendLike = async (token, us, otherAuthor, postId) => {
   let id = otherAuthor.id;
-  if (otherAuthor.id.includes("team6")) {
+  if (
+    otherAuthor.id.includes("team6") ||
+    otherAuthor.id.includes("konnection")
+  ) {
     id = otherAuthor.id.split("/").pop();
   }
 
@@ -510,26 +516,20 @@ export const listLikesForPost = async (token, author, postId) => {
   }
 };
 
-export const listLikesForComment = async (token, author, commentId) => {
+export const listLikesForComment = async (token, author, commentId, post) => {
   const url = new URL(commentId);
 
-  const authorPost = await getSpecificAuthorPost(
-    token,
-    "/" + url.pathname.split("/").slice(2, 6).join("/")
-  );
+  const link = `${SERVER_HOST}/api${url.pathname}/likes/`;
 
-  if (authorPost.status !== 200) {
-    return authorPost;
-  }
-
-  if (authorPost.data.author.host.includes("konnection")) {
+  if (post.length > 0 && post[0].author.host.includes("konnection")) {
     try {
-      const response = await axios.get(`${SERVER_HOST}${url.pathname}/likes/`, {
+      const response = await axios.get(link, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Token ${token}`,
         },
       });
+
       return response;
     } catch (error) {
       return error.response;
@@ -537,9 +537,9 @@ export const listLikesForComment = async (token, author, commentId) => {
   } else {
     try {
       const response = await axios.post(
-        `${commentId}/likes/`,
+        link,
         {
-          comment_url: author.host,
+          comment_url: commentId,
         },
         {
           headers: {
@@ -548,6 +548,7 @@ export const listLikesForComment = async (token, author, commentId) => {
           },
         }
       );
+
       return response;
     } catch (error) {
       return error.response;

@@ -96,7 +96,7 @@ const PostComments = ({ post, token, currentAuthor, updateCommentCount }) => {
       {noComments && <p className="no-comments">No comments</p>}
       <div className="comments-container">
         <Comment.Group className="comments" minimal>
-          <CommentList comments={comments} setError={setError} />
+          <CommentList comments={comments} post={post} setError={setError} />
           <Form className="add-comment">
             <Form.TextArea
               value={value}
