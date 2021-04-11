@@ -29,7 +29,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
 
 
     def get_inbox(self):
-        request_author_id = uuid.UUId(self.kwargs['author_id'])
+        request_author_id = uuid.UUID(self.kwargs['author_id'])
 
         if self.request.user.id != request_author_id:
             raise PermissionDenied(
