@@ -335,17 +335,17 @@ export const getComments = async (token, postAuthor, postId) => {
     }
   } else {
     let id = postAuthor.id;
+    let pid = postId;
     if (id.includes("team6")) {
       id = id.split("/").pop();
-      postId = postId.split("/").pop();
+      pid = pid.split("/").pop();
     }
 
-    const comment_url =
-      postAuthor.host + `author/${id}/posts/${postId}/comments`;
+    const comment_url = postAuthor.host + `author/${id}/posts/${pid}/comments`;
 
     try {
       const response = await axios.post(
-        `${SERVER_HOST}/api/author/${id}/posts/${postId}/get_remote_comments/`,
+        `${SERVER_HOST}/api/author/${id}/posts/${pid}/get_remote_comments/`,
         {
           comment_url,
         },
@@ -394,17 +394,17 @@ export const createComment = async (
     }
   } else {
     let id = postAuthor.id;
+    let pid = postId;
     if (id.includes("team6")) {
       id = id.split("/").pop();
-      postId = postId.split("/").pop();
+      pid = pid.split("/").pop();
     }
 
-    const comment_url =
-      postAuthor.host + `author/${id}/posts/${postId}/comments`;
+    const comment_url = postAuthor.host + `author/${id}/posts/${pid}/comments`;
 
     try {
       const response = await axios.post(
-        `${SERVER_HOST}/api/author/${id}/posts/${postId}/create_remote_comments/`,
+        `${SERVER_HOST}/api/author/${id}/posts/${pid}/create_remote_comments/`,
         {
           comment,
           comment_url,
