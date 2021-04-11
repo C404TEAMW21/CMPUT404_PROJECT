@@ -14,6 +14,7 @@ const CommentComponent = ({
   published,
   commentId,
   setError,
+  post,
 }) => {
   const context = useContext(Context);
 
@@ -29,7 +30,8 @@ const CommentComponent = ({
     const response = await listLikesForComment(
       context.cookie,
       author,
-      commentId
+      commentId,
+      post
     );
     if (response.status !== 200) {
       setError(true);
@@ -68,6 +70,8 @@ const CommentComponent = ({
         setOpen={handleLikesModal}
         commentId={commentId}
         author={author}
+        numberLikes={numberLikes}
+        post={post}
       />
       <Comment>
         <Comment.Content>

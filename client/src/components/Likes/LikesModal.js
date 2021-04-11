@@ -15,7 +15,7 @@ const LikesModal = (props) => {
     } else if (props.commentId) {
       displayLikesForComment();
     }
-  }, [props.open]);
+  }, [props.numberLikes]);
 
   const displayLikesForPost = async () => {
     const response = await listLikesForPost(
@@ -36,7 +36,8 @@ const LikesModal = (props) => {
     const response = await listLikesForComment(
       context.cookie,
       props.author,
-      props.commentId
+      props.commentId,
+      props.post
     );
 
     if (response.status !== 200) {
