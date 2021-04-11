@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Modal, Message } from "semantic-ui-react";
-import { listLikesForPost } from "../../ApiUtils";
+import { listLikesForPost, listLikesForComment } from "../../ApiUtils";
 import { Context } from "../../Context";
 
 const LikesModal = (props) => {
@@ -10,7 +10,11 @@ const LikesModal = (props) => {
   const [likes, setLikes] = useState([]);
 
   useEffect(() => {
-    displayLikesForPost();
+    if (props.postId) {
+      displayLikesForPost();
+    } else if (props.commentId) {
+      displayLikesForComment();
+    }
   }, [props.open]);
 
   const displayLikesForPost = async () => {
@@ -18,6 +22,21 @@ const LikesModal = (props) => {
       context.cookie,
       props.author,
       props.postId
+    );
+
+    if (response.status !== 200) {
+      setError(true);
+      return;
+    }
+
+    setLikes(response.data.items);
+  };
+
+  const displayLikesForComment = async () => {
+    const response = await listLikesForComment(
+      context.cookie,
+      props.author,
+      props.commentId
     );
 
     if (response.status !== 200) {

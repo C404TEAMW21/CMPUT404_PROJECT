@@ -7,7 +7,6 @@ import { Context } from "../../Context";
 import PostComponent from "../Post/PostComponent";
 import PostComments from "../Comments/PostComments";
 import { ROUTE_MY_FEED } from "../../Constants";
-import CommentComponent from "../Comments/CommentComponent";
 
 const SpecificPostPage = () => {
   const context = useContext(Context);

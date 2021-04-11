@@ -34,10 +34,13 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
             try:
                 sharer_items = Inbox.objects.get(author=sharer_id).items
             except Inbox.DoesNotExist:
-                return Response({'error': 'Inbox not found!'},
-                                status=status.HTTP_404_NOT_FOUND)
+                raise Http404
             for item in sharer_items:
-                if request_post_id == item['id']:
+                try:
+                    item_id = item['id']
+                except KeyError:
+                    continue
+                if request_post_id in item_id:
                     return item
             raise Http404
 
