@@ -93,9 +93,12 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                 r = requests.post(
                     request_url,
                     json=request.data,
-                    auth=('team12hailan', 'konnections')
+                    auth=(remote_server.konnection_username, remote_server.konnection_password)
                 )
 
+                if r.status_code == 409:
+                    return Response({'data':'Already sent the like to the remote server'},
+                        status=r.status_code)
                 if r.status_code < 200 or r.status_code >= 300:
                     return Response({'error':'Could not complete the request to the remote server'},
                         status=r.status_code)
