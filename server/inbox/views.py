@@ -50,6 +50,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
 
     # POST: send a Post, Like or Follow to Inbox
     def post(self, request, *args, **kwargs):
+        original_request_author_id = self.kwargs['author_id']
         request_author_id = uuid.UUID(self.kwargs['author_id'])
         inbox_type = request.data.get('type')
         if inbox_type is not None: inbox_type = inbox_type.lower() 
@@ -85,10 +86,9 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                     return Response({'error':'Could not find remote server user'}, status=status.HTTP_404_NOT_FOUND)
 
                 if 'team6' in object_host:
-                    request_author_id = request_author_id.hex
-                    request_url = f"{object_host}author/{request_author_id}/inbox"
+                    request_url = f"{object_host}author/{original_request_author_id}/inbox"
                 else:
-                    request_url = f"{object_host}api/author/{request_author_id}/inbox/"
+                    request_url = f"{object_host}api/author/{original_request_author_id}/inbox/"
 
                 r = requests.post(
                     request_url,
