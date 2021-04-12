@@ -131,7 +131,7 @@ class ListCommentLikesView(generics.ListCreateAPIView):
 
         r = requests.get(
                 likes_url,
-                auth=('remote_server.konnection_username', remote_server.konnection_password)
+                auth=(remote_server.konnection_username, remote_server.konnection_password)
             )
 
         # Find the likes locally
