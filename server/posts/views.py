@@ -21,6 +21,20 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
     serializer_class = PostSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+    def post_from_inbox(self, sharer_id):
+        try:
+            sharer_items = Inbox.objects.get(author=sharer_id).items
+        except Inbox.DoesNotExist:
+            raise Http404
+        for item in sharer_items:
+            try:
+                item_id = item['id']
+            except KeyError:
+                continue
+            if request_post_id in item_id:
+                return item
+        raise Http404
+
     # returns a post object with the matching author_id and pk (post_id)
     # returns 404 otherwise
     def get_post(self):
@@ -31,18 +45,7 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
         try:
             a_post = Post.objects.get(pk=uuid.UUID(request_post_id))
         except Post.DoesNotExist:
-            try:
-                sharer_items = Inbox.objects.get(author=sharer_id).items
-            except Inbox.DoesNotExist:
-                raise Http404
-            for item in sharer_items:
-                try:
-                    item_id = item['id']
-                except KeyError:
-                    continue
-                if request_post_id in item_id:
-                    return item
-            raise Http404
+            return self.post_from_inbox(sharer_id)
 
         if (self.request.user.id != request_author_id):
             # if Friend Post, check if logged in user is a friend before giving Post
@@ -53,7 +56,7 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
                 remote_friend_ids = [friend.get('id') for friend in remote_friends]
                 request_id = str(self.request.user.id)
                 if request_id not in local_friend_ids and request_id not in remote_friend_ids:
-                    raise Http404
+                    return self.post_from_inbox(sharer_id)   
         return a_post
 
     # GET the post with the right author_id and post_id
