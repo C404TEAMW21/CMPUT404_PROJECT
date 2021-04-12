@@ -66,11 +66,12 @@ const PostComments = ({ post, token, currentAuthor, updateCommentCount }) => {
 
         if (response.data.length === 0) setNoComments(true);
         updateCommentCount(response.data.length);
+        setLoading(false);
       } else {
         setError(true);
+        setLoading(false);
       }
     }
-    setLoading(false);
   };
 
   useEffect(() => {
