@@ -156,7 +156,7 @@ class CreatePostView(generics.ListCreateAPIView):
     # GET: Paginated posts
     # /api/author/<AUTHOR_ID>/posts?page=1&size=2
     def get(self, request, *args, **kwargs):
-        page_size = request.query_params.get('size') or 20
+        page_size = request.query_params.get('size') or 50
         page = request.query_params.get('page') or 1
         posts = self.get_queryset() 
         paginator = Paginator(posts, page_size)
@@ -250,7 +250,7 @@ class PublicPostView(generics.ListAPIView):
     # GET: Paginated posts
     # api/public?page=1&size=2
     def get(self, request, *args, **kwargs):
-        page_size = request.query_params.get('size') or 20
+        page_size = request.query_params.get('size') or 50
         page = request.query_params.get('page') or 1
         posts = self.get_queryset() 
         paginator = Paginator(posts, page_size)

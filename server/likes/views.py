@@ -26,7 +26,7 @@ class ListPostLikesView(generics.ListCreateAPIView):
     # GET: Paginated likes for posts
     # api/author/{author_id}/post/{post_id}/likes?page=1&size=2
     def get(self, request, *args, **kwargs):
-        page_size = request.query_params.get('size') or 20
+        page_size = request.query_params.get('size') or 50
         page = request.query_params.get('page') or 1
         posts = self.get_queryset() 
         paginator = Paginator(posts, page_size)
@@ -87,7 +87,7 @@ class ListCommentLikesView(generics.ListCreateAPIView):
     # GET: Paginated likes for comments
     # api/author/{author_id}/post/{post_id}/comments/{comment_id}/likes?page=1&size=2
     def get(self, request, *args, **kwargs):
-        page_size = request.query_params.get('size') or 20
+        page_size = request.query_params.get('size') or 50
         page = request.query_params.get('page') or 1
         posts = self.get_queryset() 
         paginator = Paginator(posts, page_size)
@@ -147,7 +147,7 @@ class ListLikedView(generics.RetrieveAPIView):
         return queryset
     
     def get(self, request, *args, **kwargs):
-        page_size = request.query_params.get('size') or 20
+        page_size = request.query_params.get('size') or 50
         page = request.query_params.get('page') or 1
         posts = self.get_queryset() 
         paginator = Paginator(posts, page_size)

@@ -17,7 +17,7 @@ class InboxSerializer(serializers.ModelSerializer):
         data = []
         # Paginate Nested Object
         # From https://stackoverflow.com/a/49677960
-        page_size = self.context['request'].query_params.get('size') or 10
+        page_size = self.context['request'].query_params.get('size') or 50
         page = self.context['request'].query_params.get('page') or 1
         paginator = Paginator(obj.items, page_size)
 

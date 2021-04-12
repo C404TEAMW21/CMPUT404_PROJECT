@@ -107,7 +107,7 @@ class CreateCommentView(generics.ListCreateAPIView):
     # GET: Paginated comments
     # /service/author/<uuid:author_id>/posts/<uuid:post_id>/comments?page=1&size=2
     def get(self, request, *args, **kwargs):
-        page_size = request.query_params.get('size') or 20
+        page_size = request.query_params.get('size') or 50
         page = request.query_params.get('page') or 1
         comments = self.get_queryset()
         paginator = Paginator(comments, page_size)
