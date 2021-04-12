@@ -19,13 +19,19 @@ const LikeComponent = (props) => {
   const goToPost = () => {
     let url;
     let path;
+
     if (props.contents.object.includes("team6")) {
       url = new URL(props.contents.object);
-      path = url.pathname.split("/").slice(1, 5).join("/");
+      path = url.pathname.split("/").slice(2, 6).join("/");
       history.push(`/${path}`);
     } else {
-      url = new URL(props.contents.object);
-      path = url.pathname.split("/").slice(2, 6).join("/");
+      if (props.contents.object.includes("api")) {
+        url = new URL(props.contents.object);
+        path = url.pathname.split("/").slice(2, 6).join("/");
+      } else {
+        url = new URL(props.contents.object);
+        path = url.pathname.split("/").slice(1, 6).join("/");
+      }
     }
 
     history.push(`/${path}`);
