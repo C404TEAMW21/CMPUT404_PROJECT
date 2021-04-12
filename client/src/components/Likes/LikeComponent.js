@@ -22,8 +22,9 @@ const LikeComponent = (props) => {
 
     if (props.contents.object.includes("team6")) {
       url = new URL(props.contents.object);
-      path = url.pathname.split("/").slice(2, 6).join("/");
+      path = url.pathname.split("/").slice(3, 7).join("/");
       history.push(`/${path}`);
+      return;
     } else {
       if (props.contents.object.includes("api")) {
         url = new URL(props.contents.object);
@@ -32,9 +33,8 @@ const LikeComponent = (props) => {
         url = new URL(props.contents.object);
         path = url.pathname.split("/").slice(1, 6).join("/");
       }
+      history.push(`/${path}`);
     }
-
-    history.push(`/${path}`);
   };
 
   return (
