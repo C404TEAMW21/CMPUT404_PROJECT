@@ -21,7 +21,7 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
     serializer_class = PostSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    def post_from_inbox(self, sharer_id):
+    def post_from_inbox(self, sharer_id, request_post_id):
         try:
             sharer_items = Inbox.objects.get(author=sharer_id).items
         except Inbox.DoesNotExist:
@@ -45,7 +45,7 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
         try:
             a_post = Post.objects.get(pk=uuid.UUID(request_post_id))
         except Post.DoesNotExist:
-            return self.post_from_inbox(sharer_id)
+            return self.post_from_inbox(sharer_id, request_post_id)
 
         if (self.request.user.id != request_author_id):
             # if Friend Post, check if logged in user is a friend before giving Post
@@ -56,7 +56,7 @@ class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyMode
                 remote_friend_ids = [friend.get('id') for friend in remote_friends]
                 request_id = str(self.request.user.id)
                 if request_id not in local_friend_ids and request_id not in remote_friend_ids:
-                    return self.post_from_inbox(sharer_id)   
+                    return self.post_from_inbox(sharer_id, request_post_id)   
         return a_post
 
     # GET the post with the right author_id and post_id
