@@ -556,8 +556,17 @@ class TestSharePostEndpoint(TestCase):
             title='This is a title',
             author= self.author
         )
+        post = Post.objects.create(
+            title='This is a title',
+            author= self.author,
+            visibility=Post.FRIENDS
+        )
         self.share_url = reverse(
             'posts:share',
+            kwargs={'author_id': self.author.id, 'pk': post.id}
+        )
+        self.get_url = reverse(
+            'posts:update',
             kwargs={'author_id': self.author.id, 'pk': post.id}
         )
         self.client = APIClient()
@@ -633,3 +642,19 @@ class TestSharePostEndpoint(TestCase):
 
         inbox = Inbox.objects.get(author=self.author3)
         self.assertEqual(len(inbox.items), 1)
+
+    def test_non_friend_get_post_from_inbox(self):
+        """Test non-friend get post from inbox"""
+        payload = {
+            'from': self.author.id,
+            'share_to': self.author2.id
+        }
+        self.client.force_authenticate(user=self.author2)
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 0)
+        res = self.client.post(self.share_url, payload)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        inbox = Inbox.objects.get(author=self.author2)
+        self.assertEqual(len(inbox.items), 1)
+        res = self.client.get(self.get_url)
+        self.assertEqual(res.data['type'], 'post')
