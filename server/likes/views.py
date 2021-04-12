@@ -64,6 +64,13 @@ class ListPostLikesView(generics.ListCreateAPIView):
                 auth=(remote_server.konnection_username, remote_server.konnection_password)
             )
 
+        # Find the likes locally
+        if r.status_code < 200 or r.status_code >= 300:
+            res = Like.objects.filter(object_id=post_id)
+            res = LikeSerializer(res, many=True)
+            res = {'type': 'likes', 'items': res.data}
+            return Response(res, status=status.HTTP_200_OK)
+
         # If the output is a list
         res = r.json()
         if isinstance(res, list):
@@ -126,6 +133,13 @@ class ListCommentLikesView(generics.ListCreateAPIView):
                 likes_url,
                 auth=(remote_server.konnection_username, remote_server.konnection_password)
             )
+
+        # Find the likes locally
+        if r.status_code < 200 or r.status_code >= 300:
+            res = Like.objects.filter(object_id=comment_id)
+            res = LikeSerializer(res, many=True)
+            res = {'type': 'likes', 'items': res.data}
+            return Response(res, status=status.HTTP_200_OK)
         
         # If the output is a list
         res = r.json()
