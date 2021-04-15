@@ -11,7 +11,6 @@ import {
   Image,
 } from "semantic-ui-react";
 import ImageUploader from "react-images-upload";
-import axios from "axios";
 import "./PostPage.scss";
 
 const visibilityOptions = [
@@ -79,8 +78,8 @@ const EditPostForm = ({ data, handleSavePost, setDeletePost, postSuccess }) => {
 
     const postInfo = {
       title,
-      source: "", // TODO: not sure what source is
-      origin: "", // TODO: not sure what origin is
+      source: "",
+      origin: "",
       description,
       contentType,
       content,

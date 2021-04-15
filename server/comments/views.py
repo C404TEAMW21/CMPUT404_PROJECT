@@ -6,8 +6,7 @@ from .serializers import CommentSerializer
 from .models import Comment
 from posts.models import Post
 from nodes.models import Node
-from main.models import Author, Followers, Following
-from inbox.models import Inbox
+from main.models import Author
 from rest_framework import generics, status
 from rest_framework.response import Response
 from main import utils
