@@ -48,7 +48,8 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
         original_request_author_id = self.kwargs['author_id']
         request_author_id = uuid.UUID(self.kwargs['author_id'])
         inbox_type = request.data.get('type')
-        if inbox_type is not None: inbox_type = inbox_type.lower()
+        if inbox_type is not None:
+            inbox_type = inbox_type.lower()
         host_name = request.get_host()
 
         if inbox_type == 'post':
