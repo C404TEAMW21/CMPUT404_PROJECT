@@ -6,6 +6,8 @@ CMPUT404-project-socialdistribution
 
 See project.org (plain-text/org-mode) for a description of the project.
 
+Video Demo: https://www.youtube.com/watch?v=9CfSqHFpERs
+
 ## Running the Program Locally
 
 Konnection has two components, a client and a server.
