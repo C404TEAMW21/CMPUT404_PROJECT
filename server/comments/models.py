@@ -1,7 +1,6 @@
 from django.db import models
 from posts.models import Post
 import uuid
-from main import models as mainModels
 from main import utils
 
 class Comment(models.Model):
