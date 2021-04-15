@@ -45,7 +45,6 @@ class Post(models.Model):
     content = models.TextField(blank=True, null=True)
     author = models.ForeignKey(mainModels.Author, on_delete=models.PROTECT)
 
-    # TODO: create categories
     categories = ArrayField(models.TextField(), blank=True, default=list, null=True) # e.g. ["web","tutorial"]
     count =  models.PositiveIntegerField(default=0)       # for comments
     size =  models.PositiveIntegerField(default=0)        # page size for comments
