@@ -5,7 +5,6 @@ from comments.serializers import CommentSerializer
 from author.serializers import AuthorProfileSerializer
 
 class PostSerializer(serializers.ModelSerializer):
-    # id = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
     count = serializers.SerializerMethodField()
     size = serializers.SerializerMethodField()
@@ -23,9 +22,6 @@ class PostSerializer(serializers.ModelSerializer):
     def get_author(self, obj):
         author = AuthorProfileSerializer(obj.author).data
         return author
-    
-    # def get_id(self, obj):
-    #     return obj.get_id_url()
 
     class Meta:
         model = Post

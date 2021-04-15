@@ -11,7 +11,6 @@ import {
   Image,
 } from "semantic-ui-react";
 import ImageUploader from "react-images-upload";
-import axios from "axios";
 import "./PostPage.scss";
 
 const visibilityOptions = [

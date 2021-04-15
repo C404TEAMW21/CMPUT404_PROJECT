@@ -1,9 +1,7 @@
 import requests, json, uuid
-from urllib.parse import urlparse
 
 from django.contrib.auth import get_user_model
-from django.shortcuts import render, get_object_or_404
-from rest_framework import generics, authentication, permissions, mixins, status
+from rest_framework import generics, authentication, permissions, status
 from django.http import Http404
 from django.core.paginator import Paginator
 from rest_framework.response import Response
@@ -16,7 +14,7 @@ from inbox.models import Inbox
 
 
 # api/author/{AUTHOR_ID}/posts/{POST_ID}
-class UpdatePostView(generics.RetrieveUpdateDestroyAPIView): #mixins.DestroyModelMixin
+class UpdatePostView(generics.RetrieveUpdateDestroyAPIView):
     http_method_names = ['get', 'post', 'delete', 'put']
     serializer_class = PostSerializer
     permission_classes = (permissions.IsAuthenticated,)
