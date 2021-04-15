@@ -1,24 +1,19 @@
-from django.core.exceptions import ValidationError
-from django.shortcuts import render, get_object_or_404
-from django.db import IntegrityError
+from urllib.parse import urlparse
+import uuid
+import requests
 
+from django.shortcuts import get_object_or_404
+from django.db import IntegrityError
 from rest_framework import authentication, generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
-from posts.serializers import PostSerializer
-from author.serializers import AuthorProfileSerializer
 from main.models import Author
-from nodes.models import Node
 from main import utils
-from posts.models import Post
+from nodes.models import Node
 from likes.models import Like
 from .models import Inbox
 from .serializers import InboxSerializer
-from urllib.parse import urlparse
-import requests
-import json
-import uuid
 
 
 # api/author/{AUTHOR_ID}/inbox/
@@ -53,14 +48,15 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
         original_request_author_id = self.kwargs['author_id']
         request_author_id = uuid.UUID(self.kwargs['author_id'])
         inbox_type = request.data.get('type')
-        if inbox_type is not None: inbox_type = inbox_type.lower() 
+        if inbox_type is not None:
+            inbox_type = inbox_type.lower()
         host_name = request.get_host()
 
         if inbox_type == 'post':
             post_id = request.data.get('id')
             try:
                 Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
-            except Inbox.DoesNotExist as e:
+            except Inbox.DoesNotExist:
                 return Response({'error':'Author not found! Please check author_id in URL.'},
                                 status=status.HTTP_404_NOT_FOUND)
             return Response({'data':f'Shared Post {post_id} with Author '
@@ -75,7 +71,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
             if (object_host == utils.HOST):
                 try:
                     Inbox.objects.get(author=request_author_id).send_to_inbox(request.data)
-                except Inbox.DoesNotExist as e:
+                except Inbox.DoesNotExist:
                     return Response({'error':'Author not found! Please check author_id in URL.'},
                                     status=status.HTTP_404_NOT_FOUND)
             # Sending a LIKE from us to remote server
@@ -102,7 +98,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                 elif r.status_code < 200 or r.status_code >= 300:
                     return Response({'error':'Could not complete the request to the remote server'},
                         status=r.status_code)
-            
+
             # Gather information for the Like object creation
             try:
                 object_type = Like.LIKE_COMMENT if ('comments' in id_url) else Like.LIKE_POST
@@ -112,7 +108,7 @@ class InboxView(generics.RetrieveUpdateDestroyAPIView):
                     object_id = id_url.split('/')[-1]
                 like_author_id = request.data.get('author')['id'].split('/')[-1]
                 Like.objects.create(
-                    author=request.data.get('author'), author_id=like_author_id, 
+                    author=request.data.get('author'), author_id=like_author_id,
                     object=id_url, object_type=object_type, object_id=object_id
                 )
             except IntegrityError:

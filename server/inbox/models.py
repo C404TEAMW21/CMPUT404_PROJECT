@@ -4,11 +4,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from main.models import Author
-from posts.models import Post
-from posts.serializers import PostSerializer
+
 
 class Inbox(models.Model):
-    # TODO add like and follow
     type = "inbox"
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     items = ArrayField(models.JSONField(), blank=True, default=list, null=True)
