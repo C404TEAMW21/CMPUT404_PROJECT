@@ -4,8 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from main.models import Author
-from posts.models import Post
-from posts.serializers import PostSerializer
+
 
 class Inbox(models.Model):
     type = "inbox"
