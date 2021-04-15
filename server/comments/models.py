@@ -14,7 +14,7 @@ class Comment(models.Model):
 
     CT_MARKDOWN = 'text/markdown' # CommonMark
     CT_PLAIN = 'text/plain'       # utf-8
-    CT_HTML = 'text/html' # TODO: strip tags
+    CT_HTML = 'text/html'
     CT_BASE64 = 'application/base64'
     CT_PNG = 'image/png;base64'   # embedded png
     CT_JPG = 'image/jpeg;base64'  # embedded jpeg

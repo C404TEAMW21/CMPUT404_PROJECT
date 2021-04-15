@@ -16,7 +16,7 @@ class Post(models.Model):
 
     CT_MARKDOWN = 'text/markdown' # CommonMark
     CT_PLAIN = 'text/plain'       # utf-8
-    CT_HTML = 'text/html' # TODO: strip tags
+    CT_HTML = 'text/html'
     CT_BASE64 = 'application/base64'
     CT_PNG = 'image/png;base64'   # embedded png
     CT_JPG = 'image/jpeg;base64'  # embedded jpeg
@@ -68,7 +68,6 @@ class Post(models.Model):
             self.origin = self.get_id_url()
         super(Post, self).save(*args, **kwargs)
 
-    # TODO; page pagination
     def get_comments_page_url(self):
         return f'{utils.HOST}api/author/{str(self.author.id)}/posts/{str(self.id)}/comments'
 

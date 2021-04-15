@@ -182,7 +182,6 @@ class FollowersModificationView(generics.RetrieveUpdateDestroyAPIView):
         if (request_author_id == request_foreign_author_id):
             return Response({
                 'error': ['You cannot follow yourself']}, status=status.HTTP_400_BAD_REQUEST)
-        # TODO: Clean up this code
         elif (not self.request.user.adminApproval):
             raise AuthenticationFailed(
                 detail={"error": ["User has not been approved by admin"]})

@@ -20,7 +20,6 @@ def create_payload(item_type, item_id):
     }
     return payload
 
-# TODO: add test cases for Like and Follow
 class TestInboxEndpoint(TestCase):
     """Test Inbox API ://api/author/{AUTHOR_ID}/inbox/
 
